@@ -1,0 +1,26 @@
+- hosts: localhost
+  vars_files:
+    - host_vars/nectar.yaml
+  gather_facts: true
+
+  roles:
+    - role: openstack-common
+    - role: openstack-images
+    - role: openstack-volume
+    - role: openstack-security-group
+    - role: openstack-instance
+    - role: openstack-volume-snapshot
+    
+- hosts: Wordpress
+  vars_files:
+    - host_vars/wordpress.yaml
+  gather_facts: false
+  vars:
+    - ansible_user: ubuntu
+    - ansible_ssh_private_key_file: ~/.ssh/demo.pem
+    - ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+  roles:
+    - role: common
+    - role: volumes
+    - role: docker
+    - role: wordpress
