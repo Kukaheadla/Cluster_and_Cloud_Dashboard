@@ -1,5 +1,5 @@
 ---
-# Create an instance on NeCTAR
+# Create instances on NeCTAR
 - name: Create an instance
   openstack.cloud.server:
     name: '{{ item.name }}'

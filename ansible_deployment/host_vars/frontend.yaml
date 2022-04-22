@@ -5,10 +5,10 @@ volumes:
   - device: /dev/vdc
     mountpoint: /data
 
-wp_dir: wordpress
+flask_app_dir: flask
 
 # Wordpress / MySQL
-database_name: wordpress
-database_user: wordpress
-database_password: wordpress
-mysql_root_password: "P@ssw0rd"
+# database_name: wordpress
+# database_user: wordpress
+# database_password: wordpress
+# mysql_root_password: "P@ssw0rd"

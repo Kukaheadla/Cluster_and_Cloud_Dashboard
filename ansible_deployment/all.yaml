@@ -8,7 +8,9 @@
     - role: openstack-images
     - role: openstack-volume
     - role: openstack-security-group
+    # create instances
     - role: openstack-instance
+    # take volume snapshots
     - role: openstack-volume-snapshot
     
 - hosts: FrontendServer
@@ -23,4 +25,5 @@
     - role: common
     - role: volumes
     - role: docker
-    - role: wordpress
+    # actually deploy the application(s)
+    - role: frontend

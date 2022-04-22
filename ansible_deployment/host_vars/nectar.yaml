@@ -10,10 +10,6 @@ volumes:
     vol_size: 10
   - vol_name: demo-vol-1-2
     vol_size: 10
-  - vol_name: demo-vol-2-1
-    vol_size: 10
-  - vol_name: demo-vol-2-2
-    vol_size: 10
 
 # Security group
 security_groups:
@@ -23,16 +19,15 @@ security_groups:
     port_range_min: 22
     port_range_max: 22
     remote_ip_prefix: 0.0.0.0/0
-  - name: demo_http
-    description: "Demo security group for HTTP"
+  - name: nginx
+    description: "Security group for HTTP/nginx"
     protocol: tcp
     port_range_min: 80
     port_range_max: 80
     remote_ip_prefix: 0.0.0.0/0
 
+
 # Instance
 instances:
-  - name: demo-1
-    volumes: ['demo-vol-1-1', 'demo-vol-1-2']
-  - name: demo-2
-    volumes: ['demo-vol-2-1', 'demo-vol-2-2']
+  - name: web-application
+    volumes: ['web-application-vol-1-1', 'web-application-vol-1-2']
