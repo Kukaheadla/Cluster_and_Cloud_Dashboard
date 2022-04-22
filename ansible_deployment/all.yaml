@@ -11,9 +11,9 @@
     - role: openstack-instance
     - role: openstack-volume-snapshot
     
-- hosts: Wordpress
+- hosts: FrontendServer
   vars_files:
-    - host_vars/wordpress.yaml
+    - host_vars/frontend.yaml
   gather_facts: false
   vars:
     - ansible_user: ubuntu

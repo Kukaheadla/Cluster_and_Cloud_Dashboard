@@ -1,3 +1,7 @@
 [Wordpress]
 
 [Wordpress:vars]
+
+[FrontendServer]
+
+[FrontendServer:vars]
