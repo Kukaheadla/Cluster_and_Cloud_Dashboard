@@ -34,6 +34,6 @@
 - name: Add host
   ansible.builtin.add_host:
     name: '{{ item.openstack.public_v4 }}'
-    groups: Wordpress
+    groups: Frontend
   loop: '{{ os_instance.results }}'
   when: item.openstack is defined

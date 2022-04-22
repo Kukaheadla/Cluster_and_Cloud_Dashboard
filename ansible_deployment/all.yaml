@@ -13,7 +13,7 @@
     # take volume snapshots
     - role: openstack-volume-snapshot
     
-- hosts: FrontendServer
+- hosts: Frontend
   vars_files:
     - host_vars/frontend.yaml
   gather_facts: false
