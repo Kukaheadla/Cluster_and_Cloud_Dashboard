@@ -36,7 +36,7 @@ def init_dashboard(server):
             ),
             html.Div(id="page-content"),
             html.Div(["Input: ", dcc.Input(id="my-input", value="", type="text")]),
-            html.Div(id="my-output")
+            html.Div(id="my-output"),
         ]
     )
 
