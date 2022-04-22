@@ -6,9 +6,9 @@ instance_flavor: uom.mse.2c9g
 
 # Volume
 volumes:
-  - vol_name: demo-vol-1-1
+  - vol_name: web-application-vol-1-1
     vol_size: 10
-  - vol_name: demo-vol-1-2
+  - vol_name: web-application-vol-1-2
     vol_size: 10
 
 # Security group
