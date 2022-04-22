@@ -11,7 +11,7 @@
 - name: Copy files to remote
   become: yes
   copy:
-    src: ../../../../../web_application/
+    src: ../../../../web_application/
     dest: {{ web_app_dir }}/
 
 - name: Configure compose
