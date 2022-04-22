@@ -8,7 +8,7 @@ body {
     background-color: white;;
     padding: 60px;
     padding-top: 10px;
-    outline: red solid 1px;
+    /* outline: red solid 1px; */
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
@@ -36,4 +36,19 @@ nav img {
 nav a:hover {
     color: rgb(144, 0, 255);
     transition-duration: 0.5s;
+}
+
+footer {
+    width: 100%;
+    background-color: black;
+    position: fixed;
+    bottom:0;
+    right:0;
+    color: white;
+    height: 40px;
+}
+
+footer::before {
+    content: "v1.1";
+    padding: 40px;
 }
