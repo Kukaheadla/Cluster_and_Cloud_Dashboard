@@ -1,6 +1,7 @@
-from dash import Dash, html, dcc, Input, Output
+from dash import Dash, html, dcc, Input, Output, dash_table
 import plotly.express as px
 import pandas as pd
+from io import StringIO
 
 
 def init_dashboard(server):
@@ -25,7 +26,7 @@ def init_dashboard(server):
             html.Nav(
                 children=[
                     dcc.Link("🔭 Dashboard", href="/"),
-                    dcc.Link("✇ Tweet List", href="/tweet_list"),
+                    dcc.Link("✇ Recent Tweets", href="/recent_tweet_list"),
                     dcc.Link("📽 About", href="/about"),
                     html.Img(
                         height=120,
@@ -34,16 +35,8 @@ def init_dashboard(server):
                 ]
             ),
             html.Div(id="page-content"),
-            html.H2(children="Dashboard"),
             html.Div(["Input: ", dcc.Input(id="my-input", value="", type="text")]),
             html.Div(id="my-output"),
-            dcc.RadioItems(
-                id="candidate",
-                options=["Joly", "Coderre", "Bergeron"],
-                value="Coderre",
-                inline=True,
-            ),
-            dcc.Graph(id="graph"),
         ]
     )
 
@@ -65,7 +58,61 @@ def test():
     return dcc.Graph(id="example-graph", figure=fig)
 
 
+f = """State,Number of Solar Plants,Installed Capacity (MW),Average MW Per Plant,Generation (GWh)
+California,289,4395,15.3,10826
+Arizona,48,1078,22.5,2550
+Nevada,11,238,21.6,557
+New Mexico,33,261,7.9,590
+Colorado,20,118,5.9,235
+Texas,12,187,15.6,354
+North Carolina,148,669,4.5,1162
+New York,13,53,4.1,84"""
+g = []
+
+
+def get_data():
+    df = pd.read_csv(StringIO(f))
+    return df
+
+
+def test_table():
+    y = get_data()
+    return [
+        html.P(
+            "A list of the most recent tweets, dynamically updated if the harvester is working."
+        ),
+        html.Table(id="live-update-text"),
+        dcc.Interval("interval-component", interval=1 * 2000, n_intervals=0),
+        dash_table.DataTable(
+            y.to_dict("records"), [{"name": i, "id": i} for i in get_data().columns]
+        ),
+    ]
+
+
+def dashboard():
+    return [
+        html.H2(children="Dashboard"),
+        dcc.RadioItems(
+            id="candidate",
+            options=["Joly", "Coderre", "Bergeron"],
+            value="Coderre",
+            inline=True,
+        ),
+        dcc.Graph(id="graph"),
+        test(),
+    ]
+
+
 def register_callbacks(dash_app):
+    @dash_app.callback(
+        Output("live-update-text", "children"),
+        Input("interval-component", "n_intervals"),
+    )
+    def update_metrics(n):
+        global g
+        g.append(html.Tr(html.Td("California,289,4395,15.3,10826\n")))
+        return g
+
     @dash_app.callback(Output("graph", "figure"), Input("candidate", "value"))
     def display_choropleth(candidate):
         df = px.data.election()  # replace with your own data source
@@ -92,5 +139,7 @@ def register_callbacks(dash_app):
 
     @dash_app.callback(Output("page-content", "children"), [Input("url", "pathname")])
     def display_page(pathname):
-        if pathname == "/tweet_list":
-            return test()
+        if pathname == "/recent_tweet_list":
+            return test_table()
+        if pathname == "/dashapp/" or pathname == "/":
+            return dashboard()

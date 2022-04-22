@@ -17,7 +17,7 @@ def init_app():
     app = init_dashboard(app)
 
     @app.route("/")
-    @app.route("/tweet_list")
+    @app.route("/recent_tweet_list")
     @app.route("/about")
     def root(name=None):
         return redirect("/dashapp/")
