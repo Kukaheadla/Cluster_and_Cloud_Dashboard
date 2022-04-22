@@ -17,7 +17,7 @@
 - name: Configure compose
   become: yes
   ansible.builtin.template:
-    src: docker-compose.yaml.j2
+    src: ../../../../web_application/docker-compose.prod.yml
     dest: "{{ web_app_dir }}/docker-compose.prod.yml"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
