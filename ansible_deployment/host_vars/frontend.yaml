@@ -5,7 +5,7 @@ volumes:
   - device: /dev/vdc
     mountpoint: /data
 
-flask_app_dir: flask
+web_app_dir: web
 
 # Wordpress / MySQL
 # database_name: wordpress

@@ -1,25 +1,31 @@
 ---
-- name: Create Wordpress directory
+- name: Create web app file directory
   become: yes
   ansible.builtin.file:
-    path: "{{ wp_dir }}"
+    path: "{{ web_app_dir }}"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     recurse: yes
     state: directory
 
+- name: Copy files to remote
+  become: yes
+  copy:
+    src: ../../../../../web_application/
+    dest: {{ web_app_dir }}/
+
 - name: Configure compose
   become: yes
   ansible.builtin.template:
     src: docker-compose.yaml.j2
-    dest: "{{ wp_dir }}/docker-compose.yaml"
+    dest: "{{ web_app_dir }}/docker-compose.prod.yml"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
 
 - name: Run docker compose
   become: yes
   community.docker.docker_compose:
-    project_src: "{{ wp_dir }}"
+    project_src: "{{ web_app_dir }}"
     pull: yes
     state: present
     remove_orphans: yes
