@@ -5,7 +5,8 @@ from io import StringIO
 from helpers import get_latest_tweets
 from client_api import get_tweet_n
 import re
-
+import melbourne
+import random
 
 def init_dashboard(server):
     """Create a Plotly Dash dashboard."""
@@ -126,15 +127,36 @@ def register_callbacks(dash_app):
     @dash_app.callback(Output("graph", "figure"), Input("candidate", "value"))
     def display_choropleth(candidate):
         df = px.data.election()  # replace with your own data source
+        details = {
+            'name' : ['Cremorne'],
+            'Coderre' : [2300],
+            'total' : [9000],
+            'cartodb_id': [31]
+        }
+
+        # do some hacking around to produce a map of melbourne with hardcoded data
         geojson = px.data.election_geojson()
+        geojson = melbourne.melbourne_geo()
+        for thing in geojson["features"]:
+            if thing["properties"]["name"] not in details["name"]:
+                details["name"] = details["name"] + [thing["properties"]["name"]]
+                details["cartodb_id"] = details["cartodb_id"] + [thing["properties"]["cartodb_id"]]
+        details["Coderre"] = details["Coderre"] * len(details["name"])
+        details["total"] = details["total"] * len(details["name"])
+        for i in range(len(details["total"])-1):
+            details["Coderre"][i] = random.randrange(100, 15000, 1000)
+
+        df = pd.DataFrame(details)
+        # print(geojson)
         fig = px.choropleth(
             df,
             geojson=geojson,
             color=candidate,
-            locations="district",
-            featureidkey="properties.district",
+            locations="name",
+            featureidkey="properties.name",
             projection="mercator",
-            range_color=[0, 6500],
+            range_color=[0, 15500],
+            height=700,
         )
         fig.update_geos(fitbounds="locations", visible=False)
         fig.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
