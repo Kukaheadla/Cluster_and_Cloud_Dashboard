@@ -2,6 +2,9 @@ from dash import Dash, html, dcc, Input, Output, dash_table
 import plotly.express as px
 import pandas as pd
 from io import StringIO
+from helpers import get_latest_tweets
+from client_api import get_tweet_n
+import re
 
 
 def init_dashboard(server):
@@ -71,8 +74,15 @@ g = []
 
 
 def get_data():
-    df = pd.read_csv(StringIO(f))
-    return df
+    latest_tweets = get_latest_tweets()
+    csv_acc = "id,content,time_created\n"
+    for tweet in latest_tweets["results"]:
+        my_tweet = get_tweet_n(tweet['id'])
+        v = re.sub('"', '',my_tweet['key']['doc']['text'])
+        csv_acc = csv_acc + f"{tweet['id']},\"{v}\",{my_tweet['key']['created_at_epoch']}\n"
+    df = pd.read_csv(StringIO(csv_acc))
+    x = df.to_dict("records")
+    return (x,[{"name": i, "id": i} for i in df.columns])
 
 
 def test_table():
@@ -82,9 +92,10 @@ def test_table():
             "A list of the most recent tweets, dynamically updated if the harvester is working."
         ),
         html.Table(id="live-update-text"),
-        dcc.Interval("interval-component", interval=1 * 2000, n_intervals=0),
+        dcc.Interval("interval-component", interval=1 * 5000, n_intervals=0),
         dash_table.DataTable(
-            y.to_dict("records"), [{"name": i, "id": i} for i in get_data().columns]
+           get_data()[0], get_data()[1]
+         ,id="t1",style_cell={'textAlign': 'left'}
         ),
     ]
 
@@ -105,13 +116,12 @@ def dashboard():
 
 def register_callbacks(dash_app):
     @dash_app.callback(
-        Output("live-update-text", "children"),
+        Output("t1", "data"),
         Input("interval-component", "n_intervals"),
     )
     def update_metrics(n):
-        global g
-        g.append(html.Tr(html.Td("California,289,4395,15.3,10826\n")))
-        return g
+        return get_data()[0]
+
 
     @dash_app.callback(Output("graph", "figure"), Input("candidate", "value"))
     def display_choropleth(candidate):

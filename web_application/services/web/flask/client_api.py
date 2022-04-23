@@ -3,18 +3,38 @@ This file contains endpoints and functions relating to client access to the clou
 to e.g. return tweets, or aggregate statistics from couchdb.
 """
 
-from flask import Blueprint
+from flask import Blueprint, request
 from couchdb import Server
-from flaskext.couchdb import Document
+import requests
+import json
+import os
+# couchDB anonymous server connection
 
-couchDBServer = Server()
+username = "admin"
+password = "password"
+
+couchserver = Server(f"{os.getenv('COUCHDB_DATABASE')}/")
+for dbname in couchserver:
+    # print(dbname)
+    pass
+
+db = couchserver["test"]
 
 api_bp = Blueprint("api", __name__)
 
+def get_tweet_n(id):
+    return db[id]
+
+@api_bp.route("/tweets/latest/")
+def get_latest_tweets():
+    r = requests.get(f"{os.getenv('COUCHDB_DATABASE')}/test/_changes?descending=true&limit=10")
+    # print(json.loads(r.content)["results"][0])
+    return r.content
 
 @api_bp.route("/tweet/")
 def get_tweet():
-    return "I am a tweet!"
+    tweet_id = request.args.get("id")
+    return db[tweet_id]
 
 
 @api_bp.route("/sentiments/suburb", methods=["GET"])
