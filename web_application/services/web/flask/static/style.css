@@ -49,6 +49,6 @@ footer {
 }
 
 footer::before {
-    content: "v1.1";
+    content: "v1.3";
     padding: 40px;
 }

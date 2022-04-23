@@ -11,7 +11,7 @@
     # create instances
     - role: openstack-instance
     # take volume snapshots
-    - role: openstack-volume-snapshot
+    # - role: openstack-volume-snapshot
     
 - hosts: Frontend
   vars_files:

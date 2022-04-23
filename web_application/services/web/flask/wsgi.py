@@ -1,5 +1,5 @@
 """
-This file is the entrypoint for wsgi (web server gateway interface) initialisation.
+This file is the entrypoint for wsgi (web server gateway interface) initialisation. etc.
 See: https://flask.palletsprojects.com/en/2.1.x/deploying/uwsgi/
 """
 
