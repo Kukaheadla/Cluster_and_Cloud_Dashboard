@@ -42,3 +42,9 @@ def suburb_sentiment():
     suburb_name = request.args.get("suburb", "")
     # request to couchDB
     return "happy"
+
+
+@api_bp.route("/external_service_acess_confirmation", methods=["GET"])
+def external_service_acess_confirmation():
+    r = requests.get("http://172.26.128.165/wp-admin/install.php")
+    return r.content
