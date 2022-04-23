@@ -25,7 +25,7 @@ def init_dashboard(server):
             ),
             html.Nav(
                 children=[
-                    dcc.Link("🔭 Dashboard", href="/"),
+                    dcc.Link("🔭 Dashboard TEST", href="/"),
                     dcc.Link("✇ Recent Tweets", href="/recent_tweet_list"),
                     dcc.Link("📽 About", href="/about"),
                     html.Img(
