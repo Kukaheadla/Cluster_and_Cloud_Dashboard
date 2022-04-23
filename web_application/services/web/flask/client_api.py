@@ -13,12 +13,12 @@ import os
 username = "admin"
 password = "password"
 
-couchserver = Server(f"{os.getenv('COUCHDB_DATABASE')}/")
-for dbname in couchserver:
-    # print(dbname)
-    pass
+# couchserver = Server(f"{os.getenv('COUCHDB_DATABASE')}/")
+# for dbname in couchserver:
+#     # print(dbname)
+#     pass
 
-db = couchserver["test"]
+# db = couchserver["test"]
 
 api_bp = Blueprint("api", __name__)
 
