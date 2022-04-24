@@ -38,9 +38,16 @@ class TweetListener(StreamingClient):
     StreamingClient allows filtering and sampling of realtime Tweets using Twitter API v2.
     https://docs.tweepy.org/en/latest/streamingclient.html#tweepy.StreamingClient
     """
+    count = 0
+    limit = 3
+    #Defining some variables:
     def on_tweet(self, tweet: Tweet):
         json.dump(dict(tweet.data), fp, cls=DateTimeEncoder)
         print(tweet.__repr__()) #Prints out content of the tweet.
+        TweetListener.count += 1
+        if TweetListener.count >= TweetListener.limit:
+            self.disconnect()
+            fp.close()
 
     def on_request_error(self, status_code):
         print(status_code)
