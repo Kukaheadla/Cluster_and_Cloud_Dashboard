@@ -80,7 +80,7 @@ def get_latest_tweet_data():
     for tweet in latest_tweets["results"]:
         try:
             parsed_tweet = get_tweet_n(tweet["id"])
-            v = re.sub('"', "", parsed_tweet["key"]["doc"]["text"])
+            v = re.sub('"', "", parsed_tweet["doc"]["text"])
             csv_acc = (
                 csv_acc
                 + f"{tweet['id']},\"{v}\",{parsed_tweet['key']['created_at_epoch']}\n"

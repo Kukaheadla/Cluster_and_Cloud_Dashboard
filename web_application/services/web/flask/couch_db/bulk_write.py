@@ -22,7 +22,7 @@ with open(
             i = i + 1
             continue
         try:
-            if i % 10000 == 0:
+            if i % 5000 == 0:
                 db.update(docs_to_send)
                 docs_to_send = []
             epoch_time = int(time.time())
