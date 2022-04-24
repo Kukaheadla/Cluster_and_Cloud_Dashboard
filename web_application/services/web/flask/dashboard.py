@@ -6,10 +6,11 @@ or in response to any other defined trigger.
 """
 from dash import Dash, html, dcc, Input, Output, dash_table
 import plotly.express as px
+import plotly.graph_objs as go
 import pandas as pd
 from io import StringIO
 from helpers import get_latest_tweets
-from client_api import get_tweet_n
+from client_api import get_tweet_n, get_languages_by_time_view
 import re
 import melbourne
 import random
@@ -26,6 +27,10 @@ def init_dashboard(server):
             "/static/style.css",
         ],
     )
+
+    # experimenting with some couchdb graphing
+    new_data = get_languages_by_time_view()
+    fig = go.Figure(data=[go.Scatter(x=list(dict(new_data).keys()), y=[4, 1, 2])])
 
     # dash application initial layout
     dash_app.layout = html.Div(
@@ -47,6 +52,7 @@ def init_dashboard(server):
                 ]
             ),
             html.Div(id="page-content"),
+            dcc.Graph(figure=fig)
         ],
     )
 
