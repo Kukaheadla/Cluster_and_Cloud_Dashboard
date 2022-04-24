@@ -10,7 +10,7 @@ import plotly.graph_objs as go
 import pandas as pd
 from io import StringIO
 from helpers import get_latest_tweets
-from client_api import get_tweet_n
+from client_api import get_tweet_n, get_languages_by_time_view
 import re
 import melbourne
 import random
@@ -29,8 +29,15 @@ def init_dashboard(server):
     )
 
     # experimenting with some couchdb graphing
-    # new_data = get_languages_by_time_view()
-    # fig = go.Figure(data=[go.Scatter(x=list(dict(new_data).keys()), y=[4, 1, 2])])
+    new_data = get_languages_by_time_view()
+    total_counts = []
+    c = 0
+    for val in dict(new_data).values():
+        for t in dict(val).values():
+            c += t
+        total_counts.append(c)
+        c = 0
+    fig = go.Figure(data=[go.Scatter(x=sorted(list(dict(new_data).keys())), y=total_counts)])
 
     # dash application initial layout
     dash_app.layout = html.Div(
@@ -52,7 +59,7 @@ def init_dashboard(server):
                 ]
             ),
             html.Div(id="page-content"),
-            # dcc.Graph(figure=fig),
+            dcc.Graph(figure=fig),
         ],
     )
 
@@ -65,13 +72,13 @@ def init_dashboard(server):
 def test():
     df = pd.DataFrame(
         {
-            "Fruit": ["Apples", "Oranges", "Bananas", "Apples", "Oranges", "Bananas"],
+            "Fruit": ["2014-12-02", "2014-12-03", "2014-12-04", "2014-12-02", "2014-12-03", "2014-12-04"],
             "Amount": [4, 1, 2, 2, 4, 5],
             "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"],
         }
     )
 
-    fig = px.bar(df, x="Fruit", y="Amount", color="City", barmode="group")
+    fig = px.bar(df, x="Fruit", y="Amount", color="City", barmode="stack")
     return dcc.Graph(id="example-graph", figure=fig)
 
 

@@ -24,9 +24,8 @@ db = couchserver["test"]
 
 api_bp = Blueprint("api", __name__)
 
-
+@api_bp.route("/tweets/languages_by_time/")
 # api functions and routes below
-# @api_bp.route("/tweets/languages_by_time/")
 def get_languages_by_time_view():
     """
     map:
@@ -42,15 +41,32 @@ def get_languages_by_time_view():
     """
     acc = defaultdict(lambda: defaultdict(lambda: 0))
     # example of iterating a view
+    months = {
+        "Jan": "01",
+        "Feb": "02",
+        "Mar": "03",
+        "Apr": "04",
+        "May": "05",
+        "Jun": "06",
+        "Jul": "07",
+        "Aug": "08",
+        "Sep": "09",
+        "Oct": "10",
+        "Nov": "11",
+        "Dec": "12"
+    }
     for item in db.view(
         "_design/LanguageInfo/_view/TestView", group=True, group_level=4
     ):
         # where the positions of the keys are derived from the order in the 'emit' function in couchdb
-        date_key = f"{item['key'][1]}-{item['key'][2]}-{item['key'][3]}"
+        date_key = f"{item['key'][1]}-{months[item['key'][2]]}-{item['key'][3]}"
         lang = item["key"][0]
         acc[date_key][lang] = acc[date_key][lang] + item["value"]
     return acc
 
+
+def test1():
+    return get_languages_by_time_view()
 
 def get_tweet_n(id):
     return db[id]

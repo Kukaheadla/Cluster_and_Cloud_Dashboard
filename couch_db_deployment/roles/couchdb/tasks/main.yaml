@@ -1,0 +1,34 @@
+---
+- name: Create web app file directory
+  become: yes
+  ansible.builtin.file:
+    path: "{{ web_app_dir }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+    state: directory
+
+- name: Configure compose
+  become: yes
+  ansible.builtin.template:
+    src: "docker-compose.prod.yml"
+    dest: "{{ web_app_dir }}/docker-compose.prod.yml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+# - name: Run docker compose
+#   become: yes
+#   community.docker.docker_compose:
+#     project_src: "{{ web_app_dir }}"
+#     files:
+#       - "docker-compose.prod.yml"
+#     pull: yes
+#     state: present
+#     remove_orphans: yes
+#     recreate: always
+#     debug: true
+
+- name: Start and build docker
+  become: yes
+  command: "docker-compose -f {{ web_app_dir }}/docker-compose.prod.yml down -v"
+  command: "docker-compose -f {{ web_app_dir }}/docker-compose.prod.yml up -d --build"
