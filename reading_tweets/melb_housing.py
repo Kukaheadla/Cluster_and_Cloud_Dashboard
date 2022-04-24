@@ -21,18 +21,6 @@ user_fields = ["name", "username", "location", "verified", "description"]
 expansions = ["author_id", "entities.mentions.username", "geo.place_id"]
 place_fields = ["contained_within", "country", "country_code", "geo", "name", "full_name"]
 
-####
-class DateTimeEncoder(json.JSONEncoder):
-    def default(self, z):
-        if isinstance(z, datetime.datetime):
-            return (str(z))
-        else:
-            return super().default(z)
-####
-
-if not bearer_token:
-    raise RuntimeError("Not found bearer token")
-
 
 @app.route('/melbourne_test')
 def melb_test():
@@ -49,25 +37,32 @@ def melb_test():
     #print(len(resp.includes["geo.place_id"]))
     if resp.errors:
         raise RuntimeError(resp.errors)
-    with open("output.json", "w") as file: 
+    with open("output.json", "a") as file: 
         if resp.data:
             for tweet in resp.data:
-                tweets.append(json.dumps(dict(resp.data[counter]), cls=DateTimeEncoder))
-                json.dump(dict(resp.data[counter]), file, cls=DateTimeEncoder)
-                print(tweet.__repr__())
+                tmp = dict(resp.data[counter])
+                print(tmp)
+                tmp['created_at'] = str(tmp['created_at'])
+                tweets.append(tmp)
+                #json.dump(tmp, file)
+                #print(tweet.__repr__())
                 counter += 1
 
         while resp.meta["next_token"] and counter < limit:
             resp = client.search_recent_tweets(query, max_results=max_results, next_token=resp.meta["next_token"], 
                 tweet_fields = tweet_fields, user_fields = user_fields)
-            print(resp)
+            #print(resp)
             if resp.errors:
                 raise RuntimeError(resp.errors)
             if resp.data:
                 for tweet in resp.data:
-                    tweets.append(json.dumps(dict(resp.data[counter]), cls=DateTimeEncoder))
-                    json.dump(dict(resp.data[counter]), file, cls=DateTimeEncoder)
-                    print(tweet.__repr__())
+                    tmp = dict(resp.data[counter])
+                    print(tmp)
+                    tmp['created_at'] = str(tmp['created_at'])
+                    tweets.append(tmp)
+                    #tweets.append(json.dumps(dict(resp.data[counter]), cls=DateTimeEncoder))
+                    #json.dump(tmp)
+                    #print(tweet.__repr__())
                     counter += 1
     file.close()
     temp = {"new_edits" : False, "docs" : tweets}
