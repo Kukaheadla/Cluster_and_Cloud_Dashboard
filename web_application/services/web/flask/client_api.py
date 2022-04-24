@@ -42,11 +42,13 @@ def get_languages_by_time_view():
     """
     acc = defaultdict(lambda: defaultdict(lambda: 0))
     # example of iterating a view
-    for item in db.view("_design/LanguageInfo/_view/TestView", group=True, group_level=4):
+    for item in db.view(
+        "_design/LanguageInfo/_view/TestView", group=True, group_level=4
+    ):
         # where the positions of the keys are derived from the order in the 'emit' function in couchdb
         date_key = f"{item['key'][1]}-{item['key'][2]}-{item['key'][3]}"
-        lang = item['key'][0]
-        acc[date_key][lang] = acc[date_key][lang] + item['value']
+        lang = item["key"][0]
+        acc[date_key][lang] = acc[date_key][lang] + item["value"]
     return acc
 
 

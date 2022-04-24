@@ -10,7 +10,7 @@ import plotly.graph_objs as go
 import pandas as pd
 from io import StringIO
 from helpers import get_latest_tweets
-from client_api import get_tweet_n, get_languages_by_time_view
+from client_api import get_tweet_n
 import re
 import melbourne
 import random
@@ -29,8 +29,8 @@ def init_dashboard(server):
     )
 
     # experimenting with some couchdb graphing
-    new_data = get_languages_by_time_view()
-    fig = go.Figure(data=[go.Scatter(x=list(dict(new_data).keys()), y=[4, 1, 2])])
+    # new_data = get_languages_by_time_view()
+    # fig = go.Figure(data=[go.Scatter(x=list(dict(new_data).keys()), y=[4, 1, 2])])
 
     # dash application initial layout
     dash_app.layout = html.Div(
@@ -52,7 +52,7 @@ def init_dashboard(server):
                 ]
             ),
             html.Div(id="page-content"),
-            dcc.Graph(figure=fig)
+            # dcc.Graph(figure=fig),
         ],
     )
 
@@ -86,7 +86,8 @@ def get_latest_tweet_data():
             parsed_tweet = get_tweet_n(tweet["id"])
             v = re.sub('"', "", parsed_tweet["key"]["doc"]["text"])
             csv_acc = (
-                csv_acc + f"{tweet['id']},\"{v}\",{parsed_tweet['key']['created_at_epoch']}\n"
+                csv_acc
+                + f"{tweet['id']},\"{v}\",{parsed_tweet['key']['created_at_epoch']}\n"
             )
         except Exception:
             pass
@@ -106,7 +107,10 @@ def test_table():
         html.Table(id="live-update-text"),
         dcc.Interval("interval-component", interval=1 * 5000, n_intervals=0),
         dash_table.DataTable(
-            get_latest_tweet_data()[0], get_latest_tweet_data()[1], id="t1", style_cell={"textAlign": "left"}
+            get_latest_tweet_data()[0],
+            get_latest_tweet_data()[1],
+            id="t1",
+            style_cell={"textAlign": "left"},
         ),
     ]
 
@@ -132,13 +136,13 @@ def register_callbacks(dash_app):
     """
     Register callbacks with application using decorators.
     """
+
     @dash_app.callback(
         Output("t1", "data"),
         Input("interval-component", "n_intervals"),
     )
     def update_metrics(n):
         return get_latest_tweet_data()[0]
-
 
     @dash_app.callback(Output("graph", "figure"), Input("candidate", "value"))
     def display_choropleth(candidate):
