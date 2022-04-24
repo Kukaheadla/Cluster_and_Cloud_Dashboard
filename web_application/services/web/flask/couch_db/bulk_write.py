@@ -12,14 +12,17 @@ for dbname in couchserver:
 db = couchserver["test"]
 
 i = 0
-with open("C:/Users/xander/Downloads//twitter-melb.json.tar//twitter-melb.json//twitter-melb.json", encoding="utf-8") as file_handle:
+with open(
+    "C:/Users/xander/Downloads//twitter-melb.json.tar/twitter-melb.json//twitter-melb.json",
+    encoding="utf-8",
+) as file_handle:
     for line in file_handle:
         try:
             epoch_time = int(time.time())
             val = json.loads(line[0:-2])
             val["created_at_epoch"] = epoch_time
             key = val["id"]
-            db[key] = {'key': val}
+            db[key] = {"key": val}
         except Exception:
             pass
 

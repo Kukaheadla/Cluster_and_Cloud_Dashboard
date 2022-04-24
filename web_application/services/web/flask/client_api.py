@@ -8,6 +8,7 @@ from couchdb import Server
 import requests
 import json
 import os
+
 # couchDB anonymous server connection
 
 username = "admin"
@@ -22,14 +23,19 @@ password = "password"
 
 api_bp = Blueprint("api", __name__)
 
+
 def get_tweet_n(id):
     return db[id]
 
+
 @api_bp.route("/tweets/latest/")
 def get_latest_tweets():
-    r = requests.get(f"{os.getenv('COUCHDB_DATABASE')}/test/_changes?descending=true&limit=10")
+    r = requests.get(
+        f"{os.getenv('COUCHDB_DATABASE')}/test/_changes?descending=true&limit=10"
+    )
     # print(json.loads(r.content)["results"][0])
     return r.content
+
 
 @api_bp.route("/tweet/")
 def get_tweet():

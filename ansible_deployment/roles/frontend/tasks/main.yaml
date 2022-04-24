@@ -53,7 +53,7 @@
     name: web_web_1
   register: result
 
-- name: Does container exist?
+- name: Does flask container exist?
   debug:
     msg: "The container {{ 'exists' if result.exists else 'does not exist' }}"
 

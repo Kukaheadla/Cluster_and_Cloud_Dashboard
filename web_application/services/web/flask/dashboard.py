@@ -1,3 +1,9 @@
+"""
+This file contains the Dash https://plotly.com/dash/ initialisation code.
+It also contains the functions related to rendering the graphs, and
+the callbacks implemented to update graphs in response to user input
+or in response to any other defined trigger.
+"""
 from dash import Dash, html, dcc, Input, Output, dash_table
 import plotly.express as px
 import pandas as pd
@@ -8,8 +14,11 @@ import re
 import melbourne
 import random
 
+
 def init_dashboard(server):
     """Create a Plotly Dash dashboard."""
+
+    # dash application config
     dash_app = Dash(
         server=server,
         routes_pathname_prefix="/dashapp/",
@@ -18,10 +27,9 @@ def init_dashboard(server):
         ],
     )
 
-    # Create Dash Layout
-    # dash_app.layout = html.Div(id="dash-container")
-
+    # dash application initial layout
     dash_app.layout = html.Div(
+        id="dash-container",
         children=[
             dcc.Location(id="url", refresh=False),
             html.H1(
@@ -41,9 +49,10 @@ def init_dashboard(server):
             html.Div(id="page-content"),
             html.Div(["Input: ", dcc.Input(id="my-input", value="", type="text")]),
             html.Div(id="my-output"),
-        ]
+        ],
     )
 
+    # only register callbacks after app is initialised
     register_callbacks(dash_app)
 
     return dash_app.server
@@ -62,41 +71,33 @@ def test():
     return dcc.Graph(id="example-graph", figure=fig)
 
 
-f = """State,Number of Solar Plants,Installed Capacity (MW),Average MW Per Plant,Generation (GWh)
-California,289,4395,15.3,10826
-Arizona,48,1078,22.5,2550
-Nevada,11,238,21.6,557
-New Mexico,33,261,7.9,590
-Colorado,20,118,5.9,235
-Texas,12,187,15.6,354
-North Carolina,148,669,4.5,1162
-New York,13,53,4.1,84"""
-g = []
-
-
 def get_data():
+    """
+    Gets some of the latest tweets added to the database.
+    """
     latest_tweets = get_latest_tweets()
     csv_acc = "id,content,time_created\n"
     for tweet in latest_tweets["results"]:
-        my_tweet = get_tweet_n(tweet['id'])
-        v = re.sub('"', '',my_tweet['key']['doc']['text'])
-        csv_acc = csv_acc + f"{tweet['id']},\"{v}\",{my_tweet['key']['created_at_epoch']}\n"
+        my_tweet = get_tweet_n(tweet["id"])
+        v = re.sub('"', "", my_tweet["key"]["doc"]["text"])
+        csv_acc = (
+            csv_acc + f"{tweet['id']},\"{v}\",{my_tweet['key']['created_at_epoch']}\n"
+        )
     df = pd.read_csv(StringIO(csv_acc))
     x = df.to_dict("records")
-    return (x,[{"name": i, "id": i} for i in df.columns])
+    return (x, [{"name": i, "id": i} for i in df.columns])
 
 
 def test_table():
     y = get_data()
     return [
         html.P(
-            "A list of the most recent tweets, dynamically updated if the harvester is working."
+            "A list of the most recent tweets, dynamically updated if the harvester is running."
         ),
         html.Table(id="live-update-text"),
         dcc.Interval("interval-component", interval=1 * 5000, n_intervals=0),
         dash_table.DataTable(
-           get_data()[0], get_data()[1]
-         ,id="t1",style_cell={'textAlign': 'left'}
+            get_data()[0], get_data()[1], id="t1", style_cell={"textAlign": "left"}
         ),
     ]
 
@@ -123,15 +124,14 @@ def register_callbacks(dash_app):
     def update_metrics(n):
         return get_data()[0]
 
-
     @dash_app.callback(Output("graph", "figure"), Input("candidate", "value"))
     def display_choropleth(candidate):
         df = px.data.election()  # replace with your own data source
         details = {
-            'name' : ['Cremorne'],
-            'Coderre' : [2300],
-            'total' : [9000],
-            'cartodb_id': [31]
+            "name": ["Cremorne"],
+            "Coderre": [2300],
+            "total": [9000],
+            "cartodb_id": [31],
         }
 
         # do some hacking around to produce a map of melbourne with hardcoded data
@@ -140,10 +140,12 @@ def register_callbacks(dash_app):
         for thing in geojson["features"]:
             if thing["properties"]["name"] not in details["name"]:
                 details["name"] = details["name"] + [thing["properties"]["name"]]
-                details["cartodb_id"] = details["cartodb_id"] + [thing["properties"]["cartodb_id"]]
+                details["cartodb_id"] = details["cartodb_id"] + [
+                    thing["properties"]["cartodb_id"]
+                ]
         details["Coderre"] = details["Coderre"] * len(details["name"])
         details["total"] = details["total"] * len(details["name"])
-        for i in range(len(details["total"])-1):
+        for i in range(len(details["total"]) - 1):
             details["Coderre"][i] = random.randrange(100, 15000, 1000)
 
         df = pd.DataFrame(details)
