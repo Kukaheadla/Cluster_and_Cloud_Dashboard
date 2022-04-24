@@ -1,0 +1,606 @@
+{
+  "docs": [
+    {
+      "author_id": 2845525092, 
+      "context_annotations": [
+        {
+          "domain": {
+            "description": "Entity Service related Events domain", 
+            "id": "29", 
+            "name": "Events [Entity Service]"
+          }, 
+          "entity": {
+            "id": "1514213975398920196", 
+            "name": "Australian Federal Election 2022"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Cities around the world", 
+            "id": "156", 
+            "name": "Cities"
+          }, 
+          "entity": {
+            "description": "Melbourne", 
+            "id": "855110285568299008", 
+            "name": "Melbourne"
+          }
+        }
+      ], 
+      "conversation_id": 1518217843959275520, 
+      "created_at": "2022-04-24 13:18:35+00:00", 
+      "entities": {
+        "hashtags": [
+          {
+            "end": 233, 
+            "start": 223, 
+            "tag": "Melbourne"
+          }, 
+          {
+            "end": 243, 
+            "start": 234, 
+            "tag": "springst"
+          }, 
+          {
+            "end": 251, 
+            "start": 244, 
+            "tag": "auspol"
+          }, 
+          {
+            "end": 260, 
+            "start": 252, 
+            "tag": "ortolan"
+          }, 
+          {
+            "end": 279, 
+            "start": 261, 
+            "tag": "TheOrtolanParadox"
+          }
+        ]
+      }, 
+      "id": 1518217843959275520, 
+      "lang": "en", 
+      "text": "A four day weekend (this time, without kids visiting - domestic chores...and working on my book, with almost a full chapter written since yesterday morning (nearing 60% finished).\n\nI need booze. That's tomorrow's project \ud83e\udd23\n#Melbourne #springst #auspol #ortolan #TheOrtolanParadox"
+    }, 
+    {
+      "author_id": 1440308929045557249, 
+      "conversation_id": 1518217791001833475, 
+      "created_at": "2022-04-24 13:18:23+00:00", 
+      "entities": {
+        "urls": [
+          {
+            "description": "Embraer, one of the largest aerospace companies in the world, is now hiring for more than 150 open positions at its Melbourne, Florida facility. The company is hiring for multiple positions including Assembly Technicians, A&P Technicians, Aircraft Painters, Quality Inspectors and Manufacturing Engineers.", 
+            "display_url": "spacecoastdaily.com/2022/04/embrae\u2026", 
+            "end": 23, 
+            "expanded_url": "https://spacecoastdaily.com/2022/04/embraer-has-150-open-positions-at-melbourne-facility-hiring-event-set-april-21-in-rockledge/", 
+            "images": [
+              {
+                "height": 331, 
+                "url": "https://pbs.twimg.com/news_img/1516632822483673089/dJVynIyW?format=jpg&name=orig", 
+                "width": 600
+              }, 
+              {
+                "height": 150, 
+                "url": "https://pbs.twimg.com/news_img/1516632822483673089/dJVynIyW?format=jpg&name=150x150", 
+                "width": 150
+              }
+            ], 
+            "start": 0, 
+            "status": 200, 
+            "title": "Embraer Has 150 Open Positions at Melbourne Facility, Hiring Event Set April 21 in Rockledge - Space Coast Daily", 
+            "unwound_url": "https://spacecoastdaily.com/2022/04/embraer-has-150-open-positions-at-melbourne-facility-hiring-event-set-april-21-in-rockledge/", 
+            "url": "https://t.co/aLnEUXeLoC"
+          }
+        ]
+      }, 
+      "id": 1518217791001833475, 
+      "lang": "und", 
+      "text": "https://t.co/aLnEUXeLoC"
+    }, 
+    {
+      "author_id": 868830205824991233, 
+      "context_annotations": [
+        {
+          "domain": {
+            "description": "Cities around the world", 
+            "id": "156", 
+            "name": "Cities"
+          }, 
+          "entity": {
+            "description": "Melbourne", 
+            "id": "855110285568299008", 
+            "name": "Melbourne"
+          }
+        }
+      ], 
+      "conversation_id": 1518217756491251713, 
+      "created_at": "2022-04-24 13:18:14+00:00", 
+      "entities": {
+        "mentions": [
+          {
+            "end": 17, 
+            "id": "1456025947719622661", 
+            "start": 3, 
+            "username": "strangerous10"
+          }
+        ]
+      }, 
+      "id": 1518217756491251713, 
+      "lang": "en", 
+      "text": "RT @strangerous10: DID YOU KNOW?\nIn 2018 Nationals Senator Bridget McKenzie charged tax payers $19,942 to fly from Rockhampton to Melbourne\u2026"
+    }, 
+    {
+      "author_id": 1517253095440400386, 
+      "context_annotations": [
+        {
+          "domain": {
+            "description": "Named people in the world like Nelson Mandela", 
+            "id": "10", 
+            "name": "Person"
+          }, 
+          "entity": {
+            "id": "1386738022788464640", 
+            "name": "DjMaRiiO"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Influencers who create content on digital platforms", 
+            "id": "120", 
+            "name": "Digital Creator"
+          }, 
+          "entity": {
+            "id": "1386738022788464640", 
+            "name": "DjMaRiiO"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Cities around the world", 
+            "id": "156", 
+            "name": "Cities"
+          }, 
+          "entity": {
+            "description": "Melbourne", 
+            "id": "855110285568299008", 
+            "name": "Melbourne"
+          }
+        }
+      ], 
+      "conversation_id": 1518217287387463680, 
+      "created_at": "2022-04-24 13:17:55+00:00", 
+      "entities": {
+        "mentions": [
+          {
+            "end": 9, 
+            "id": "202535200", 
+            "start": 0, 
+            "username": "DjMaRiiO"
+          }
+        ]
+      }, 
+      "id": 1518217675054460928, 
+      "lang": "es", 
+      "text": "@DjMaRiiO Recuerdos de Melbourne"
+    }, 
+    {
+      "author_id": 2358750260, 
+      "context_annotations": [
+        {
+          "domain": {
+            "description": "Named people in the world like Nelson Mandela", 
+            "id": "10", 
+            "name": "Person"
+          }, 
+          "entity": {
+            "description": "Novak Djokovic", 
+            "id": "809505068248494080", 
+            "name": "Novak Djokovic"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "An athlete in the world, like Serena Williams or Lionel Messi", 
+            "id": "60", 
+            "name": "Athlete"
+          }, 
+          "entity": {
+            "description": "Novak Djokovic", 
+            "id": "809505068248494080", 
+            "name": "Novak Djokovic"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Cities around the world", 
+            "id": "156", 
+            "name": "Cities"
+          }, 
+          "entity": {
+            "description": "Melbourne", 
+            "id": "855110285568299008", 
+            "name": "Melbourne"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Cities around the world", 
+            "id": "156", 
+            "name": "Cities"
+          }, 
+          "entity": {
+            "description": "london", 
+            "id": "855412191050121217", 
+            "name": "London"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Cities around the world", 
+            "id": "156", 
+            "name": "Cities"
+          }, 
+          "entity": {
+            "description": "New York City", 
+            "id": "907978531350519809", 
+            "name": "New York City"
+          }
+        }
+      ], 
+      "conversation_id": 1518217523753324546, 
+      "created_at": "2022-04-24 13:17:19+00:00", 
+      "entities": {
+        "mentions": [
+          {
+            "end": 16, 
+            "id": "1450745253372125184", 
+            "start": 3, 
+            "username": "FunnySerbian"
+          }
+        ]
+      }, 
+      "id": 1518217523753324546, 
+      "lang": "en", 
+      "text": "RT @FunnySerbian: Imagine if Melbourne, Paris, NYC and London could all greet a finalist like this \u2026 oh yea sorry, not gonna happen \ud83d\ude02\ud83d\udc4c\ud83c\udffb Bra\u2026"
+    }, 
+    {
+      "author_id": 125475807, 
+      "context_annotations": [
+        {
+          "domain": {
+            "description": "A sports team organization, like Arsenal and the Boston Celtics", 
+            "id": "12", 
+            "name": "Sports Team"
+          }, 
+          "entity": {
+            "id": "1438505211740311568", 
+            "name": "Richmond FC"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "", 
+            "id": "26", 
+            "name": "Sports League"
+          }, 
+          "entity": {
+            "description": "Australian Football League", 
+            "id": "1095350207254908930", 
+            "name": "(AFL) Australian Football League"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Cities around the world", 
+            "id": "156", 
+            "name": "Cities"
+          }, 
+          "entity": {
+            "description": "Melbourne", 
+            "id": "855110285568299008", 
+            "name": "Melbourne"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Entity Service related Events domain", 
+            "id": "29", 
+            "name": "Events [Entity Service]"
+          }, 
+          "entity": {
+            "id": "1501325396532346886", 
+            "name": "AFL top commentary (do not delete)"
+          }
+        }
+      ], 
+      "conversation_id": 1518217520594898944, 
+      "created_at": "2022-04-24 13:17:18+00:00", 
+      "entities": {
+        "annotations": [
+          {
+            "end": 31, 
+            "normalized_text": "Clayton Oliver", 
+            "probability": 0.9504, 
+            "start": 18, 
+            "type": "Person"
+          }, 
+          {
+            "end": 54, 
+            "normalized_text": "Melbourne", 
+            "probability": 0.8537, 
+            "start": 46, 
+            "type": "Organization"
+          }, 
+          {
+            "end": 152, 
+            "normalized_text": "Richmond", 
+            "probability": 0.4405, 
+            "start": 145, 
+            "type": "Place"
+          }
+        ], 
+        "hashtags": [
+          {
+            "end": 186, 
+            "start": 172, 
+            "tag": "AFLTigersDees"
+          }
+        ], 
+        "mentions": [
+          {
+            "end": 171, 
+            "id": "408205060", 
+            "start": 159, 
+            "username": "RonnyLerner"
+          }
+        ], 
+        "urls": [
+          {
+            "description": "As a carefree kid, Richmond defender Nick Vlastuin thought his \u201cOpa\u201d was \u201ca tough old bastard\u201d.", 
+            "display_url": "bit.ly/3OqeRRT", 
+            "end": 210, 
+            "expanded_url": "https://bit.ly/3OqeRRT", 
+            "images": [
+              {
+                "height": 720, 
+                "url": "https://pbs.twimg.com/news_img/1517733843255455744/lwj2r-_P?format=jpg&name=orig", 
+                "width": 1280
+              }, 
+              {
+                "height": 150, 
+                "url": "https://pbs.twimg.com/news_img/1517733843255455744/lwj2r-_P?format=jpg&name=150x150", 
+                "width": 150
+              }
+            ], 
+            "start": 187, 
+            "status": 200, 
+            "title": "Sacrifice, special privilege all part of key Tiger\u2019s night", 
+            "unwound_url": "https://www.codesports.com.au/afl/afl-2022-richmond-v-melbourne-all-the-news-scores-and-reaction-from-the-round-6-clash/news-story/f76b6fa5d19b72700d2581512568d44c", 
+            "url": "https://t.co/fUwrQimEJU"
+          }
+        ]
+      }, 
+      "id": 1518217520594898944, 
+      "lang": "en", 
+      "text": "Led by a colossal Clayton Oliver performance, Melbourne has overcome first-half inaccuracy to extend its unbeaten sequence by swamping a wilting Richmond.\n\n\u270d\ufe0f @RonnyLerner #AFLTigersDees https://t.co/fUwrQimEJU"
+    }, 
+    {
+      "author_id": 3251364835, 
+      "context_annotations": [
+        {
+          "domain": {
+            "description": "A grouping of interests and hobbies entities, like Novelty Food or Destinations", 
+            "id": "66", 
+            "name": "Interests and Hobbies Category"
+          }, 
+          "entity": {
+            "description": "Cryptocurrency", 
+            "id": "913142676819648512", 
+            "name": "Cryptocurrencies"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Cities around the world", 
+            "id": "156", 
+            "name": "Cities"
+          }, 
+          "entity": {
+            "description": "Melbourne", 
+            "id": "855110285568299008", 
+            "name": "Melbourne"
+          }
+        }
+      ], 
+      "conversation_id": 1518217513942802432, 
+      "created_at": "2022-04-24 13:17:17+00:00", 
+      "entities": {
+        "mentions": [
+          {
+            "end": 17, 
+            "id": "1912647890", 
+            "start": 3, 
+            "username": "CryptoKronnos"
+          }
+        ]
+      }, 
+      "id": 1518217513942802432, 
+      "lang": "en", 
+      "text": "RT @CryptoKronnos: Check out the BEANS NFT project. Based on the popular Dumb Ways to Die brand and backed by PlaySide a Melbourne based ga\u2026"
+    }, 
+    {
+      "author_id": 1526127656, 
+      "context_annotations": [
+        {
+          "domain": {
+            "description": "Cities around the world", 
+            "id": "156", 
+            "name": "Cities"
+          }, 
+          "entity": {
+            "description": "Melbourne", 
+            "id": "855110285568299008", 
+            "name": "Melbourne"
+          }
+        }
+      ], 
+      "conversation_id": 1518217040426790915, 
+      "created_at": "2022-04-24 13:17:13+00:00", 
+      "entities": {
+        "annotations": [
+          {
+            "end": 49, 
+            "normalized_text": "Melbourne", 
+            "probability": 0.9858, 
+            "start": 41, 
+            "type": "Place"
+          }
+        ], 
+        "mentions": [
+          {
+            "end": 14, 
+            "id": "1573863385", 
+            "start": 0, 
+            "username": "DeadlineDavis"
+          }
+        ]
+      }, 
+      "id": 1518217498667089920, 
+      "lang": "en", 
+      "text": "@DeadlineDavis He lasted an extra lap in Melbourne"
+    }, 
+    {
+      "author_id": 800260556, 
+      "conversation_id": 1518217420233912320, 
+      "created_at": "2022-04-24 13:16:54+00:00", 
+      "entities": {
+        "mentions": [
+          {
+            "end": 12, 
+            "id": "22993014", 
+            "start": 3, 
+            "username": "9NewsAUS"
+          }
+        ]
+      }, 
+      "id": 1518217420233912320, 
+      "lang": "en", 
+      "text": "RT @9NewsAUS: Federal Labor is being slammed as \"desperate and racist\" over a new attack ad targeting a Liberal MP in one of Australia's mo\u2026"
+    }, 
+    {
+      "author_id": 521499023, 
+      "context_annotations": [
+        {
+          "domain": {
+            "id": "6", 
+            "name": "Sports Event"
+          }, 
+          "entity": {
+            "description": "The F1 World Championship takes to the track at the Autodromo Enzo e Dino Ferrari. ", 
+            "id": "1511029141180588033", 
+            "name": "Emilia Romagna Grand Prix 2022"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Types of sports, like soccer and basketball", 
+            "id": "11", 
+            "name": "Sport"
+          }, 
+          "entity": {
+            "description": "Racing", 
+            "id": "1058103880376971264", 
+            "name": "Racing"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "", 
+            "id": "26", 
+            "name": "Sports League"
+          }, 
+          "entity": {
+            "description": "Formula 1", 
+            "id": "854701577994616832", 
+            "name": "Formula 1"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Entity Service related Events domain", 
+            "id": "29", 
+            "name": "Events [Entity Service]"
+          }, 
+          "entity": {
+            "description": "The F1 World Championship takes to the track at the Autodromo Enzo e Dino Ferrari. ", 
+            "id": "1511029141180588033", 
+            "name": "Emilia Romagna Grand Prix 2022"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "A sports team organization, like Arsenal and the Boston Celtics", 
+            "id": "12", 
+            "name": "Sports Team"
+          }, 
+          "entity": {
+            "description": "Mercedes AMG F1", 
+            "id": "854709695772217344", 
+            "name": "Mercedes AMG F1"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "", 
+            "id": "26", 
+            "name": "Sports League"
+          }, 
+          "entity": {
+            "description": "Formula 1", 
+            "id": "854701577994616832", 
+            "name": "Formula 1"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Cities around the world", 
+            "id": "156", 
+            "name": "Cities"
+          }, 
+          "entity": {
+            "description": "Melbourne", 
+            "id": "855110285568299008", 
+            "name": "Melbourne"
+          }
+        }, 
+        {
+          "domain": {
+            "description": "Entity Service related Events domain", 
+            "id": "29", 
+            "name": "Events [Entity Service]"
+          }, 
+          "entity": {
+            "description": " ", 
+            "id": "993861377084162052", 
+            "name": "Formula 1 Live Show"
+          }
+        }
+      ], 
+      "conversation_id": 1518217388017295361, 
+      "created_at": "2022-04-24 13:16:47+00:00", 
+      "entities": {
+        "hashtags": [
+          {
+            "end": 107, 
+            "start": 99, 
+            "tag": "ImolaGP"
+          }
+        ]
+      }, 
+      "id": 1518217388017295361, 
+      "lang": "en", 
+      "text": "Mercedes can\u2019t qualify but they have found their race pace in Melbourne and early on here in Imola #ImolaGP"
+    }
+  ], 
+  "new_edits": false
+}
