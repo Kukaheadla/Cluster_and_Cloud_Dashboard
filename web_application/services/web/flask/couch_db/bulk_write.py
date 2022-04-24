@@ -1,10 +1,10 @@
-from couchdb import Server
+from couchdb import Server, Document
 
 import json
 import time
 
 # couchDB anonymous server connection
-couchserver = Server("http://admin:password@localhost:5984/")
+couchserver = Server("http://admin:password@172.26.129.203:5984/")
 for dbname in couchserver:
     # print(dbname)
     pass
@@ -12,6 +12,7 @@ for dbname in couchserver:
 db = couchserver["test"]
 
 i = 0
+docs_to_send = []
 with open(
     "C:/Users/xander/Downloads/twitter-melb.json.tar/twitter-melb.json/twitter-melb.json",
     encoding="utf-8",
@@ -21,13 +22,18 @@ with open(
             i = i + 1
             continue
         try:
+            if i % 10000 == 0:
+                db.update(docs_to_send)
+                docs_to_send = []
             epoch_time = int(time.time())
             val = json.loads(line[0:-2])
             val["created_at_epoch"] = epoch_time
             key = val["id"]
-            db[key] = {"key": val}
-        except Exception:
-            print("cexc")
+
+            docs_to_send.append(val)
+            # db[key] = {"key": val}
+        except Exception as e:
+            print(str(e))
             pass
 
         i = i + 1

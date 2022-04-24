@@ -28,16 +28,6 @@ def init_dashboard(server):
         ],
     )
 
-    # experimenting with some couchdb graphing
-    new_data = get_languages_by_time_view()
-    total_counts = []
-    c = 0
-    for val in dict(new_data).values():
-        for t in dict(val).values():
-            c += t
-        total_counts.append(c)
-        c = 0
-    fig = go.Figure(data=[go.Scatter(x=sorted(list(dict(new_data).keys())), y=total_counts)])
 
     # dash application initial layout
     dash_app.layout = html.Div(
@@ -59,7 +49,6 @@ def init_dashboard(server):
                 ]
             ),
             html.Div(id="page-content"),
-            dcc.Graph(figure=fig),
         ],
     )
 
@@ -126,6 +115,17 @@ def dashboard():
     """
     Main functions for the dashboard should go here (but not callbacks)
     """
+    # experimenting with some couchdb graphing
+    new_data = get_languages_by_time_view()
+    total_counts = []
+    c = 0
+    for val in dict(new_data).values():
+        for t in dict(val).values():
+            c += t
+        total_counts.append(c)
+        c = 0
+    fig = go.Figure(data=[go.Scatter(x=sorted(list(dict(new_data).keys())), y=total_counts)])
+
     return [
         html.H2(children="Dashboard"),
         dcc.RadioItems(
@@ -136,6 +136,7 @@ def dashboard():
         ),
         dcc.Graph(id="graph"),
         test(),
+        dcc.Graph(figure=fig),
     ]
 
 
