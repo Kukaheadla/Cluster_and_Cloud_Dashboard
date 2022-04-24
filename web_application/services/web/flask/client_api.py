@@ -8,20 +8,43 @@ from couchdb import Server
 import requests
 import json
 import os
+from collections import defaultdict
 
 # couchDB anonymous server connection
 
 username = "admin"
 password = "password"
 
-# couchserver = Server(f"{os.getenv('COUCHDB_DATABASE')}/")
-# for dbname in couchserver:
-#     # print(dbname)
-#     pass
+couchserver = Server(f"{os.getenv('COUCHDB_DATABASE')}/")
+for dbname in couchserver:
+    # print(dbname)
+    pass
 
-# db = couchserver["test"]
+db = couchserver["test"]
 
 api_bp = Blueprint("api", __name__)
+
+
+# api functions and routes below
+@api_bp.route("/tweets/languages_by_time/")
+def get_languages_by_time_view():
+    """
+    map:
+        function (document) {
+            const [day, month, month_date, time, offset, year] = document.key.doc.created_at.split(" ");
+            const lang = document.key.doc.lang;
+            emit([lang, year, month, month_date], 1);
+        }
+    reduce:
+        _count
+    """
+    acc = defaultdict(lambda: defaultdict(lambda: 0))
+    # example of iterating a view
+    for item in db.view("_design/LanguageInfo/_view/TestView", group=True, group_level=4):
+        date_key = f"{item['key'][1]}-{item['key'][2]}-{item['key'][3]}"
+        lang = item['key'][0]
+        acc[date_key][lang] = acc[date_key][lang] + item['value']
+    return acc
 
 
 def get_tweet_n(id):

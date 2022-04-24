@@ -47,8 +47,6 @@ def init_dashboard(server):
                 ]
             ),
             html.Div(id="page-content"),
-            html.Div(["Input: ", dcc.Input(id="my-input", value="", type="text")]),
-            html.Div(id="my-output"),
         ],
     )
 
@@ -71,25 +69,30 @@ def test():
     return dcc.Graph(id="example-graph", figure=fig)
 
 
-def get_data():
+def get_latest_tweet_data():
     """
     Gets some of the latest tweets added to the database.
     """
     latest_tweets = get_latest_tweets()
     csv_acc = "id,content,time_created\n"
     for tweet in latest_tweets["results"]:
-        my_tweet = get_tweet_n(tweet["id"])
-        v = re.sub('"', "", my_tweet["key"]["doc"]["text"])
-        csv_acc = (
-            csv_acc + f"{tweet['id']},\"{v}\",{my_tweet['key']['created_at_epoch']}\n"
-        )
+        try:
+            parsed_tweet = get_tweet_n(tweet["id"])
+            v = re.sub('"', "", parsed_tweet["key"]["doc"]["text"])
+            csv_acc = (
+                csv_acc + f"{tweet['id']},\"{v}\",{parsed_tweet['key']['created_at_epoch']}\n"
+            )
+        except Exception:
+            pass
     df = pd.read_csv(StringIO(csv_acc))
     x = df.to_dict("records")
     return (x, [{"name": i, "id": i} for i in df.columns])
 
 
 def test_table():
-    y = get_data()
+    """
+    Just a test to show the latest tweets in a table.
+    """
     return [
         html.P(
             "A list of the most recent tweets, dynamically updated if the harvester is running."
@@ -97,12 +100,15 @@ def test_table():
         html.Table(id="live-update-text"),
         dcc.Interval("interval-component", interval=1 * 5000, n_intervals=0),
         dash_table.DataTable(
-            get_data()[0], get_data()[1], id="t1", style_cell={"textAlign": "left"}
+            get_latest_tweet_data()[0], get_latest_tweet_data()[1], id="t1", style_cell={"textAlign": "left"}
         ),
     ]
 
 
 def dashboard():
+    """
+    Main functions for the dashboard should go here (but not callbacks)
+    """
     return [
         html.H2(children="Dashboard"),
         dcc.RadioItems(
@@ -117,12 +123,16 @@ def dashboard():
 
 
 def register_callbacks(dash_app):
+    """
+    Register callbacks with application using decorators.
+    """
     @dash_app.callback(
         Output("t1", "data"),
         Input("interval-component", "n_intervals"),
     )
     def update_metrics(n):
-        return get_data()[0]
+        return get_latest_tweet_data()[0]
+
 
     @dash_app.callback(Output("graph", "figure"), Input("candidate", "value"))
     def display_choropleth(candidate):
@@ -135,6 +145,7 @@ def register_callbacks(dash_app):
         }
 
         # do some hacking around to produce a map of melbourne with hardcoded data
+        # todo: replace
         geojson = px.data.election_geojson()
         geojson = melbourne.melbourne_geo()
         for thing in geojson["features"]:
