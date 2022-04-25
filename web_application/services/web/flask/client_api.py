@@ -65,8 +65,6 @@ def get_languages_by_time_view():
         # print(item)
         date_key = f"{item['key'][1]}-{months[item['key'][2]]}"
         if date_key == "2017-06":
-            print("------")
-            print(item["key"])
             continue
         lang = item["key"][0]
         # print(date_key, str(item["value"]))

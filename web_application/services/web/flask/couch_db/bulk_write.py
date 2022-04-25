@@ -18,11 +18,11 @@ with open(
     encoding="utf-8",
 ) as file_handle:
     for line in file_handle:
-        if i <= 20000:
+        if i <= 309997:
             i = i + 1
             continue
         try:
-            if i % 2500 == 0:
+            if i % 250 == 0:
                 db.update(docs_to_send)
                 docs_to_send = []
             epoch_time = int(time.time())
@@ -38,6 +38,4 @@ with open(
             pass
 
         i = i + 1
-        if i > 200000:
-            break
 print(str(i))

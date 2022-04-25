@@ -38,7 +38,7 @@ def init_dashboard(server):
             ),
             html.Nav(
                 children=[
-                    dcc.Link("🔭 Dashboard TEST2", href="/"),
+                    dcc.Link("🔭 Dashboard", href="/"),
                     dcc.Link("✇ Recent Tweets", href="/recent_tweet_list"),
                     dcc.Link("📽 About", href="/about"),
                     html.Img(
@@ -71,35 +71,14 @@ def test(new_data, total_counts):
             languages.append(key1)
     df = pd.DataFrame(
         {
-            "Fruit": fruits,
+            "Month": fruits,
             "Amount": amounts,
             "Language": languages,
         }
     )
-    # fruits = []
-    # amounts = []
-    # languages = []
-    # bars = []
-    # c_name = None
-    # for key,val in dict(new_data).items():
-    #     fruits.append(key)
-    # print(fruits)
+    df['Normalised'] = df['Amount'] / df.groupby('Month')['Amount'].transform('sum')
 
-    # for key,val in dict(new_data).items():
-    #     # print(key, len(val))
-    #     for key1,val1 in dict(val).items():
-    #         # print(key1,val1)
-    #         # amounts must be ALL the y values for a language
-    #         amounts.append(val1)
-    #         languages.append(key1)
-    #         c_name = key1
-
-    #     bars.append(go.Bar(name=c_name, x=fruits, y=[600]*len(fruits)))
-
-    #     amounts = []
-    #     languages = []
-
-    fig = px.bar(df, x="Fruit", y="Amount", color="Language", barmode="stack")
+    fig = px.bar(df, x="Month", y="Normalised", color="Language", barmode="stack", title="Figure. Diversity of Tweet languages by Month")
     # fig = go.Figure(data=bars)
     # fig.update_layout(barmode='stack')
     return dcc.Graph(id="example-graph", figure=fig)
