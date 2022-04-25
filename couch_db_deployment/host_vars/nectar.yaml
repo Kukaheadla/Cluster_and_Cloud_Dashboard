@@ -29,7 +29,7 @@ security_groups:
 
 # Instance
 instances:
-  - name: couchdb_primary
+  - name: couchdb_main
     volumes: ['couchdb-vol-1-1']
   - name: couchdb_secondary
     volumes: ['couchdb-vol-2-1']

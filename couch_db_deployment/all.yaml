@@ -27,3 +27,16 @@
     - role: docker
     # actually deploy the application(s)
     - role: couchdb
+
+
+# - hosts: couchdb_main
+#   vars_files:
+#     - host_vars/couchdb.yaml
+#   gather_facts: false
+#   vars:
+#     - ansible_user: ubuntu
+#     - ansible_ssh_private_key_file: ~/.ssh/demo.pem
+#     - ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+#   roles:
+#     # configure cluster mode
+#     - role: couchdb-cluster
