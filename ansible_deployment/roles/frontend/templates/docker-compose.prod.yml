@@ -13,7 +13,7 @@ services:
     expose:
       - 5000
     environment:
-      - COUCHDB_DATABASE=http://admin:password@172.26.129.203:5984
+      - COUCHDB_DATABASE=http://admin:password@172.26.132.25:5984
       - COUCHDB_DATABASE_NAME=test
       - COUCHDB_USERNAME=admin
   nginx:
