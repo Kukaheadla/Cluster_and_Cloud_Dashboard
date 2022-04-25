@@ -3,6 +3,13 @@ This file contains the Dash https://plotly.com/dash/ initialisation code.
 It also contains the functions related to rendering the graphs, and
 the callbacks implemented to update graphs in response to user input
 or in response to any other defined trigger.
+
+Initial author: Alex 
+
+The functions you can expect to find here relate to rendering (at a high level, i.e. declaratively)
+the dashboard components. All dashboard items will result in queries to the CouchDB database,
+so you must be mindful of any performance issues with doing is. If necessary, 'hide' your function
+behind a user interaction such as navigating to a specific page.
 """
 from dash import Dash, html, dcc, Input, Output, dash_table
 import plotly.express as px
@@ -38,7 +45,7 @@ def init_dashboard(server):
             ),
             html.Nav(
                 children=[
-                    dcc.Link("🔭 Dashboard", href="/"),
+                    dcc.Link("🌎 Dashboard", href="/"),
                     dcc.Link("✇ Recent Tweets", href="/recent_tweet_list"),
                     dcc.Link("📽 About", href="/about"),
                     html.Img(
@@ -57,23 +64,25 @@ def init_dashboard(server):
     return dash_app.server
 
 
-def test(new_data, total_counts):
-    fruits = []
+def language_frequency_graph(data):
+    """
+    Displays a language frequency stacked bar chart.
+    """
+    dates = []
     amounts = []
     languages = []
-
-    for key, val in dict(new_data).items():
-        # print(key, len(val))
-        fruits = fruits + ([key] * (len(val) - 2))
-        for key1, val1 in dict(val).items():
-            if key1 == "en" or key1 == "und":
+    for date, lang_date_frequencies in dict(data).items():
+        dates = dates + ([date] * (len(lang_date_frequencies) - 1))
+        for key1, val1 in dict(lang_date_frequencies).items():
+            # remove undefined
+            if key1 == "und":
                 continue
-            # print(key1,val1)
             amounts.append(val1)
             languages.append(key1)
+
     df = pd.DataFrame(
         {
-            "Month": fruits,
+            "Month": dates,
             "Amount": amounts,
             "Language": languages,
         }
@@ -88,17 +97,15 @@ def test(new_data, total_counts):
         y="Normalised Frequency",
         color="Language",
         barmode="stack",
-        title="Figure. Diversity of Non-English Tweet languages by Month",
         height=1000,
     )
-    # fig = go.Figure(data=bars)
-    # fig.update_layout(barmode='stack')
     return dcc.Graph(id="example-graph", figure=fig)
 
 
 def get_latest_tweet_data():
     """
     Gets some of the latest tweets added to the database.
+    This is an example of reading data in a csv.
     """
     latest_tweets = get_latest_tweets()
     csv_acc = "id,content,time_created\n"
@@ -107,23 +114,24 @@ def get_latest_tweet_data():
             parsed_tweet = get_tweet_n(tweet["id"])
             v = re.sub('"', "", parsed_tweet["doc"]["text"])
             csv_acc = (
-                csv_acc
-                + f"{tweet['id']},\"{v}\",{parsed_tweet['key']['created_at_epoch']}\n"
+                csv_acc + f"{tweet['id']},\"{v}\",{parsed_tweet['created_at_epoch']}\n"
             )
         except Exception:
             pass
-    df = pd.read_csv(StringIO(csv_acc))
-    x = df.to_dict("records")
-    return (x, [{"name": i, "id": i} for i in df.columns])
+    df = pd.read_csv(StringIO(csv_acc)).sort_values("id")
+    return (df.to_dict("records"), [{"name": i, "id": i} for i in df.columns])
 
 
-def test_table():
+def recent_tweets_written_to_db_table():
     """
     Just a test to show the latest tweets in a table.
     """
     return [
         html.P(
             "A list of the most recent tweets, dynamically updated if the harvester is running."
+        ),
+        html.P(
+            "This allows you to see that the database is being updated and also the kinds of tweets we are working with. Note that even when not updating sometimes the order may jump around a bit."
         ),
         html.Table(id="live-update-text"),
         dcc.Interval("interval-component", interval=1 * 5000, n_intervals=0),
@@ -136,34 +144,46 @@ def test_table():
     ]
 
 
-def dashboard():
+def render_dashboard():
     """
     Main functions for the dashboard should go here (but not callbacks)
     """
     # experimenting with some couchdb graphing
-    new_data = get_languages_by_time_view()
+    languages_by_date_view = (
+        get_languages_by_time_view()
+    )  # note that you can vary the grouping level in the couchDB query
     total_counts = []
     c = 0
-    for val in dict(new_data).values():
+    for val in dict(languages_by_date_view).values():
         for t in dict(val).values():
             c += t
         total_counts.append(c)
         c = 0
+
     sf = sorted(
-        list(dict(new_data).keys()),
+        list(dict(languages_by_date_view).keys()),
         key=lambda x: (x.split("-")[0], int(x.split("-")[1])),
     )
+
+    # 'scatterplot' but in reality the lines are joined so it looks like a line chart
     fig = go.Figure(data=[go.Scatter(x=sf, y=total_counts)])
 
+    # return the children for the main render function
     return [
-        html.H2(children="Dashboard"),
+        html.H2(children="Main Dashboard"),
+        html.P("The following data is extracted from the CouchDB database."),
+        html.H2("Figure 2. Tweet Frequencies grouped by Month in Database"),
         html.P(
             "Diversity of languages in Melbourne can be regarded as a proxy livability figure with respect to the desirability of the city (under a few key assumptions)."
             + "\nEnglish clearly dominates the language skyline of Melbourne across time (make sure to click the 'en' square in the legend to disable English and have a more interesting picture!)"
             + "\nHas this changed across the years? Do the most recent Tweets of 2022 show any difference in patterns?",
             style={"textAlign": "center"},
         ),
-        test(new_data, total_counts),
+        language_frequency_graph(languages_by_date_view),
+        html.H2("Figure 2. Tweet Frequencies grouped by Month in Database"),
+        html.P(
+            "Note that while each value is the range across the entire month, not just the month's first day."
+        ),
         dcc.Graph(figure=fig),
         dcc.RadioItems(
             id="candidate",
@@ -178,6 +198,9 @@ def dashboard():
 def register_callbacks(dash_app):
     """
     Register callbacks with application using decorators.
+
+    A callback is a function called on some kind of interaction, where that could be a user action,
+    the loading of a page, or an interval set by the runtime.
     """
 
     @dash_app.callback(
@@ -213,7 +236,6 @@ def register_callbacks(dash_app):
             details["Coderre"][i] = random.randrange(100, 15000, 1000)
 
         df = pd.DataFrame(details)
-        # print(geojson)
         fig = px.choropleth(
             df,
             geojson=geojson,
@@ -238,6 +260,6 @@ def register_callbacks(dash_app):
     @dash_app.callback(Output("page-content", "children"), [Input("url", "pathname")])
     def display_page(pathname):
         if pathname == "/recent_tweet_list":
-            return test_table()
+            return recent_tweets_written_to_db_table()
         if pathname == "/dashapp/" or pathname == "/":
-            return dashboard()
+            return render_dashboard()

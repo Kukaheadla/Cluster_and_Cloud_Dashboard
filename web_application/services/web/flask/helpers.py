@@ -8,6 +8,6 @@ password = "password"
 
 def get_latest_tweets():
     r = requests.get(
-        f"{os.getenv('COUCHDB_DATABASE')}/test/_changes?descending=true&limit=30"
+        f"{os.getenv('COUCHDB_DATABASE')}/test2/_changes?descending=true&limit=30"
     )
     return json.loads(r.content)

@@ -10,6 +10,16 @@ body {
     padding-top: 10px;
     /* outline: red solid 1px; */
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    color: rgb(57, 57, 57);
+}
+
+body h1 {
+    background-color: black;
+    color: white;
+    margin:0;
+    padding-top: 40px;
+    padding-bottom:40px;
+    padding: 20px;
 }
 
 nav {
@@ -49,6 +59,7 @@ footer {
 }
 
 footer::before {
-    content: "v1.4";
-    padding: 40px;
+    content: "v1.5";
+    padding: 2px;
+    font-size: 18px;
 }
