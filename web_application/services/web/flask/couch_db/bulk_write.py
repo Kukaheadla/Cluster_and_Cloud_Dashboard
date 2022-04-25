@@ -18,7 +18,7 @@ with open(
     encoding="utf-8",
 ) as file_handle:
     for line in file_handle:
-        if i <= 892249:
+        if i <= 2500009:
             i = i + 1
             continue
         try:

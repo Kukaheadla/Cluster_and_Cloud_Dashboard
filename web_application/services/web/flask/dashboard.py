@@ -64,8 +64,10 @@ def test(new_data, total_counts):
 
     for key, val in dict(new_data).items():
         # print(key, len(val))
-        fruits = fruits + ([key] * len(val))
+        fruits = fruits + ([key] * (len(val) - 2))
         for key1, val1 in dict(val).items():
+            if key1 == "en" or key1 == "und":
+                continue
             # print(key1,val1)
             amounts.append(val1)
             languages.append(key1)
@@ -76,9 +78,19 @@ def test(new_data, total_counts):
             "Language": languages,
         }
     )
-    df['Normalised Frequency'] = df['Amount'] / df.groupby('Month')['Amount'].transform('sum')
+    df["Normalised Frequency"] = df["Amount"] / df.groupby("Month")["Amount"].transform(
+        "sum"
+    )
 
-    fig = px.bar(df, x="Month", y="Normalised Frequency", color="Language", barmode="stack", title="Figure. Diversity of Tweet languages by Month", height=1000)
+    fig = px.bar(
+        df,
+        x="Month",
+        y="Normalised Frequency",
+        color="Language",
+        barmode="stack",
+        title="Figure. Diversity of Non-English Tweet languages by Month",
+        height=1000,
+    )
     # fig = go.Figure(data=bars)
     # fig.update_layout(barmode='stack')
     return dcc.Graph(id="example-graph", figure=fig)
@@ -137,7 +149,6 @@ def dashboard():
             c += t
         total_counts.append(c)
         c = 0
-    print(total_counts)
     sf = sorted(
         list(dict(new_data).keys()),
         key=lambda x: (x.split("-")[0], int(x.split("-")[1])),
@@ -146,14 +157,15 @@ def dashboard():
 
     return [
         html.H2(children="Dashboard"),
-        html.P("Diversity of languages in Melbourne can be regarded as a proxy livability figure with respect to the desirability of the city (under a few key assumptions)."
-         + "\nEnglish clearly dominates the language skyline of Melbourne across time (make sure to click the 'en' square in the legend to disable English and have a more interesting picture!)"
-         + "\nHas this changed across the years? Do the most recent Tweets of 2022 show any difference in patterns?", style={
-            "textAlign": "center"
-        }),
+        html.P(
+            "Diversity of languages in Melbourne can be regarded as a proxy livability figure with respect to the desirability of the city (under a few key assumptions)."
+            + "\nEnglish clearly dominates the language skyline of Melbourne across time (make sure to click the 'en' square in the legend to disable English and have a more interesting picture!)"
+            + "\nHas this changed across the years? Do the most recent Tweets of 2022 show any difference in patterns?",
+            style={"textAlign": "center"},
+        ),
         test(new_data, total_counts),
         dcc.Graph(figure=fig),
-                dcc.RadioItems(
+        dcc.RadioItems(
             id="candidate",
             options=["Joly", "Coderre", "Bergeron"],
             value="Coderre",
