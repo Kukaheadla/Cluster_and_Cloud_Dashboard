@@ -30,8 +30,8 @@ def get_languages_by_time_view():
     """
     map:
         function (document) {
-            const [day, month, month_date, time, offset, year] = document.key.doc.created_at.split(" ");
-            const lang = document.key.doc.lang;
+            const [day, month, month_date, time, offset, year] = document.doc.created_at.split(" ");
+            const lang = document.doc.lang;
             emit([lang, year, month, month_date], 1);
         }
     reduce:

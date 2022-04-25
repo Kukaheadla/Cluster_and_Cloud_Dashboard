@@ -18,9 +18,9 @@ with open(
     encoding="utf-8",
 ) as file_handle:
     for line in file_handle:
-        if i <= 43679:
-            i = i + 1
-            continue
+        # if i <= 43679:
+        #     i = i + 1
+        #     continue
         try:
             if i % 5000 == 0:
                 db.update(docs_to_send)
