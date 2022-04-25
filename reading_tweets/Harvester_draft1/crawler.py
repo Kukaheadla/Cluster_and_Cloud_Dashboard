@@ -108,11 +108,11 @@ def main_search(tweet_lst, id_lst):
             tmp = dict(resp.data[counter])
             print(tweet.__repr__())
             #Check to see if the tweet has been posted before:
-            if tmp["id"] not in id_lst:
+            if str(tmp["id"]) not in id_lst:
                 tmp['created_at'] = str(tmp['created_at'])
                 #Need to check if the ids match:
                 tweet_lst.append(tmp)
-                id_lst.append(tmp["id"])
+                id_lst.append(str(tmp["id"]))
                 #json.dump(tmp, fp)
             counter += 1
             
@@ -127,11 +127,11 @@ def main_search(tweet_lst, id_lst):
             for tweet in resp.data:
                 tmp = dict(resp.data[counter])
                 print(tweet.__repr__())
-                if tmp["id"] not in id_lst:
+                if str(tmp["id"]) not in id_lst:
                     tmp['created_at'] = str(tmp['created_at'])
                     #First check if the ids match:
                     tweet_lst.append(tmp)
-                    id_lst.append(tmp["id"])
+                    id_lst.append(str(tmp["id"]))
                     #json.dump(tmp, fp)
                 counter += 1
     #temp = {"new_edits" : False, "docs" : tweets}
