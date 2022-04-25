@@ -1,0 +1,595 @@
+[
+  {
+    "attachments": {},
+    "author_id": "1251848055269163008",
+    "conversation_id": "1518547017051807745",
+    "created_at": "2022-04-25T11:12:51.000Z",
+    "entities": {
+      "mentions": [
+        {
+          "start": 0,
+          "end": 12,
+          "username": "PhilGould15",
+          "id": "999921929233489926"
+        }
+      ]
+    },
+    "geo": {},
+    "id": "1518548587848019969",
+    "lang": "en",
+    "text": "@PhilGould15 So if each team is working to the salary cap, what other factors contribute to these sort of scorelines Gus? Better coaching/staff?\n\nIt isn't a great advertisement for the game, let me give you the tip."
+  },
+  {
+    "attachments": {},
+    "author_id": "1440189535",
+    "conversation_id": "1518547750140485634",
+    "created_at": "2022-04-25T11:12:51.000Z",
+    "entities": {
+      "mentions": [
+        {
+          "start": 0,
+          "end": 9,
+          "username": "nzherald",
+          "id": "14765253"
+        }
+      ]
+    },
+    "geo": {},
+    "id": "1518548590733705216",
+    "lang": "eu",
+    "text": "@nzherald koretake"
+  },
+  {
+    "context_annotations": [
+      {
+        "domain": {
+          "id": "3",
+          "name": "TV Shows",
+          "description": "Television shows from around the world"
+        },
+        "entity": {
+          "id": "10000277815",
+          "name": "English Premier League Soccer",
+          "description": "Action from English Premier League Soccer matches."
+        }
+      },
+      {
+        "domain": {
+          "id": "3",
+          "name": "TV Shows",
+          "description": "Television shows from around the world"
+        },
+        "entity": {
+          "id": "10027427957",
+          "name": "Barclays Premier League Football",
+          "description": "Live coverage of a Saturday night match from the Premier League."
+        }
+      },
+      {
+        "domain": {
+          "id": "3",
+          "name": "TV Shows",
+          "description": "Television shows from around the world"
+        },
+        "entity": {
+          "id": "10029304591",
+          "name": "Barclays Premier League Soccer"
+        }
+      },
+      {
+        "domain": {
+          "id": "12",
+          "name": "Sports Team",
+          "description": "A sports team organization, like Arsenal and the Boston Celtics"
+        },
+        "entity": {
+          "id": "1438187700935225344",
+          "name": "Melbourne Storm"
+        }
+      },
+      {
+        "domain": {
+          "id": "156",
+          "name": "Cities",
+          "description": "Cities around the world"
+        },
+        "entity": {
+          "id": "855110285568299008",
+          "name": "Melbourne",
+          "description": "Melbourne"
+        }
+      }
+    ],
+    "conversation_id": 1518548570755899400,
+    "lang": "en",
+    "entities": {
+      "mentions": [
+        {
+          "start": 3,
+          "end": 19,
+          "username": "BradWalterSport",
+          "id": "20757610"
+        }
+      ],
+      "annotations": [
+        {
+          "start": 25,
+          "end": 39,
+          "probability": 0.7358,
+          "type": "Organization",
+          "normalized_text": "Melbourne Storm"
+        },
+        {
+          "start": 45,
+          "end": 53,
+          "probability": 0.6575,
+          "type": "Place",
+          "normalized_text": "Australia"
+        }
+      ]
+    },
+    "id": 1518548570755899400,
+    "text": "RT @BradWalterSport: The Melbourne Storm are Australia’s greatest sporting club. Every season they are genuine premiership contenders. At t…",
+    "author_id": 1554762541,
+    "created_at": "2022-04-25 11:12:47+00:00"
+  },
+  {
+    "context_annotations": [
+      {
+        "domain": {
+          "id": "156",
+          "name": "Cities",
+          "description": "Cities around the world"
+        },
+        "entity": {
+          "id": "855110285568299008",
+          "name": "Melbourne",
+          "description": "Melbourne"
+        }
+      }
+    ],
+    "conversation_id": 1518548561885266000,
+    "lang": "en",
+    "entities": {
+      "mentions": [
+        {
+          "start": 3,
+          "end": 11,
+          "username": "PRGuy17",
+          "id": "1238370241169616897"
+        }
+      ]
+    },
+    "id": 1518548561885266000,
+    "text": "RT @PRGuy17: Clive Palmer's UAP has called police after local Melbourne man Lucky Lance, who's become a hero for exposing far-right fraudst…",
+    "author_id": 3042081751,
+    "created_at": "2022-04-25 11:12:45+00:00"
+  },
+  {
+    "context_annotations": [
+      {
+        "domain": {
+          "id": "156",
+          "name": "Cities",
+          "description": "Cities around the world"
+        },
+        "entity": {
+          "id": "855110285568299008",
+          "name": "Melbourne",
+          "description": "Melbourne"
+        }
+      }
+    ],
+    "conversation_id": 1518548561801412600,
+    "lang": "en",
+    "id": 1518548561801412600,
+    "text": "Brownie the coach has now matched his playing record v Storm  in Melbourne that's weird",
+    "author_id": 33894639,
+    "created_at": "2022-04-25 11:12:45+00:00"
+  },
+  {
+    "conversation_id": 1518548545238085600,
+    "lang": "en",
+    "entities": {
+      "mentions": [
+        {
+          "start": 3,
+          "end": 16,
+          "username": "LuckyOZBloke",
+          "id": "175922206"
+        },
+        {
+          "start": 18,
+          "end": 32,
+          "username": "AndrewPStreet",
+          "id": "27594032"
+        },
+        {
+          "start": 33,
+          "end": 47,
+          "username": "Monocotyledon",
+          "id": "20580887"
+        }
+      ]
+    },
+    "id": 1518548545238085600,
+    "text": "RT @LuckyOZBloke: @AndrewPStreet @Monocotyledon Morrison chose &amp; has persisted with Deves knowing full well that she’s got zip chance in Wa…",
+    "author_id": 16924832,
+    "created_at": "2022-04-25 11:12:41+00:00"
+  },
+  {
+    "context_annotations": [
+      {
+        "domain": {
+          "id": "156",
+          "name": "Cities",
+          "description": "Cities around the world"
+        },
+        "entity": {
+          "id": "855108741594718208",
+          "name": "Adelaide",
+          "description": "Adelaide"
+        }
+      },
+      {
+        "domain": {
+          "id": "156",
+          "name": "Cities",
+          "description": "Cities around the world"
+        },
+        "entity": {
+          "id": "855109903752454145",
+          "name": "Sydney",
+          "description": "Sydney"
+        }
+      },
+      {
+        "domain": {
+          "id": "156",
+          "name": "Cities",
+          "description": "Cities around the world"
+        },
+        "entity": {
+          "id": "855110285568299008",
+          "name": "Melbourne",
+          "description": "Melbourne"
+        }
+      }
+    ],
+    "entities": {
+      "urls": [
+        {
+          "start": 90,
+          "end": 113,
+          "url": "https://t.co/wnFEO6fEsK",
+          "expanded_url": "https://twitter.com/PL4NES__/status/1518548538170372096/photo/1",
+          "display_url": "pic.twitter.com/wnFEO6fEsK"
+        },
+        {
+          "start": 90,
+          "end": 113,
+          "url": "https://t.co/wnFEO6fEsK",
+          "expanded_url": "https://twitter.com/PL4NES__/status/1518548538170372096/photo/1",
+          "display_url": "pic.twitter.com/wnFEO6fEsK"
+        },
+        {
+          "start": 90,
+          "end": 113,
+          "url": "https://t.co/wnFEO6fEsK",
+          "expanded_url": "https://twitter.com/PL4NES__/status/1518548538170372096/photo/1",
+          "display_url": "pic.twitter.com/wnFEO6fEsK"
+        }
+      ],
+      "annotations": [
+        {
+          "start": 64,
+          "end": 71,
+          "probability": 0.6756,
+          "type": "Place",
+          "normalized_text": "Adelaide"
+        },
+        {
+          "start": 73,
+          "end": 88,
+          "probability": 0.3604,
+          "type": "Place",
+          "normalized_text": "Melbourne-Sydney"
+        }
+      ]
+    },
+    "conversation_id": 1518548538170372000,
+    "lang": "en",
+    "id": 1518548538170372000,
+    "text": "Had a bit of time today to do some flying in the sim. Completed Adelaide-Melbourne-Sydney https://t.co/wnFEO6fEsK",
+    "attachments": {
+      "media_keys": [
+        "3_1518548490653102080",
+        "3_1518548490657226752",
+        "3_1518548490653110273"
+      ]
+    },
+    "author_id": 3543608112,
+    "created_at": "2022-04-25 11:12:39+00:00"
+  },
+  {
+    "context_annotations": [
+      {
+        "domain": {
+          "id": "156",
+          "name": "Cities",
+          "description": "Cities around the world"
+        },
+        "entity": {
+          "id": "855110285568299008",
+          "name": "Melbourne",
+          "description": "Melbourne"
+        }
+      }
+    ],
+    "conversation_id": 1518547232186052600,
+    "lang": "en",
+    "entities": {
+      "mentions": [
+        {
+          "start": 0,
+          "end": 8,
+          "username": "ellapk3",
+          "id": "624588217"
+        }
+      ]
+    },
+    "id": 1518548486148530200,
+    "text": "@ellapk3 Just insane what happened. Melbourne are too good and we just saw what will happen if teams give up against this team.",
+    "author_id": 71950692,
+    "created_at": "2022-04-25 11:12:27+00:00"
+  },
+  {
+    "context_annotations": [
+      {
+        "domain": {
+          "id": "12",
+          "name": "Sports Team",
+          "description": "A sports team organization, like Arsenal and the Boston Celtics"
+        },
+        "entity": {
+          "id": "1438188378252406784",
+          "name": "Vodafone Warriors"
+        }
+      },
+      {
+        "domain": {
+          "id": "156",
+          "name": "Cities",
+          "description": "Cities around the world"
+        },
+        "entity": {
+          "id": "855110285568299008",
+          "name": "Melbourne",
+          "description": "Melbourne"
+        }
+      }
+    ],
+    "entities": {
+      "urls": [
+        {
+          "start": 72,
+          "end": 95,
+          "url": "https://t.co/q85XvoTpUd",
+          "expanded_url": "https://twitter.com/NZWarriors/status/1518548058471944192/photo/1",
+          "display_url": "pic.twitter.com/q85XvoTpUd"
+        }
+      ],
+      "mentions": [
+        {
+          "start": 3,
+          "end": 14,
+          "username": "NZWarriors",
+          "id": "126434795"
+        },
+        {
+          "start": 42,
+          "end": 51,
+          "username": "GSHOCKNZ",
+          "id": "180259684"
+        },
+        {
+          "start": 58,
+          "end": 71,
+          "username": "PhotosportNZ",
+          "id": "1380911922"
+        }
+      ],
+      "annotations": [
+        {
+          "start": 31,
+          "end": 39,
+          "probability": 0.9516,
+          "type": "Place",
+          "normalized_text": "Melbourne"
+        }
+      ]
+    },
+    "conversation_id": 1518548480943263700,
+    "lang": "en",
+    "id": 1518548480943263700,
+    "text": "RT @NZWarriors: Record loss in Melbourne\n\n@GSHOCKNZ FT\n\n📸 @PhotosportNZ https://t.co/q85XvoTpUd",
+    "attachments": {
+      "media_keys": [
+        "3_1518547949373952000"
+      ]
+    },
+    "author_id": 703453783552974800,
+    "created_at": "2022-04-25 11:12:25+00:00"
+  },
+  {
+    "entities": {
+      "urls": [
+        {
+          "start": 48,
+          "end": 71,
+          "url": "https://t.co/72RU0EwodU",
+          "expanded_url": "https://treizemondial.fr/nrl-2022-round-7-melbourne-storm-70-10-nz-warriors/",
+          "display_url": "treizemondial.fr/nrl-2022-round…",
+          "images": [
+            {
+              "url": "https://pbs.twimg.com/news_img/1518548522181828608/F0p2Mx9W?format=png&name=orig",
+              "width": 800,
+              "height": 445
+            },
+            {
+              "url": "https://pbs.twimg.com/news_img/1518548522181828608/F0p2Mx9W?format=png&name=150x150",
+              "width": 150,
+              "height": 150
+            }
+          ],
+          "status": 200,
+          "title": "NRL 2022 - Round 7 : Melbourne Storm 70 - 10 NZ Warriors",
+          "description": "Le Melbourne Storm corrige les NZ Warriors 70 à 10 lors du Round 7 de la NRL 2022.",
+          "unwound_url": "https://treizemondial.fr/nrl-2022-round-7-melbourne-storm-70-10-nz-warriors/"
+        }
+      ]
+    },
+    "conversation_id": 1518548477822832600,
+    "lang": "fr",
+    "id": 1518548477822832600,
+    "text": "Une seconde période extraordinaire du Storm ⚡️\n\nhttps://t.co/72RU0EwodU",
+    "author_id": 288129141,
+    "created_at": "2022-04-25 11:12:25+00:00"
+  },
+  {
+    "context_annotations": [
+      {
+        "domain": {
+          "id": "12",
+          "name": "Sports Team",
+          "description": "A sports team organization, like Arsenal and the Boston Celtics"
+        },
+        "entity": {
+          "id": "1438188378252406784",
+          "name": "Vodafone Warriors"
+        }
+      },
+      {
+        "domain": {
+          "id": "156",
+          "name": "Cities",
+          "description": "Cities around the world"
+        },
+        "entity": {
+          "id": "855110285568299008",
+          "name": "Melbourne",
+          "description": "Melbourne"
+        }
+      }
+    ],
+    "entities": {
+      "urls": [
+        {
+          "start": 72,
+          "end": 95,
+          "url": "https://t.co/q85XvoTpUd",
+          "expanded_url": "https://twitter.com/NZWarriors/status/1518548058471944192/photo/1",
+          "display_url": "pic.twitter.com/q85XvoTpUd"
+        }
+      ],
+      "mentions": [
+        {
+          "start": 3,
+          "end": 14,
+          "username": "NZWarriors",
+          "id": "126434795"
+        },
+        {
+          "start": 42,
+          "end": 51,
+          "username": "GSHOCKNZ",
+          "id": "180259684"
+        },
+        {
+          "start": 58,
+          "end": 71,
+          "username": "PhotosportNZ",
+          "id": "1380911922"
+        }
+      ],
+      "annotations": [
+        {
+          "start": 31,
+          "end": 39,
+          "probability": 0.9516,
+          "type": "Place",
+          "normalized_text": "Melbourne"
+        }
+      ]
+    },
+    "conversation_id": 1518548449863499800,
+    "lang": "en",
+    "id": 1518548449863499800,
+    "text": "RT @NZWarriors: Record loss in Melbourne\n\n@GSHOCKNZ FT\n\n📸 @PhotosportNZ https://t.co/q85XvoTpUd",
+    "attachments": {
+      "media_keys": [
+        "3_1518547949373952000"
+      ]
+    },
+    "author_id": 97888828,
+    "created_at": "2022-04-25 11:12:18+00:00"
+  },
+  {
+    "context_annotations": [
+      {
+        "domain": {
+          "id": "12",
+          "name": "Sports Team",
+          "description": "A sports team organization, like Arsenal and the Boston Celtics"
+        },
+        "entity": {
+          "id": "1438187700935225344",
+          "name": "Melbourne Storm"
+        }
+      },
+      {
+        "domain": {
+          "id": "156",
+          "name": "Cities",
+          "description": "Cities around the world"
+        },
+        "entity": {
+          "id": "855110285568299008",
+          "name": "Melbourne",
+          "description": "Melbourne"
+        }
+      }
+    ],
+    "conversation_id": 1518548406980935700,
+    "lang": "en",
+    "id": 1518548406980935700,
+    "text": "At least Melbourne Storm win on ANZAC Day. Not that the NZ Warriors are much chop, with all respect.",
+    "entities": {
+      "annotations": [
+        {
+          "start": 9,
+          "end": 23,
+          "probability": 0.7221,
+          "type": "Organization",
+          "normalized_text": "Melbourne Storm"
+        },
+        {
+          "start": 32,
+          "end": 40,
+          "probability": 0.6031,
+          "type": "Other",
+          "normalized_text": "ANZAC Day"
+        },
+        {
+          "start": 56,
+          "end": 66,
+          "probability": 0.6728,
+          "type": "Organization",
+          "normalized_text": "NZ Warriors"
+        }
+      ]
+    },
+    "author_id": 186618581,
+    "created_at": "2022-04-25 11:12:08+00:00"
+  }
+]
