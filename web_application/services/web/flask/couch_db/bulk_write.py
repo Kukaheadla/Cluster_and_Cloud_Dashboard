@@ -9,7 +9,7 @@ for dbname in couchserver:
     # print(dbname)
     pass
 
-db = couchserver["test"]
+db = couchserver["test2"]
 
 i = 0
 docs_to_send = []
@@ -18,15 +18,16 @@ with open(
     encoding="utf-8",
 ) as file_handle:
     for line in file_handle:
-        if i <= 1539998:
+        if i <= 20000:
             i = i + 1
             continue
         try:
-            if i % 5000 == 0:
+            if i % 2500 == 0:
                 db.update(docs_to_send)
                 docs_to_send = []
             epoch_time = int(time.time())
             val = json.loads(line[0:-2])
+            del val["key"]
             val["created_at_epoch"] = epoch_time
             key = val["id"]
 
@@ -37,6 +38,6 @@ with open(
             pass
 
         i = i + 1
-        # if i > 20:
-        #     break
+        if i > 200000:
+            break
 print(str(i))

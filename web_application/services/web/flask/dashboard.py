@@ -28,7 +28,6 @@ def init_dashboard(server):
         ],
     )
 
-
     # dash application initial layout
     dash_app.layout = html.Div(
         id="dash-container",
@@ -58,16 +57,51 @@ def init_dashboard(server):
     return dash_app.server
 
 
-def test():
+def test(new_data, total_counts):
+    fruits = []
+    amounts = []
+    languages = []
+
+    for key, val in dict(new_data).items():
+        # print(key, len(val))
+        fruits = fruits + ([key] * len(val))
+        for key1, val1 in dict(val).items():
+            # print(key1,val1)
+            amounts.append(val1)
+            languages.append(key1)
     df = pd.DataFrame(
         {
-            "Fruit": ["2014-12-02", "2014-12-03", "2014-12-04", "2014-12-02", "2014-12-03", "2014-12-04"],
-            "Amount": [4, 1, 2, 2, 4, 5],
-            "City": ["SF", "SF", "SF", "Montreal", "Montreal", "Montreal"],
+            "Fruit": fruits,
+            "Amount": amounts,
+            "Language": languages,
         }
     )
+    # fruits = []
+    # amounts = []
+    # languages = []
+    # bars = []
+    # c_name = None
+    # for key,val in dict(new_data).items():
+    #     fruits.append(key)
+    # print(fruits)
 
-    fig = px.bar(df, x="Fruit", y="Amount", color="City", barmode="stack")
+    # for key,val in dict(new_data).items():
+    #     # print(key, len(val))
+    #     for key1,val1 in dict(val).items():
+    #         # print(key1,val1)
+    #         # amounts must be ALL the y values for a language
+    #         amounts.append(val1)
+    #         languages.append(key1)
+    #         c_name = key1
+
+    #     bars.append(go.Bar(name=c_name, x=fruits, y=[600]*len(fruits)))
+
+    #     amounts = []
+    #     languages = []
+
+    fig = px.bar(df, x="Fruit", y="Amount", color="Language", barmode="stack")
+    # fig = go.Figure(data=bars)
+    # fig.update_layout(barmode='stack')
     return dcc.Graph(id="example-graph", figure=fig)
 
 
@@ -125,7 +159,10 @@ def dashboard():
         total_counts.append(c)
         c = 0
     print(total_counts)
-    sf = sorted(list(dict(new_data).keys()), key=lambda x: (x.split("-")[0], int(x.split("-")[1])))
+    sf = sorted(
+        list(dict(new_data).keys()),
+        key=lambda x: (x.split("-")[0], int(x.split("-")[1])),
+    )
     fig = go.Figure(data=[go.Scatter(x=sf, y=total_counts)])
 
     return [
@@ -137,7 +174,7 @@ def dashboard():
             inline=True,
         ),
         dcc.Graph(id="graph"),
-        test(),
+        test(new_data, total_counts),
         dcc.Graph(figure=fig),
     ]
 

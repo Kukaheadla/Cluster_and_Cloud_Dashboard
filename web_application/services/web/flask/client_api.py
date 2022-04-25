@@ -20,9 +20,10 @@ for dbname in couchserver:
     # print(dbname)
     pass
 
-db = couchserver["test"]
+db = couchserver["test2"]
 
 api_bp = Blueprint("api", __name__)
+
 
 @api_bp.route("/tweets/languages_by_time/")
 # api functions and routes below
@@ -30,7 +31,9 @@ def get_languages_by_time_view():
     """
     map:
         function (document) {
+            // e.g. "Wed Jul 20 11:59:07 +0000 2011"
             const [day, month, month_date, time, offset, year] = document.doc.created_at.split(" ");
+            // const [city,year,month,day] = document.key
             const lang = document.doc.lang;
             emit([lang, year, month, month_date], 1);
         }
@@ -53,20 +56,27 @@ def get_languages_by_time_view():
         "Sep": "09",
         "Oct": "10",
         "Nov": "11",
-        "Dec": "12"
+        "Dec": "12",
     }
     for item in db.view(
-        "_design/LanguageInfo/_view/TestView", group=True, group_level=3, limit=100
+        "_design/LanguageInfo/_view/TestView", group=True, group_level=3
     ):
         # where the positions of the keys are derived from the order in the 'emit' function in couchdb
-        date_key = f"{item['key'][1]}-{item['key'][2]}"
+        # print(item)
+        date_key = f"{item['key'][1]}-{months[item['key'][2]]}"
+        if date_key == "2017-06":
+            print("------")
+            print(item["key"])
+            continue
         lang = item["key"][0]
+        # print(date_key, str(item["value"]))
         acc[date_key][lang] = acc[date_key][lang] + item["value"]
     return acc
 
 
 def test1():
     return get_languages_by_time_view()
+
 
 def get_tweet_n(id):
     return db[id]
