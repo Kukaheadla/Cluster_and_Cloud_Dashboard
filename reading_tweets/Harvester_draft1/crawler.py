@@ -29,7 +29,7 @@ access_token_secret = os.environ.get("TWITTER_ACCESS_SECRET")
 ##
 
 #An optional file to read the tweets to:
-fp = open("tweets.json", "a")
+fp = open("tweets.json", "w")
 
 app = Flask(__name__, static_url_path="")
 
@@ -39,21 +39,26 @@ class TweetListener(tweepy.StreamingClient):
     https://docs.tweepy.org/en/latest/streamingclient.html#tweepy.StreamingClient
     """
     count = 0
-    limit = 1
+    limit = 2
     result = []
-    tweet_dict = {}
+    tweet_id_lst = []
     #Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
         tmp = dict(tweet.data)
-        if self.limit >= self.count and TweetListener.count >= TweetListener.limit:
+        print(tweet.__repr__())
+        if self.limit > self.count:
+            if tmp["id"] not in self.tweet_id_lst: 
+                tmp['created_at'] = str(tmp['created_at'])
+                if 'created_at' in tmp.keys() and tmp['created_at'] != None:
+                    print(tweet.__repr__()) #Prints out content of the tweet.
+                    tmp['created_at'] = str(tmp['created_at'])
+                    #json.dump(tmp, fp)
+                    (TweetListener.result).append(tmp)
+                    self.tweet_id_lst.append(tmp["id"])
+            self.count += 1
+        if self.limit <= self.count:
             self.disconnect()
             return False
-        elif 'created_at' in tmp.keys() and tmp['created_at'] != None:
-            tmp['created_at'] = str(tmp['created_at'])
-            #json.dump(tmp, fp)
-            (TweetListener.result).append(tmp)
-            print(tweet.__repr__()) #Prints out content of the tweet.
-            TweetListener.count += 1
 
     def on_request_error(self, status_code):
         print(status_code)
@@ -84,7 +89,7 @@ def rule_regulation(client, rules):
 
 ##The following functions are for the search method:
 @app.route('/melbourne_test')
-def main_search(tweet_lst):
+def main_search(tweet_lst, id_lst):
     tweets = []
     client = tweepy.Client(bearer_token)
     query = "melbourne"
@@ -102,10 +107,15 @@ def main_search(tweet_lst):
         for tweet in resp.data:
             tmp = dict(resp.data[counter])
             print(tweet.__repr__())
-            tmp['created_at'] = str(tmp['created_at'])
-            tweet_lst.append(tmp)
-            #json.dump(tmp, fp)
+            #Check to see if the tweet has been posted before:
+            if tmp["id"] not in id_lst:
+                tmp['created_at'] = str(tmp['created_at'])
+                #Need to check if the ids match:
+                tweet_lst.append(tmp)
+                id_lst.append(tmp["id"])
+                #json.dump(tmp, fp)
             counter += 1
+            
 
     while resp.meta["next_token"] and counter < limit:
         resp = client.search_recent_tweets(query, max_results=max_results, next_token=resp.meta["next_token"], 
@@ -117,9 +127,12 @@ def main_search(tweet_lst):
             for tweet in resp.data:
                 tmp = dict(resp.data[counter])
                 print(tweet.__repr__())
-                tmp['created_at'] = str(tmp['created_at'])
-                tweet_lst.append(tmp)
-                #json.dump(tmp, fp)
+                if tmp["id"] not in id_lst:
+                    tmp['created_at'] = str(tmp['created_at'])
+                    #First check if the ids match:
+                    tweet_lst.append(tmp)
+                    id_lst.append(tmp["id"])
+                    #json.dump(tmp, fp)
                 counter += 1
     #temp = {"new_edits" : False, "docs" : tweets}
     return tweet_lst
@@ -156,7 +169,7 @@ def main_stream():
     # https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
     print(client.get_rules())
     read_stream(client)
-    return client.result
+    return [client.result, client.tweet_id_lst]
     
 
 if __name__ == "__main__":
@@ -166,12 +179,14 @@ if __name__ == "__main__":
      - If security has been compromised, regenerate it
      - DO NOT store it in public places or shared docs
     """
-    tmp = main_stream()
+    val = main_stream()
+    tmp = val[0]
+    id_lst = val[1]
+    print("id_lst: ")
+    print(id_lst)
     print("Now run the search API")
-    main_search(tmp)
+    main_search(tmp, id_lst)
     json.dump(tmp, fp)
     fp.close()
     print("Complete")
-    #Search at the same time.
-
-
+    print("Total number of tweets obtained:", len(tmp))
