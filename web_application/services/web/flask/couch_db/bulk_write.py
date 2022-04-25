@@ -4,7 +4,7 @@ import json
 import time
 
 # couchDB anonymous server connection
-couchserver = Server("http://admin:password@172.26.129.203:5984/")
+couchserver = Server("http://admin:password@172.26.132.25:5984/")
 for dbname in couchserver:
     # print(dbname)
     pass
@@ -18,9 +18,9 @@ with open(
     encoding="utf-8",
 ) as file_handle:
     for line in file_handle:
-        # if i <= 43679:
-        #     i = i + 1
-        #     continue
+        if i <= 1539998:
+            i = i + 1
+            continue
         try:
             if i % 5000 == 0:
                 db.update(docs_to_send)

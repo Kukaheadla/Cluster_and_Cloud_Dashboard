@@ -124,7 +124,9 @@ def dashboard():
             c += t
         total_counts.append(c)
         c = 0
-    fig = go.Figure(data=[go.Scatter(x=sorted(list(dict(new_data).keys())), y=total_counts)])
+    print(total_counts)
+    sf = sorted(list(dict(new_data).keys()), key=lambda x: (x.split("-")[0], int(x.split("-")[1])))
+    fig = go.Figure(data=[go.Scatter(x=sf, y=total_counts)])
 
     return [
         html.H2(children="Dashboard"),
