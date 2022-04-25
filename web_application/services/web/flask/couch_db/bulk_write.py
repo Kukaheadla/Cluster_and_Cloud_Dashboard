@@ -18,7 +18,7 @@ with open(
     encoding="utf-8",
 ) as file_handle:
     for line in file_handle:
-        if i <= 309997:
+        if i <= 892249:
             i = i + 1
             continue
         try:
@@ -30,6 +30,7 @@ with open(
             del val["key"]
             val["created_at_epoch"] = epoch_time
             key = val["id"]
+            print(val["doc"]["created_at"])
 
             docs_to_send.append(val)
             # db[key] = {"key": val}

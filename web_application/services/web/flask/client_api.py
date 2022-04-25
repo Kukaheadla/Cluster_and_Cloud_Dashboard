@@ -64,8 +64,8 @@ def get_languages_by_time_view():
         # where the positions of the keys are derived from the order in the 'emit' function in couchdb
         # print(item)
         date_key = f"{item['key'][1]}-{months[item['key'][2]]}"
-        if date_key == "2017-06":
-            continue
+        # if date_key == "2017-06":
+        #     continue
         lang = item["key"][0]
         # print(date_key, str(item["value"]))
         acc[date_key][lang] = acc[date_key][lang] + item["value"]

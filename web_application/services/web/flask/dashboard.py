@@ -76,9 +76,9 @@ def test(new_data, total_counts):
             "Language": languages,
         }
     )
-    df['Normalised'] = df['Amount'] / df.groupby('Month')['Amount'].transform('sum')
+    df['Normalised Frequency'] = df['Amount'] / df.groupby('Month')['Amount'].transform('sum')
 
-    fig = px.bar(df, x="Month", y="Normalised", color="Language", barmode="stack", title="Figure. Diversity of Tweet languages by Month")
+    fig = px.bar(df, x="Month", y="Normalised Frequency", color="Language", barmode="stack", title="Figure. Diversity of Tweet languages by Month", height=1000)
     # fig = go.Figure(data=bars)
     # fig.update_layout(barmode='stack')
     return dcc.Graph(id="example-graph", figure=fig)
@@ -146,15 +146,20 @@ def dashboard():
 
     return [
         html.H2(children="Dashboard"),
-        dcc.RadioItems(
+        html.P("Diversity of languages in Melbourne can be regarded as a proxy livability figure with respect to the desirability of the city (under a few key assumptions)."
+         + "\nEnglish clearly dominates the language skyline of Melbourne across time (make sure to click the 'en' square in the legend to disable English and have a more interesting picture!)"
+         + "\nHas this changed across the years? Do the most recent Tweets of 2022 show any difference in patterns?", style={
+            "textAlign": "center"
+        }),
+        test(new_data, total_counts),
+        dcc.Graph(figure=fig),
+                dcc.RadioItems(
             id="candidate",
             options=["Joly", "Coderre", "Bergeron"],
             value="Coderre",
             inline=True,
         ),
         dcc.Graph(id="graph"),
-        test(new_data, total_counts),
-        dcc.Graph(figure=fig),
     ]
 
 
