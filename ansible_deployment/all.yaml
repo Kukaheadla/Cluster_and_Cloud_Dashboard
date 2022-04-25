@@ -11,16 +11,31 @@
     - role: openstack-instance
     - role: openstack-volume-snapshot
     
-- hosts: Wordpress
+# - hosts: Wordpress
+#   vars_files:
+#     - host_vars/wordpress.yaml
+#   gather_facts: false
+#   vars:
+#     - ansible_user: ubuntu
+#     - ansible_ssh_private_key_file: ~/.ssh/demo.pem
+#     - ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+#   roles:
+#     - role: common
+#     - role: volumes
+#     - role: docker
+#     - role: wordpress
+
+- hosts: CouchDB
   vars_files:
-    - host_vars/wordpress.yaml
+    - host_vars/couchdb.yaml
   gather_facts: false
   vars:
     - ansible_user: ubuntu
-    - ansible_ssh_private_key_file: ~/.ssh/demo.pem
+    - ansible_ssh_private_key_file: ~/.ssh/project-key.pem
     - ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
   roles:
     - role: common
     - role: volumes
     - role: docker
-    - role: wordpress
+    - role: couchdb
+  

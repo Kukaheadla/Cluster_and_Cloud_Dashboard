@@ -1,0 +1,30 @@
+---
+- name: Create CouchDB directory
+  become: yes
+  ansible.builtin.file:
+    path: "{{ couchdb_dir }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+    state: directory
+
+- name: Instantiate Masternode
+  become: yes
+  uri:
+    url: http://{{ groups['masternode'][0] }}:5984/{{ cluster_name }}
+    status_code: 201
+    method: POST
+    user: "{{ username }}"
+    password:  "{{ couchdb_pass }}"
+    force_basic_auth: yes
+    return_content: yes
+    body_format: json
+    body: "{\"action\": \"enable_cluster\", \"bind_address\":\"0.0.0.0\",\
+             \"username\": \"{{ couchdb_user }}\", \"password\":\"{{ couchdb_pass }}\", \"port\": \"5984\",\
+             \"remote_node\": \"{{ item }}\", \"node_count\": \"{{ groups['couchdb'] | length }}\",\
+             \"remote_current_user\":\"{{ couchdb_user }}\", \"remote_current_password\":\"{{ couchdb_pass }}\"}"
+    headers:
+      Content-Type: "application/json"
+  loop: "{{ groups['workers'] }}"
+
+
