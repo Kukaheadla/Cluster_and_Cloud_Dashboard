@@ -50,7 +50,6 @@ class TweetListener(tweepy.StreamingClient):
             if tmp["id"] not in self.tweet_id_lst: 
                 tmp['created_at'] = str(tmp['created_at'])
                 if 'created_at' in tmp.keys() and tmp['created_at'] != None:
-                    print(tweet.__repr__()) #Prints out content of the tweet.
                     tmp['created_at'] = str(tmp['created_at'])
                     #json.dump(tmp, fp)
                     (TweetListener.result).append(tmp)
@@ -89,13 +88,13 @@ def rule_regulation(client, rules):
 
 ##The following functions are for the search method:
 @app.route('/melbourne_test')
-def main_search(tweet_lst, id_lst):
+def main_search(tweet_lst, id_lst, search_no):
     tweets = []
     client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     query = "melbourne"
 
     max_results = 10
-    limit = 10
+    limit = search_no
     counter = 0
 
     resp = client.search_recent_tweets(query, max_results=max_results, tweet_fields = tweet_fields, user_fields = user_fields)
@@ -151,16 +150,17 @@ def read_stream(client):
     print("function read_stream")
     try:
         # https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
-        client.filter(expansions=expansions, place_fields=place_fields, tweet_fields=tweet_fields, user_fields=user_fields, threaded=False, wait)
+        client.filter(expansions=expansions, place_fields=place_fields, tweet_fields=tweet_fields, user_fields=user_fields, threaded=False)
     except KeyboardInterrupt or Exception: 
         return
 
-def main_stream():
+def main_stream(streaming_no):
     #First obtain the necessary authorization data
     if not bearer_token:
         raise RuntimeError("Not found bearer token")
 
     client = TweetListener(bearer_token, wait_on_rate_limit=True)
+    client.limit = streaming_no
 
     rules = [
             tweepy.StreamRule(value="melbourne")
@@ -179,14 +179,16 @@ if __name__ == "__main__":
      - If security has been compromised, regenerate it
      - DO NOT store it in public places or shared docs
     """
-    val = main_stream()
+
+    streaming_no = 50
+    search_no = 50
+
+    val = main_stream(streaming_no)
     tmp = val[0]
     id_lst = val[1]
-    print("id_lst: ")
-    print(id_lst)
     print("Now run the search API")
-    main_search(tmp, id_lst)
+    main_search(tmp, id_lst, search_no)
     json.dump({"docs": tmp}, fp)
     fp.close()
     print("Complete")
-    print("Total number of tweets obtained:", len(tmp))
+    print("Total number of unique tweets obtained:", len(tmp))
