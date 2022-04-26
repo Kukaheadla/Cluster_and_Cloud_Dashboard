@@ -45,9 +45,9 @@ class TweetListener(tweepy.StreamingClient):
     #Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
         tmp = dict(tweet.data)
-        print(tweet.__repr__())
         if self.limit > self.count:
             if tmp["id"] not in self.tweet_id_lst: 
+                print(tweet.__repr__())
                 tmp['created_at'] = str(tmp['created_at'])
                 if 'created_at' in tmp.keys() and tmp['created_at'] != None:
                     tmp['created_at'] = str(tmp['created_at'])
@@ -105,9 +105,9 @@ def main_search(tweet_lst, id_lst, search_no):
     if resp.data:
         for tweet in resp.data:
             tmp = dict(resp.data[counter])
-            print(tweet.__repr__())
             #Check to see if the tweet has been posted before:
             if str(tmp["id"]) not in id_lst:
+                print(tweet.__repr__())
                 tmp['created_at'] = str(tmp['created_at'])
                 #Need to check if the ids match:
                 tweet_lst.append(tmp)
@@ -124,8 +124,8 @@ def main_search(tweet_lst, id_lst, search_no):
         if resp.data:
             for tweet in resp.data:
                 tmp = dict(resp.data[counter])
-                print(tweet.__repr__())
                 if str(tmp["id"]) not in id_lst:
+                    print(tweet.__repr__())
                     tmp['created_at'] = str(tmp['created_at'])
                     #First check if the ids match:
                     tweet_lst.append(tmp)
