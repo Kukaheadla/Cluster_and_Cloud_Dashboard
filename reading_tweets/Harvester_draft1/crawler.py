@@ -91,7 +91,7 @@ def rule_regulation(client, rules):
 @app.route('/melbourne_test')
 def main_search(tweet_lst, id_lst):
     tweets = []
-    client = tweepy.Client(bearer_token)
+    client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     query = "melbourne"
 
     max_results = 10
@@ -151,7 +151,7 @@ def read_stream(client):
     print("function read_stream")
     try:
         # https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
-        client.filter(expansions=expansions, place_fields=place_fields, tweet_fields=tweet_fields, user_fields=user_fields, threaded=False)
+        client.filter(expansions=expansions, place_fields=place_fields, tweet_fields=tweet_fields, user_fields=user_fields, threaded=False, wait)
     except KeyboardInterrupt or Exception: 
         return
 
@@ -160,7 +160,7 @@ def main_stream():
     if not bearer_token:
         raise RuntimeError("Not found bearer token")
 
-    client = TweetListener(bearer_token)
+    client = TweetListener(bearer_token, wait_on_rate_limit=True)
 
     rules = [
             tweepy.StreamRule(value="melbourne")
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     print(id_lst)
     print("Now run the search API")
     main_search(tmp, id_lst)
-    json.dump(tmp, fp)
+    json.dump({"docs": tmp}, fp)
     fp.close()
     print("Complete")
     print("Total number of tweets obtained:", len(tmp))
