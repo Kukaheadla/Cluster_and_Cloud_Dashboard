@@ -93,7 +93,7 @@ def main_search(tweet_lst, id_lst, search_no):
     client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     query = "melbourne"
 
-    max_results = 10
+    max_results = 100
     limit = search_no
     counter = 0
 
@@ -119,7 +119,6 @@ def main_search(tweet_lst, id_lst, search_no):
     while resp.meta["next_token"] and counter < limit:
         resp = client.search_recent_tweets(query, max_results=max_results, next_token=resp.meta["next_token"], 
             tweet_fields = tweet_fields, user_fields = user_fields)
-        #print(resp)
         if resp.errors:
             raise RuntimeError(resp.errors)
         if resp.data:
