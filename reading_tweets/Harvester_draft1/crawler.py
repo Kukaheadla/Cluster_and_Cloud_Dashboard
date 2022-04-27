@@ -39,15 +39,17 @@ class TweetListener(tweepy.StreamingClient):
     https://docs.tweepy.org/en/latest/streamingclient.html#tweepy.StreamingClient
     """
     count = 0
-    limit = 2
+    limit = 0
     result = []
     tweet_id_lst = []
     #Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
+        if self.count % 100 == 0:
+            print("count is", self.count)
         tmp = dict(tweet.data)
         if self.limit > self.count:
             if tmp["id"] not in self.tweet_id_lst: 
-                print(tweet.__repr__())
+                #print(tweet.__repr__())
                 tmp['created_at'] = str(tmp['created_at'])
                 if 'created_at' in tmp.keys() and tmp['created_at'] != None:
                     tmp['created_at'] = str(tmp['created_at'])
@@ -55,7 +57,8 @@ class TweetListener(tweepy.StreamingClient):
                     (TweetListener.result).append(tmp)
                     self.tweet_id_lst.append(tmp["id"])
             self.count += 1
-        if self.limit <= self.count:
+        if self.limit < self.count:
+            print("Streaming Count is:", str(self.count))
             self.disconnect()
             return False
 
@@ -98,6 +101,7 @@ def main_search(tweet_lst, id_lst, search_no):
     counter = 0
 
     resp = client.search_recent_tweets(query, max_results=max_results, tweet_fields = tweet_fields, user_fields = user_fields)
+    print("Search counter is", counter)
     #print(len(resp.includes["geo.place_id"]))
     if resp.errors:
         raise RuntimeError(resp.errors)
@@ -107,7 +111,7 @@ def main_search(tweet_lst, id_lst, search_no):
             tmp = dict(resp.data[counter])
             #Check to see if the tweet has been posted before:
             if str(tmp["id"]) not in id_lst:
-                print(tweet.__repr__())
+                #print(tweet.__repr__())
                 tmp['created_at'] = str(tmp['created_at'])
                 #Need to check if the ids match:
                 tweet_lst.append(tmp)
@@ -115,17 +119,17 @@ def main_search(tweet_lst, id_lst, search_no):
                 #json.dump(tmp, fp)
             counter += 1
             
-
     while resp.meta["next_token"] and counter < limit:
+        print("Search counter is", counter)
         resp = client.search_recent_tweets(query, max_results=max_results, next_token=resp.meta["next_token"], 
             tweet_fields = tweet_fields, user_fields = user_fields)
         if resp.errors:
             raise RuntimeError(resp.errors)
         if resp.data:
             for tweet in resp.data:
-                tmp = dict(resp.data[counter])
+                tmp = dict(tweet)
                 if str(tmp["id"]) not in id_lst:
-                    print(tweet.__repr__())
+                    #print(tweet.__repr__())
                     tmp['created_at'] = str(tmp['created_at'])
                     #First check if the ids match:
                     tweet_lst.append(tmp)
@@ -179,8 +183,8 @@ if __name__ == "__main__":
      - DO NOT store it in public places or shared docs
     """
 
-    streaming_no = 50
-    search_no = 50
+    streaming_no = 100
+    search_no = 500
 
     val = main_stream(streaming_no)
     tmp = val[0]
