@@ -172,7 +172,7 @@ def render_dashboard():
     return [
         html.H2(children="Main Dashboard"),
         html.P("The following data is extracted from the CouchDB database."),
-        html.H2("Figure 2. Tweet Frequencies grouped by Month in Database"),
+        html.H2("Figure 1. Language Frequencies grouped by Month in Database"),
         html.P(
             "Diversity of languages in Melbourne can be regarded as a proxy livability figure with respect to the desirability of the city (under a few key assumptions)."
             + "\nEnglish clearly dominates the language skyline of Melbourne across time (make sure to click the 'en' square in the legend to disable English and have a more interesting picture!)"
