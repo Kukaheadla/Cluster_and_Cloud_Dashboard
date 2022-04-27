@@ -47,7 +47,7 @@ class TweetListener(tweepy.StreamingClient):
         if self.count % 100 == 0:
             print("count is", self.count)
         tmp = dict(tweet.data)
-        if self.limit > self.count:
+        if self.limit >= self.count:
             if tmp["id"] not in self.tweet_id_lst: 
                 #print(tweet.__repr__())
                 tmp['created_at'] = str(tmp['created_at'])
