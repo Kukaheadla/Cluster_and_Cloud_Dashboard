@@ -2,12 +2,7 @@ import logging
 from numpy import place #logging is used to track events that occur when the software runs.
 from email.policy import default
 from tokenize import String
-
-##
 from keys import _keys, User
-##
-from dotenv import load_dotenv
-load_dotenv("config.env")
 
 #Contains the main application code.
 from concurrent.futures import process
@@ -42,7 +37,7 @@ class TweetListener(tweepy.StreamingClient):
     tweet_id_lst = []
     #Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
-        if self.total_tweets_read % 100 == 0:
+        if self.total_tweets_read % 50 == 0:
             print("Number of tweets read is", self.total_tweets_read)
         tmp = dict(tweet.data)
         if self.limit >= self.count:
@@ -184,7 +179,7 @@ def main_stream(streaming_no, bearer_token):
     # https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
     print(client.get_rules())
     read_stream(client)
-    return [client.result, client.tweet_id_lst]
+    return [client.result, client.tweet_id_lst, client.count, client.total_tweets_read]
     
 
 if __name__ == "__main__":
@@ -209,6 +204,8 @@ if __name__ == "__main__":
         val = main_stream(streaming_no, person.bearer_token)
         tmp = val[0]
         id_lst = val[1]
+        print("Total number of tweets read for streaming API is", str(val[3]))
+        print("Total number of unique tweets obtained for streaming API is", str(val[2]))
         print("Now run the search API")
 
         search_result = main_search(tmp, id_lst, search_no, person.bearer_token)
