@@ -6,7 +6,7 @@ from keys import _keys, User
 
 #Contains the main application code.
 from concurrent.futures import process
-import os, json, datetime, couchdb
+import os, json, datetime, couchdb, time
 from flask import Flask, request, abort, make_response, url_for, jsonify
 import pandas as pd
 import tweepy, os, json, datetime
@@ -35,14 +35,23 @@ class TweetListener(tweepy.StreamingClient):
     total_tweets_read = 0
     result = []
     tweet_id_lst = []
+    start_time = time.time()
+    end_early = False
+
     #Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
-        if self.total_tweets_read % 50 == 0:
+        if time.time() - self.start_time > 300:
+            self.end_early = True
+            print("Streaming Count is:", str(self.count))
+            self.disconnect()
+            return False
+
+        if self.total_tweets_read % 10 == 0:
             print("Number of tweets read is", self.total_tweets_read)
         tmp = dict(tweet.data)
         if self.limit >= self.count:
             if tmp["id"] not in self.tweet_id_lst: 
-                #print(tweet.__repr__())
+                print(tweet.__repr__())
                 tmp['created_at'] = str(tmp['created_at'])
                 if 'created_at' in tmp.keys() and tmp['created_at'] != None:
                     tmp['created_at'] = str(tmp['created_at'])
@@ -156,7 +165,7 @@ def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 ###
 
-def read_stream(client):
+def read_stream(client, start_time):
     print("function read_stream")
     try:
         # https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
@@ -178,8 +187,9 @@ def main_stream(streaming_no, bearer_token):
     rule_regulation(client, rules)
     # https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
     print(client.get_rules())
-    read_stream(client)
-    return [client.result, client.tweet_id_lst, client.count, client.total_tweets_read]
+    start_time = time.time()
+    read_stream(client, start_time)
+    return [client.result, client.tweet_id_lst, client.count, client.total_tweets_read, client.end_early]
     
 
 if __name__ == "__main__":
@@ -201,11 +211,16 @@ if __name__ == "__main__":
             _keys[value]["access_token"], _keys[value]["access_token_secret"]) 
         tmp = []
 
+        #Start the timer for streaming API:
         val = main_stream(streaming_no, person.bearer_token)
         tmp = val[0]
         id_lst = val[1]
         print("Total number of tweets read for streaming API is", str(val[3]))
         print("Total number of unique tweets obtained for streaming API is", str(val[2]))
+
+        if val[4] == True:
+            search_no += abs(100 - val[3])
+            
         print("Now run the search API")
 
         search_result = main_search(tmp, id_lst, search_no, person.bearer_token)
