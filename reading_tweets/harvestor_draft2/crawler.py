@@ -119,9 +119,9 @@ def main_search(tweet_lst, id_lst, search_no, bearer_token):
                 counter += 1
             total_tweets_read += 1
             
-    while resp.meta["next_token"] and counter <= limit:
+    while resp.meta["next_token"] and counter < limit:
         print("Search counter is", counter)
-        if (limit - counter >= max_results):
+        if (limit - counter > max_results):
             resp = client.search_recent_tweets(query, max_results=max_results, next_token=resp.meta["next_token"], 
             tweet_fields = tweet_fields, user_fields = user_fields)
             total_tweets_read += max_results
