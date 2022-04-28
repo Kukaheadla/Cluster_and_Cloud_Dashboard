@@ -91,6 +91,7 @@ def rule_regulation(client, rules):
 ##The following functions are for the search method:
 @app.route('/melbourne_test')
 def main_search(tweet_lst, id_lst, search_no, bearer_token):
+    
     client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     query = "melbourne"
 
@@ -100,7 +101,8 @@ def main_search(tweet_lst, id_lst, search_no, bearer_token):
     total_tweets_read = 0
 
     resp = client.search_recent_tweets(query, max_results=max_results, tweet_fields = tweet_fields, user_fields = user_fields)
-    print("Search counter is", counter)
+    print("Search counter at the start is", counter)
+
     #print(len(resp.includes["geo.place_id"]))
     if resp.errors:
         raise RuntimeError(resp.errors)
@@ -118,9 +120,9 @@ def main_search(tweet_lst, id_lst, search_no, bearer_token):
                 #json.dump(tmp, fp)
                 counter += 1
             total_tweets_read += 1
-            
+
+    print("Search counter is", counter)       
     while resp.meta["next_token"] and counter < limit:
-        print("Search counter is", counter)
         if (limit - counter > max_results):
             resp = client.search_recent_tweets(query, max_results=max_results, next_token=resp.meta["next_token"], 
             tweet_fields = tweet_fields, user_fields = user_fields)
@@ -145,6 +147,7 @@ def main_search(tweet_lst, id_lst, search_no, bearer_token):
                     id_lst.append(str(tmp["id"]))
                     #json.dump(tmp, fp)
                     counter += 1
+        print("Search counter is", counter) 
     #temp = {"new_edits" : False, "docs" : tweets}
     return [tweet_lst, counter, total_tweets_read]
 
