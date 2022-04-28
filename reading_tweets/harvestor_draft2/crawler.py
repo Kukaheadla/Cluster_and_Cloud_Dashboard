@@ -211,13 +211,16 @@ if __name__ == "__main__":
 
         tmp = []
         tmp_search = []
-        
+
         #Start the timer for streaming API:
         val = main_stream(streaming_no, person.bearer_token)
         tmp = val[0]
         id_lst = val[1]
         print("Total number of tweets read for streaming API is", str(val[3]))
         print("Total number of unique tweets obtained for streaming API is", str(val[2]))
+        total_tweets_obtained += val[2]
+        total_tweets_read += val[3]
+
 
         if val[4] == True:
             search_no += abs(100 - val[3])
