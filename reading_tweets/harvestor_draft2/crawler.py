@@ -25,16 +25,8 @@ place_fields = ["contained_within", "country", "country_code", "geo", "name", "f
 ##
 ids = ["893542"]
 
-#authorisation data:
-#bearer_token = os.getenv("TWITTER_BEARER_TOKEN")
-#consumer_key = os.environ.get("TWITTER_API_KEY")
-#consumer_secret = os.environ.get("TWITTER_API_KEY_SECRET")
-#access_token = os.environ.get("TWITTER_ACCESS_TOKEN")
-#access_token_secret = os.environ.get("TWITTER_ACCESS_SECRET")
-##
-
 #An optional file to read the tweets to:
-fp = open("tweets.json", "w")
+fp = open("tweets_draft2.json", "w")
 
 app = Flask(__name__, static_url_path="")
 
@@ -45,6 +37,7 @@ class TweetListener(tweepy.StreamingClient):
     """
     count = 0
     limit = 0
+    total_tweets_read = 0
     result = []
     tweet_id_lst = []
     #Defining some variables:
@@ -61,7 +54,8 @@ class TweetListener(tweepy.StreamingClient):
                     #json.dump(tmp, fp)
                     (TweetListener.result).append(tmp)
                     self.tweet_id_lst.append(tmp["id"])
-            self.count += 1
+                    self.count += 1
+        self.total_tweets_read += 1
         if self.limit < self.count:
             print("Streaming Count is:", str(self.count))
             self.disconnect()
@@ -97,13 +91,13 @@ def rule_regulation(client, rules):
 ##The following functions are for the search method:
 @app.route('/melbourne_test')
 def main_search(tweet_lst, id_lst, search_no, bearer_token):
-    tweets = []
     client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     query = "melbourne"
 
     max_results = 100
     limit = search_no
     counter = 0
+    total_tweets_read = 0
 
     resp = client.search_recent_tweets(query, max_results=max_results, tweet_fields = tweet_fields, user_fields = user_fields)
     print("Search counter is", counter)
@@ -122,14 +116,24 @@ def main_search(tweet_lst, id_lst, search_no, bearer_token):
                 tweet_lst.append(tmp)
                 id_lst.append(str(tmp["id"]))
                 #json.dump(tmp, fp)
-            counter += 1
+                counter += 1
+            total_tweets_read += 1
             
     while resp.meta["next_token"] and counter < limit:
         print("Search counter is", counter)
-        resp = client.search_recent_tweets(query, max_results=max_results, next_token=resp.meta["next_token"], 
+        if (limit - counter >= max_results):
+            resp = client.search_recent_tweets(query, max_results=max_results, next_token=resp.meta["next_token"], 
             tweet_fields = tweet_fields, user_fields = user_fields)
+            total_tweets_read += max_results
+
+        elif (limit - counter <  max_results):
+            resp = client.search_recent_tweets(query, max_results=limit-counter, next_token=resp.meta["next_token"], 
+            tweet_fields = tweet_fields, user_fields = user_fields)
+            total_tweets_read += limit-counter
+
         if resp.errors:
             raise RuntimeError(resp.errors)
+
         if resp.data:
             for tweet in resp.data:
                 tmp = dict(tweet)
@@ -140,9 +144,9 @@ def main_search(tweet_lst, id_lst, search_no, bearer_token):
                     tweet_lst.append(tmp)
                     id_lst.append(str(tmp["id"]))
                     #json.dump(tmp, fp)
-                counter += 1
+                    counter += 1
     #temp = {"new_edits" : False, "docs" : tweets}
-    return tweet_lst
+    return [tweet_lst, counter, total_tweets_read]
 
 @app.errorhandler(400)
 def not_found(error):
@@ -187,21 +191,35 @@ if __name__ == "__main__":
      - If security has been compromised, regenerate it
      - DO NOT store it in public places or shared docs
     """
+    streaming_no = 100
+    search_no = 500
+    total_tweets_read = 0
+    total_tweets_obtained = 0
+
     total = []
     for value in ids: 
+        print("User is", str(value))
         person = User(value, _keys[value]["bearer_token"], _keys[value]["consumer_key"], _keys[value]["consumer_secret"], 
             _keys[value]["access_token"], _keys[value]["access_token_secret"]) 
         tmp = []
-        streaming_no = 100
-        search_no = 500
 
         val = main_stream(streaming_no, person.bearer_token)
         tmp = val[0]
         id_lst = val[1]
         print("Now run the search API")
-        main_search(tmp, id_lst, search_no, person.bearer_token)
-        json.dump({"docs": tmp}, fp)
-        print("Complete")
-        print("Total number of unique tweets obtained:", len(tmp))
-        total.extend(tmp)
+
+        search_result = main_search(tmp, id_lst, search_no, person.bearer_token)
+
+        total_tweets_obtained += search_result[1]
+        total_tweets_read += search_result[2]
+        total.extend(search_result[0])
+
+        print("Complete for id", str(value))
+        print("Total number of tweets read", str(search_result[2]))
+        print("Total number of unique tweets obtained:", search_result[1])
+
+    #Print the results:
+    print("Number of tweets read", str(total_tweets_read))
+    print("Number of valid tweets obtained", str(total_tweets_obtained))
+    json.dump({"docs": total}, fp)
     fp.close()
