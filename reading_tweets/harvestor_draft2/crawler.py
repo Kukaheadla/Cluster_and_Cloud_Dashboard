@@ -11,7 +11,7 @@ load_dotenv("config.env")
 
 #Contains the main application code.
 from concurrent.futures import process
-import os, json, datetime
+import os, json, datetime, couchdb
 from flask import Flask, request, abort, make_response, url_for, jsonify
 import pandas as pd
 import tweepy, os, json, datetime
@@ -42,8 +42,8 @@ class TweetListener(tweepy.StreamingClient):
     tweet_id_lst = []
     #Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
-        if self.count % 100 == 0:
-            print("count is", self.count)
+        if self.total_tweets_read % 100 == 0:
+            print("Number of tweets read is", self.total_tweets_read)
         tmp = dict(tweet.data)
         if self.limit >= self.count:
             if tmp["id"] not in self.tweet_id_lst: 
@@ -119,7 +119,7 @@ def main_search(tweet_lst, id_lst, search_no, bearer_token):
                 counter += 1
             total_tweets_read += 1
             
-    while resp.meta["next_token"] and counter < limit:
+    while resp.meta["next_token"] and counter <= limit:
         print("Search counter is", counter)
         if (limit - counter >= max_results):
             resp = client.search_recent_tweets(query, max_results=max_results, next_token=resp.meta["next_token"], 
