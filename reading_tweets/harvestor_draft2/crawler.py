@@ -51,7 +51,6 @@ class TweetListener(tweepy.StreamingClient):
         tmp = dict(tweet.data)
         if self.limit >= self.count:
             if tmp["id"] not in self.tweet_id_lst: 
-                print(tweet.__repr__())
                 tmp['created_at'] = str(tmp['created_at'])
                 if 'created_at' in tmp.keys() and tmp['created_at'] != None:
                     tmp['created_at'] = str(tmp['created_at'])
@@ -209,8 +208,10 @@ if __name__ == "__main__":
         print("User is", str(value))
         person = User(value, _keys[value]["bearer_token"], _keys[value]["consumer_key"], _keys[value]["consumer_secret"], 
             _keys[value]["access_token"], _keys[value]["access_token_secret"]) 
-        tmp = []
 
+        tmp = []
+        tmp_search = []
+        
         #Start the timer for streaming API:
         val = main_stream(streaming_no, person.bearer_token)
         tmp = val[0]
@@ -220,14 +221,14 @@ if __name__ == "__main__":
 
         if val[4] == True:
             search_no += abs(100 - val[3])
-            
+
         print("Now run the search API")
+        search_result = main_search(tmp_search, id_lst, search_no, person.bearer_token)
 
-        search_result = main_search(tmp, id_lst, search_no, person.bearer_token)
-
+        tmp.extend(tmp_search)
         total_tweets_obtained += search_result[1]
         total_tweets_read += search_result[2]
-        total.extend(search_result[0])
+        total.extend(tmp)
 
         print("Complete for id", str(value))
         print("Total number of tweets read", str(search_result[2]))
