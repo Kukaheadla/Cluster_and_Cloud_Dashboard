@@ -39,17 +39,16 @@ class TweetListener(tweepy.StreamingClient):
     #Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
 
-        if self.total_tweets_read % 1000 == 0:
+        if self.total_tweets_read % 100 == 0:
             print("Number of tweets read is", self.total_tweets_read)
         tmp = dict(tweet.data)
-        if self.limit >= self.count:
-            if tmp["id"] not in self.tweet_id_lst: 
+        if tmp["id"] not in self.tweet_id_lst: 
+            tmp['created_at'] = str(tmp['created_at'])
+            if 'created_at' in tmp.keys() and tmp['created_at'] != None:
                 tmp['created_at'] = str(tmp['created_at'])
-                if 'created_at' in tmp.keys() and tmp['created_at'] != None:
-                    tmp['created_at'] = str(tmp['created_at'])
-                    twitter_stream.save(tmp)
-                    self.tweet_id_lst.append(tmp["id"])
-                    self.count += 1
+                twitter_stream.save(tmp)
+                self.tweet_id_lst.append(tmp["id"])
+                self.count += 1
         self.total_tweets_read += 1
 
     def on_request_error(self, status_code):
@@ -112,7 +111,7 @@ def main_search(id_lst, bearer_token):
                         id_lst.append(str(tmp["id"]))
                         #json.dump(tmp, fp)
                         counter += 1
-            if counter % 1000 == 0:
+            if counter % 100 == 0:
                 print("Search counter is", counter) 
         except KeyboardInterrupt or Exception or RuntimeError:
             return [counter, total_tweets_read]
@@ -170,7 +169,7 @@ if __name__ == "__main__":
         person = User(value, _keys[value]["bearer_token"], _keys[value]["consumer_key"], _keys[value]["consumer_secret"], 
             _keys[value]["access_token"], _keys[value]["access_token_secret"]) 
 
-
+        print("Run the streaming API")
         #Start the timer for streaming API:
         val = main_stream(person.bearer_token)
         id_lst = val[0]
@@ -179,7 +178,7 @@ if __name__ == "__main__":
         total_tweets_obtained += val[1]
         total_tweets_read += val[2]
 
-        print("Now run the search API")
+        print("Run the search API")
         search_result = main_search(id_lst, person.bearer_token)
 
         total_tweets_obtained += search_result[0]
