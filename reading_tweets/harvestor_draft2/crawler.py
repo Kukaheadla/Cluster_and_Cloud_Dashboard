@@ -21,7 +21,7 @@ place_fields = ["contained_within", "country", "country_code", "geo", "name", "f
 ids = ["893542"]
 
 #An optional file to read the tweets to:
-fp = open("tweets_draft2.json", "w")
+fp = open("tweets_draft6.json", "w")
 
 app = Flask(__name__, static_url_path="")
 
@@ -46,7 +46,7 @@ class TweetListener(tweepy.StreamingClient):
             self.disconnect()
             return False
 
-        if self.total_tweets_read % 10 == 0:
+        if self.total_tweets_read % 1000 == 0:
             print("Number of tweets read is", self.total_tweets_read)
         tmp = dict(tweet.data)
         if self.limit >= self.count:
@@ -124,7 +124,9 @@ def main_search(tweet_lst, id_lst, search_no, bearer_token):
                 counter += 1
             total_tweets_read += 1
 
-    print("Search counter is", counter)       
+    if counter % 1000 == 0:
+        print("Search counter is", counter) 
+
     while resp.meta["next_token"] and counter < limit:
         if (limit - counter >= max_results):
             resp = client.search_recent_tweets(query, max_results=max_results, next_token=resp.meta["next_token"], 
@@ -150,7 +152,10 @@ def main_search(tweet_lst, id_lst, search_no, bearer_token):
                     id_lst.append(str(tmp["id"]))
                     #json.dump(tmp, fp)
                     counter += 1
-        print("Search counter is", counter) 
+
+        if counter % 1000 == 0:
+            print("Search counter is", counter) 
+
     #temp = {"new_edits" : False, "docs" : tweets}
     return [tweet_lst, counter, total_tweets_read]
 
@@ -198,8 +203,8 @@ if __name__ == "__main__":
      - If security has been compromised, regenerate it
      - DO NOT store it in public places or shared docs
     """
-    streaming_no = 100
-    search_no = 500
+    streaming_no = 10000
+    search_no = 10000
     total_tweets_read = 0
     total_tweets_obtained = 0
 
@@ -223,7 +228,7 @@ if __name__ == "__main__":
 
 
         if val[4] == True:
-            search_no += abs(100 - val[3])
+            search_no += abs(streaming_no - val[3])
 
         print("Now run the search API")
         search_result = main_search(tmp_search, id_lst, search_no, person.bearer_token)
