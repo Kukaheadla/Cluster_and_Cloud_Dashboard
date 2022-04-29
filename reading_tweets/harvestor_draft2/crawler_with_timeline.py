@@ -226,7 +226,6 @@ def timeline_search(timeline, user_id_lst, user_timeline, client, id_lst, stream
                 #json.dump(tmp, fp)
                 counter += 1
             total_tweets_read += 1
-        timeline.extend(tmp_timeline)
     return [counter, total_tweets_read]
 
     
