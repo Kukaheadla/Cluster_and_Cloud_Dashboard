@@ -24,7 +24,6 @@ twitter_stream = couch['twitter_stream']
 ids = ["893542"]
 
 #An optional file to read the tweets to:
-fp = open("tweets_draft11.json", "w")
 
 app = Flask(__name__, static_url_path="")
 
@@ -115,7 +114,7 @@ def main_search(id_lst, bearer_token):
                         counter += 1
             if counter % 1000 == 0:
                 print("Search counter is", counter) 
-        except KeyboardInterrupt or Exception:
+        except KeyboardInterrupt or Exception or RuntimeError:
             return [counter, total_tweets_read]
 
 @app.errorhandler(400)
