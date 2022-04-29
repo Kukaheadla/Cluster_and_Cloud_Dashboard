@@ -6,14 +6,14 @@ instance_flavor: uom.mse.2c9g
 
 # Volume
 volumes:
-  # - vol_name: web-vol-1-1
-  #   vol_size: 10
-  # - vol_name: web-vol-1-2
-  #   vol_size: 10
+  - vol_name: web-vol-1-1
+    vol_size: 10
+  - vol_name: web-vol-2-1
+    vol_size: 10
+  - vol_name: db-vol-1-1
+    vol_size: 50
   - vol_name: db-vol-2-1
-    vol_size: 10
-  - vol_name: db-vol-2-2
-    vol_size: 10
+    vol_size: 50
 
 # Security group
 security_groups:
@@ -54,10 +54,9 @@ security_groups:
     port_range_max: 9200
     remote_ip_prefix: 0.0.0.0/0
   
-
 # Instance
 instances:
-  # - name: web
-  #   volumes: ['web-vol-1-1', 'web-vol-1-2']
-  - name: couchDB-instance
-    volumes: ['db-vol-2-1', 'db-vol-2-2']
+  - name: Instance-1
+    volumes: ['web-vol-1-1', 'db-vol-1-1']
+  - name: Instance-2
+    volumes: ['web-vol-2-1', 'db-vol-2-1']

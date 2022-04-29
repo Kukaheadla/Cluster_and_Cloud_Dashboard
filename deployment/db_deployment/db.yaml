@@ -11,4 +11,3 @@
     - role: volumes
     - role: docker
     - role: couchdb
-  
