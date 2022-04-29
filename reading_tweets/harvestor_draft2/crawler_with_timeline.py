@@ -136,9 +136,13 @@ def main_search(tweet_lst, id_lst, search_no, client):
             total_tweets_read += max_results
 
         elif (limit - counter <  max_results):
-            resp = client.search_recent_tweets(query, max_results=limit-counter, next_token=resp.meta["next_token"], 
-            tweet_fields = tweet_fields, user_fields = user_fields)
-            total_tweets_read += limit-counter
+            if limit - counter <= 10 and limit - counter > 0:
+                resp = client.search_recent_tweets(query, max_results=10, next_token=resp.meta["next_token"], tweet_fields = tweet_fields, user_fields = user_fields)
+                total_tweets_read += 10
+            elif limit - counter > 10:
+                resp = client.search_recent_tweets(query, max_results=limit-counter, next_token=resp.meta["next_token"], 
+                tweet_fields = tweet_fields, user_fields = user_fields)
+                total_tweets_read += limit-counter
 
         if resp.errors:
             raise RuntimeError(resp.errors)
@@ -233,7 +237,7 @@ if __name__ == "__main__":
     """
     
     streaming_no = 100
-    search_no = 500
+    search_no = 200
 
     user_timeline = 10
 
