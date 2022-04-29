@@ -43,9 +43,15 @@ class TweetListener(tweepy.StreamingClient):
     count = 0
     total_tweets_read = 0
     tweet_id_lst = []
+    start_time = time.time()
 
     #Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
+
+        if time.time() - self.start_time > 60:
+            print("Streaming Count is:", str(self.count))
+            self.disconnect()
+            return False
 
         if self.total_tweets_read % 10 == 0:
             print("Number of streamed tweets read is", self.total_tweets_read)
@@ -135,7 +141,7 @@ def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 ###
 
-def read_stream(client):
+def read_stream(client, start_time):
     try:
         # https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
         client.filter(expansions=expansions, place_fields=place_fields, tweet_fields=tweet_fields, user_fields=user_fields, threaded=False)
@@ -152,7 +158,8 @@ def main_stream(client):
     rule_regulation(client, rules)
     # https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
     print(client.get_rules())
-    read_stream(client)
+    start_time = time.time()
+    read_stream(client, start_time)
     return [client.tweet_id_lst, client.count, client.total_tweets_read]
     
 
@@ -175,11 +182,12 @@ if __name__ == "__main__":
             _keys[value]["access_token"], _keys[value]["access_token_secret"]) 
 
         print("Run the streaming API")
-        #Start the timer for streaming API:
         if not _keys[value]["bearer_token"]:
             raise RuntimeError("Not found bearer token")
 
         client = TweetListener(_keys[value]["bearer_token"], wait_on_rate_limit=True)
+
+        print("Run the streaming API")
         val = main_stream(client)
         id_lst = val[0]
         print("Total number of tweets read for streaming API is", str(val[2]))
@@ -189,7 +197,8 @@ if __name__ == "__main__":
 
         print("Run the search API")
         search_result = main_search(id_lst, person.bearer_token, client)
-
+        print("Total number of tweets read for search API is", str(search_result[1]))
+        print("Total number of unique tweets obtained for search API is", str(search_result[0]))
         total_tweets_obtained += search_result[0]
         total_tweets_read += search_result[1]
 
