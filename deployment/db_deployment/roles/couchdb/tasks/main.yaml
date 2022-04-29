@@ -35,13 +35,12 @@
   become: yes
   docker_container:
     name: couchdb_container
-    image: "ibmcom/couchdb3:3.2.1"
+    image: "couchdb:latest"
     ports:
       - "5984:5984"
       - "4369:4369"
-      - "9100:9100"
+      - "9100-9200:9100-9200"
       - "80:80"
-      - "8000:8000"
     volumes:
       - "{{ couchdb_dir }}:/opt/couchdb/data"
     env:
@@ -49,55 +48,38 @@
       COUCHDB_PASSWORD: "{{ database_password }}"
       COUCHDB_SECRET: "{{ database_cookie }}"
       NODE_NAME: "{{ ansible_host }}"
-      ERL_FLAGS: "-setcookie \"{{ database_cookie }}\" -name \"couchdb@{{ groups['masterNode'][0] }}\""
 
-    
+- name: Pause for 1 minute to build CouchDB container
+  pause:
+    minutes: 1
+
 - name: Enable CouchDB cluster setup
   become: yes
   uri:
     url: http://{{ groups['masterNode'][0] }}:5984/_cluster_setup
-    status_code: 200, 201
+    status_code: 200, 201, 400
     method: POST
     user: "{{ database_user }}"
     password: "{{ database_password }}"
+    force_basic_auth: yes
     return_content: yes
+    headers:
+      Content-Type: "application/json"
     body_format: json
-    body: "{\"action\": \"enable_cluster\", \"bind_address\":\"0.0.0.0\",\
+    body: "{\"action\": \"enable_cluster\", \"bind_address\":\"0.0.0.0\", \"port\": \"5984\", \
             \"username\": \"{{ database_user }}\", \"password\":\"{{ database_password }}\",\
             \"remote_current_user\": \"{{ database_user }}\", \
             \"remote_current_password\": \"{{ database_password }}\", \
-            \"node_count\": \"{{ item | length }}\"}"
-    headers:
-      Content-Type: "application/json"
-  loop: "{{ groups['ports'] }}"
+            \"node_count\": \"{{ groups['workerNodes'] | length }}\"}"
 
-# - name: Enable workernodes to CouchDB Cluster
-#   become: yes
-#   when: item != "{{ groups['ports'][0] }}"
-#   uri:
-#     url: http://{{ groups['masterNode'][0] }}:5984/_cluster_setup
-#     status_code: 201
-#     method: POST
-#     user: "{{ database_user }}"
-#     password: "{{ database_password }}"
-#     return_content: yes
-#     body_format: json
-#     body: "{\"action\": \"enable_cluster\", \"bind_address\":\"0.0.0.0\", \
-#             \"username\": \"{{ database_user }}\", \"password\":\"{{ database_passoword }}\", \ 
-#             \"port\": {{ groups['masterPort'][0] }}, \"node_count\": \"{{item | length}}\", \
-#             \"remote_node\": \"{{ item }}\", \"remote_current_user\": \"{{ database_user }}\", \
-#             \"remote_current_password\": \"{{ database_password }}\"}"
-#     headers:
-#       Content-Type: "application/json"
-#   loop: "{{ groups['workerNodes'] }}"
-
-- name: Enable workernodes to CouchDB Cluster
+- name: Add workernodes to CouchDB Cluster
   uri:
-    url: http://{{ database_user }}:{{ database_password }}@{{ groups['masterNode'][0] }}:{{ groups['masterPort'][0] }}/_cluster_setup
-    status_code: 201, 409
+    url: http://{{ groups['masterNode'][0] }}:5984/_cluster_setup
+    status_code: 201, 400
     method: POST
     user: "{{ database_user }}"
     password: "{{ database_password }}"
+    force_basic_auth: yes
     return_content: yes
     body_format: json
     body: "{\"action\": \"add_node\", \"host\":\"{{ item }}\", \"port\": {{ groups['masterPort'][0] }}, \
@@ -109,11 +91,12 @@
 - name: Finish CouchDB Cluster
   become: yes
   uri: 
-    url: http://{{ database_user }}:{{database_password}}@{{ groups['masternode'][0] }}:{{ groups['masterPort'][0] }}/_cluster_setup
-    status_code: 201
+    url: http://{{ groups['masterNode'][0] }}:5984/_cluster_setup
+    status_code: 201, 500
     method: POST
     user: "{{ database_user }}"
     password: "{{ database_password }}"
+    force_basic_auth: yes
     return_content: yes
     body_format: json
     body: "{\"action\": \"finish_cluster\"}"
