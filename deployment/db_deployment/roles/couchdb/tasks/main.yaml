@@ -1,0 +1,121 @@
+---
+- name: Create CouchDB directory
+  become: yes
+  ansible.builtin.file:
+    path: "{{ couchdb_dir }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+    state: directory
+
+# - name: Configure CouchDB docker-compose
+#   become: yes
+#   ansible.builtin.template:
+#     src: docker-compose.yaml.j2
+#     dest: "{{ couchdb_dir }}/docker-compose.yaml"
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+
+# - name: Run CouchDB docker-compose
+#   become: yes
+#   community.docker.docker_compose:
+#     project_src: "{{ couchdb_dir }}"
+#     pull: yes
+#     state: present
+#     remove_orphans: yes
+#     recreate: always
+
+- name: Stop existing CouchDB container
+  become: yes
+  docker_container:
+    name: couchdb_container
+    state: absent
+
+- name: Creating CouchDB Container
+  become: yes
+  docker_container:
+    name: couchdb_container
+    image: "ibmcom/couchdb3:3.2.1"
+    ports:
+      - "5984:5984"
+      - "4369:4369"
+      - "9100:9100"
+      - "80:80"
+      - "8000:8000"
+    volumes:
+      - "{{ couchdb_dir }}:/opt/couchdb/data"
+    env:
+      COUCHDB_USER: "{{ database_user }}"
+      COUCHDB_PASSWORD: "{{ database_password }}"
+      COUCHDB_SECRET: "{{ database_cookie }}"
+      NODE_NAME: "{{ ansible_host }}"
+      ERL_FLAGS: "-setcookie \"{{ database_cookie }}\" -name \"couchdb@{{ groups['masterNode'][0] }}\""
+
+    
+- name: Enable CouchDB cluster setup
+  become: yes
+  uri:
+    url: http://{{ groups['masterNode'][0] }}:5984/_cluster_setup
+    status_code: 200, 201
+    method: POST
+    user: "{{ database_user }}"
+    password: "{{ database_password }}"
+    return_content: yes
+    body_format: json
+    body: "{\"action\": \"enable_cluster\", \"bind_address\":\"0.0.0.0\",\
+            \"username\": \"{{ database_user }}\", \"password\":\"{{ database_password }}\",\
+            \"remote_current_user\": \"{{ database_user }}\", \
+            \"remote_current_password\": \"{{ database_password }}\", \
+            \"node_count\": \"{{ item | length }}\"}"
+    headers:
+      Content-Type: "application/json"
+  loop: "{{ groups['ports'] }}"
+
+# - name: Enable workernodes to CouchDB Cluster
+#   become: yes
+#   when: item != "{{ groups['ports'][0] }}"
+#   uri:
+#     url: http://{{ groups['masterNode'][0] }}:5984/_cluster_setup
+#     status_code: 201
+#     method: POST
+#     user: "{{ database_user }}"
+#     password: "{{ database_password }}"
+#     return_content: yes
+#     body_format: json
+#     body: "{\"action\": \"enable_cluster\", \"bind_address\":\"0.0.0.0\", \
+#             \"username\": \"{{ database_user }}\", \"password\":\"{{ database_passoword }}\", \ 
+#             \"port\": {{ groups['masterPort'][0] }}, \"node_count\": \"{{item | length}}\", \
+#             \"remote_node\": \"{{ item }}\", \"remote_current_user\": \"{{ database_user }}\", \
+#             \"remote_current_password\": \"{{ database_password }}\"}"
+#     headers:
+#       Content-Type: "application/json"
+#   loop: "{{ groups['workerNodes'] }}"
+
+- name: Enable workernodes to CouchDB Cluster
+  uri:
+    url: http://{{ database_user }}:{{ database_password }}@{{ groups['masterNode'][0] }}:{{ groups['masterPort'][0] }}/_cluster_setup
+    status_code: 201, 409
+    method: POST
+    user: "{{ database_user }}"
+    password: "{{ database_password }}"
+    return_content: yes
+    body_format: json
+    body: "{\"action\": \"add_node\", \"host\":\"{{ item }}\", \"port\": {{ groups['masterPort'][0] }}, \
+          \"username\": \"{{ database_user }}\", \"password\":\"{{ database_password }}\"}"
+    headers:
+      Content-Type: "application/json"
+  loop: "{{ groups['workerNodes'] }}"
+
+- name: Finish CouchDB Cluster
+  become: yes
+  uri: 
+    url: http://{{ database_user }}:{{database_password}}@{{ groups['masternode'][0] }}:{{ groups['masterPort'][0] }}/_cluster_setup
+    status_code: 201
+    method: POST
+    user: "{{ database_user }}"
+    password: "{{ database_password }}"
+    return_content: yes
+    body_format: json
+    body: "{\"action\": \"finish_cluster\"}"
+    headers:
+      Content-Type: "application/json"
