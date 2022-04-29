@@ -40,7 +40,7 @@ class TweetListener(tweepy.StreamingClient):
     def on_tweet(self, tweet: tweepy.Tweet):
 
         if self.total_tweets_read % 10 == 0:
-            print("Number of tweets read is", self.total_tweets_read)
+            print("Number of streamed tweets read is", self.total_tweets_read)
         tmp = dict(tweet.data)
         if tmp["id"] not in self.tweet_id_lst: 
             tmp['created_at'] = str(tmp['created_at'])
@@ -80,21 +80,21 @@ def rule_regulation(client, rules):
 
 ##The following functions are for the search method:
 @app.route('/melbourne_test')
-def main_search(id_lst, bearer_token):
+def main_search(id_lst, bearer_token, client):
     
-    client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
+    search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     query = "melbourne"
 
     max_results = 100
     counter = 0
     total_tweets_read = 0
 
-    resp = client.search_recent_tweets(query, max_results=max_results, tweet_fields = tweet_fields, user_fields = user_fields)
+    resp = search_client.search_recent_tweets(query, max_results=max_results, tweet_fields = tweet_fields, user_fields = user_fields)
     print("Search counter at the start is", counter)
 
-    while resp.meta["next_token"]:
-        try:
-            resp = client.search_recent_tweets(query, max_results=max_results, next_token=resp.meta["next_token"], tweet_fields = tweet_fields, user_fields = user_fields)
+    try:
+        while resp.meta["next_token"]:
+            resp = search_client.search_recent_tweets(query, max_results=max_results, next_token=resp.meta["next_token"], tweet_fields = tweet_fields, user_fields = user_fields)
             total_tweets_read += max_results
 
             if resp.errors:
@@ -103,18 +103,19 @@ def main_search(id_lst, bearer_token):
             if resp.data:
                 for tweet in resp.data:
                     tmp = dict(tweet)
-                    if str(tmp["id"]) not in id_lst:
+                    if str(tmp["id"]) not in client.tweet_id_lst:
                         #print(tweet.__repr__())
                         tmp['created_at'] = str(tmp['created_at'])
                         #First check if the ids match:
                         twitter_stream.save(tmp)
-                        id_lst.append(str(tmp["id"]))
+                        (client.tweet_id_lst).append(str(tmp["id"]))
                         #json.dump(tmp, fp)
                         counter += 1
             if counter % 100 == 0:
                 print("Search counter is", counter) 
-        except KeyboardInterrupt or Exception or RuntimeError:
-            return [counter, total_tweets_read]
+    except KeyboardInterrupt or Exception or RuntimeError:
+        print("Stop the searching API")
+        return [counter, total_tweets_read]
 
 @app.errorhandler(400)
 def not_found(error):
@@ -127,19 +128,15 @@ def not_found(error):
 ###
 
 def read_stream(client):
-    print("function read_stream")
     try:
         # https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream
         client.filter(expansions=expansions, place_fields=place_fields, tweet_fields=tweet_fields, user_fields=user_fields, threaded=False)
     except KeyboardInterrupt or Exception: 
+        print("Stop the streaming")
         return
 
-def main_stream(bearer_token):
+def main_stream(client):
     #First obtain the necessary authorization data
-    if not bearer_token:
-        raise RuntimeError("Not found bearer token")
-
-    client = TweetListener(bearer_token, wait_on_rate_limit=True)
 
     rules = [
             tweepy.StreamRule(value="melbourne")
@@ -171,7 +168,11 @@ if __name__ == "__main__":
 
         print("Run the streaming API")
         #Start the timer for streaming API:
-        val = main_stream(person.bearer_token)
+        if not _keys[value]["bearer_token"]:
+            raise RuntimeError("Not found bearer token")
+
+        client = TweetListener(_keys[value]["bearer_token"], wait_on_rate_limit=True)
+        val = main_stream(client)
         id_lst = val[0]
         print("Total number of tweets read for streaming API is", str(val[2]))
         print("Total number of unique tweets obtained for streaming API is", str(val[1]))
@@ -179,7 +180,7 @@ if __name__ == "__main__":
         total_tweets_read += val[2]
 
         print("Run the search API")
-        search_result = main_search(id_lst, person.bearer_token)
+        search_result = main_search(id_lst, person.bearer_token, client)
 
         total_tweets_obtained += search_result[0]
         total_tweets_read += search_result[1]
