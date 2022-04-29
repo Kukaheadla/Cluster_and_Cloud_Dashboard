@@ -22,9 +22,12 @@ couch = couchdb.Server('http://user:pass@localhost:5984/')
 
 if 'twitter_stream' in couch:
     twitter_stream = couch['twitter_stream']
+    print("Existing database used: twitter_stream")
 
 elif 'twitter_stream' not in couch:
     twitter_stream = couch.create('twitter_stream')
+    print("Database created: twitter_stream")
+
 
 ids = ["893542"]
 
