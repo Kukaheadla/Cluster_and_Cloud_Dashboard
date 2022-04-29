@@ -19,7 +19,12 @@ expansions = ["author_id", "entities.mentions.username", "geo.place_id"]
 place_fields = ["contained_within", "country", "country_code", "geo", "name", "full_name"]
 ##
 couch = couchdb.Server('http://user:pass@localhost:5984/')
-twitter_stream = couch['twitter_stream']
+
+if 'twitter_stream' in couch:
+    twitter_stream = couch['twitter_stream']
+
+elif 'twitter_stream' not in couch:
+    twitter_stream = couch.create('twitter_stream')
 
 ids = ["893542"]
 
