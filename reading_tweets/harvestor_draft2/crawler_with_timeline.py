@@ -21,7 +21,7 @@ place_fields = ["contained_within", "country", "country_code", "geo", "name", "f
 ids = ["893542"]
 
 #An optional file to read the tweets to:
-fp = open("tweets_draft7.json", "w")
+fp = open("tweets_draft10_ut.json", "w")
 
 app = Flask(__name__, static_url_path="")
 
@@ -43,7 +43,7 @@ class TweetListener(tweepy.StreamingClient):
 
     #Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
-        if time.time() - self.start_time > 300:
+        if time.time() - self.start_time > 60:
             self.end_early = True
             print("Streaming Count is:", str(self.count))
             self.disconnect()
@@ -61,6 +61,8 @@ class TweetListener(tweepy.StreamingClient):
                     (TweetListener.result).append(tmp)
                     self.tweet_id_lst.append(tmp["id"])
                     self.count += 1
+                    if tmp["author_id"] and tmp["author_id"] not in self.tweet_user_id_lst:
+                        self.tweet_user_id_lst.append(tmp["author_id"])
         self.total_tweets_read += 1
         if self.limit < self.count:
             print("Streaming Count is:", str(self.count))
@@ -205,6 +207,7 @@ def timeline_search(timeline, user_id_lst, user_timeline, client, id_lst, stream
     counter = 0
     total_tweets_read = 0
     for val in user_id_lst:
+        print("val", str(val))
 
         if total_tweets_read >= streaming_no:
             return [counter, total_tweets_read]
@@ -236,8 +239,8 @@ if __name__ == "__main__":
      - DO NOT store it in public places or shared docs
     """
     
-    streaming_no = 100
-    search_no = 200
+    streaming_no = 200
+    search_no = 100
 
     user_timeline = 10
 
@@ -269,13 +272,16 @@ if __name__ == "__main__":
         client = tweepy.Client(person.bearer_token, wait_on_rate_limit=True)
 
         timeline = []
-        timeline_result = timeline_search(timeline, user_id_lst, user_timeline, client, id_lst, streaming_no - total_tweets_obtained)
-        tmp.extend(timeline)
-        total_tweets_obtained += timeline_result[0]
-        total_tweets_read += timeline_result[1]
 
-        print("Total number of tweets read for timeline API is", str(timeline_result[1]))
-        print("Total number of unique tweets obtained for timeline API is", str(timeline_result[0]))
+        if total_tweets_obtained < streaming_no:
+            print("Search the user timelines")
+            timeline_result = timeline_search(timeline, user_id_lst, user_timeline, client, id_lst, streaming_no - total_tweets_obtained)
+            tmp.extend(timeline)
+            total_tweets_obtained += timeline_result[0]
+            total_tweets_read += timeline_result[1]
+
+            print("Total number of tweets read for timeline API is", str(timeline_result[1]))
+            print("Total number of unique tweets obtained for timeline API is", str(timeline_result[0]))
 
         if total_tweets_obtained < streaming_no + search_no:
 
