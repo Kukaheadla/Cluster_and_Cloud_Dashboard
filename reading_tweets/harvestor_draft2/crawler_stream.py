@@ -39,7 +39,7 @@ class TweetListener(tweepy.StreamingClient):
     #Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
 
-        if self.total_tweets_read % 100 == 0:
+        if self.total_tweets_read % 10 == 0:
             print("Number of tweets read is", self.total_tweets_read)
         tmp = dict(tweet.data)
         if tmp["id"] not in self.tweet_id_lst: 
