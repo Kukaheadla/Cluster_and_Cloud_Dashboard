@@ -60,13 +60,14 @@ class TweetListener(tweepy.StreamingClient):
     tweet_id_lst = []
     start_time = time.time()
 
-    def __init__(self, couchdb_server, twitter_bearer_token, **kwargs):
+    def __init__(self, couchdb_server, city_name, twitter_bearer_token, **kwargs):
         """
         Creates a Tweetlistener which will listen for a certain amount of time.
         Including our own override so we can use the couchdb server defined in main.py
         """
         super().__init__(twitter_bearer_token, **kwargs)
         self.couchdb_server = couchdb_server
+        self.city_name = city_name
         if "twitter_stream" in self.couchdb_server:
             self.twitter_stream = self.couchdb_server["twitter_stream"]
 
@@ -91,6 +92,8 @@ class TweetListener(tweepy.StreamingClient):
             tmp["created_at"] = str(tmp["created_at"])
             if "created_at" in tmp.keys() and tmp["created_at"] != None:
                 tmp["created_at"] = str(tmp["created_at"])
+                tmp["city_rule_key"] = self.city_name
+
                 # duplicate update check.
                 # we use the tweet ID from twitter as the primary key for rows
                 # this prevents duplicates being written into the database
@@ -186,7 +189,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                     if str(tmp["id"]) not in client.tweet_id_lst:
                         # print(tweet.__repr__())
                         tmp["created_at"] = str(tmp["created_at"])
-
+                        tmp["city_rule_key"] = city_name
                         # duplicate update check.
                         # we use the tweet ID from twitter as the primary key for rows
                         # this prevents duplicates being written into the database
@@ -263,7 +266,7 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
     total = []
 
     client = TweetListener(
-        couchdb_server, twitter_credentials["bearer_token"], wait_on_rate_limit=True
+        couchdb_server, args.city, twitter_credentials["bearer_token"], wait_on_rate_limit=True
     )
 
     if mode == "stream":
