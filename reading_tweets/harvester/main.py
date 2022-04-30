@@ -104,6 +104,7 @@ if __name__ == "__main__":
         if args.mode.lower() == "stream":
             # do some streaming
             # this will run until terminated, or an API error is encountered from which we cannot recover
+            # if for example this hits the tweet quota for a developer account, the loop should cycle to new credentials
             log("streaming", args.debug)
             result = do_work(twitter_credentials, args, couchdb_server, mode="stream")
         elif args.mode.lower() == "search":
@@ -111,7 +112,6 @@ if __name__ == "__main__":
             # this will also run until terminated or an API error etc.
             log("searching", args.debug)
             result = do_work(twitter_credentials, args, couchdb_server, mode="search")
-            # todo: handle an error such as running out of API space! We can cycle here
 
         # the idea here is that if a rate limit error was returned, we can continue to cycle through credentials
         # until we find some credentials that let us continue
@@ -122,4 +122,7 @@ if __name__ == "__main__":
         log("sleeping before attempting with new credentials", args.debug)
         time.sleep(randint(3, 20))
         if current_credential_index >= len(doc["val"]):
+            # we have reached the end of the array
+            # aspirationally this could continue to cycle in a more interesting way
+            # however this is unlikely to be implemented
             sys.exit()
