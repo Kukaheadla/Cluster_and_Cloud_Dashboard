@@ -20,7 +20,8 @@ import time
 from logger.logger import log
 
 # tweet fields that we want returned in the Twitter API response
-#Left out 'referenced_tweets' in tweet_fields as it may lead to RunTimeError.
+#Left out 'referenced_tweets' in tweet_fields as it may lead to RuntimeError.
+#Left out "entities.mentions.username", "referenced_tweets.id" and "referenced_tweets.id.author_id" as can lead to RuntimeError.
 tweet_fields = [
     "attachments",
     "author_id",
@@ -41,8 +42,8 @@ tweet_fields = [
 ]
 user_fields = ["created_at", "description", "entities", "id", "location", "name", "pinned_tweet_id", "profile_image_url", "protected", 
     "public_metrics", "url", "username", "verified", "withheld"]
-expansions = ["attachments.poll_ids", "attachments.media_keys", "author_id", "entities.mentions.username", "geo.place_id", 
-    "in_reply_to_user_id", "referenced_tweets.id", "referenced_tweets.id.author_id"]
+expansions = ["attachments.poll_ids", "attachments.media_keys", "author_id", "geo.place_id", 
+    "in_reply_to_user_id"]
 media_fields = ["duration_ms", "height", "media_key", "preview_image_url", "type", "url", "width", "public_metrics", "alt_text"]
 place_fields = [
     "contained_within",
