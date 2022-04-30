@@ -3,6 +3,8 @@ This file serves as the entry point to the crawler application.
 
 This file is essentially a dispatch point for various options relating to crawling Tweets.
 You can set various modes, and pass in particular relevant keys.
+
+Authors: Alex
 """
 
 import argparse

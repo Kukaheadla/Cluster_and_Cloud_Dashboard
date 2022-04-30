@@ -1,18 +1,22 @@
-import logging
+"""
+Main crawler application which can do one of two things:
+    - stream data via the Twitter API, that is, look at real time tweets and write them to the database
+    - perform a search back into the past seven days and write those tweets into the database
+
+The functions found here all relate to the Twitter API and crucially, what specific fields and data
+we wish to extract from the API.
+
+The main loop of the application should not be performed here. For example, if the credentials used encounter the daily limit
+or the monthly account limit, that error should be passed back to the main module, and called with new credentials.
+
+Authors: David, Alex
+"""
 from numpy import (
     place,
 )  # logging is used to track events that occur when the software runs.
-from email.policy import default
-from tokenize import String
-from credentials.keys import User
-
-# Contains the main application code.
-from concurrent.futures import process
-import os, json, datetime, couchdb, time
-from flask import Flask, request, abort, make_response, url_for, jsonify
-import pandas as pd
-import tweepy, os, json, datetime
-import pandas as pd
+from flask import Flask, make_response, jsonify
+import tweepy
+import time
 from logger.logger import log
 
 ##Fields
@@ -106,8 +110,8 @@ class TweetListener(tweepy.StreamingClient):
     def on_request_error(self, status_code):
         print(status_code)
 
-    def on_connection_error(self):
-        self.disconnect()
+    # def on_connection_error(self):
+    #     self.disconnect()
 
 
 def rule_regulation(client, rules):
@@ -295,3 +299,5 @@ def do_work(twitter_credentials, args, couchdb_server, mode="search"):
     # Print the results:
     print("Number of tweets read", str(total_tweets_read))
     print("Number of valid tweets obtained", str(total_tweets_obtained))
+
+    return "todo: result goes here! This might be an error which we can recover from, such as hitting API limits"
