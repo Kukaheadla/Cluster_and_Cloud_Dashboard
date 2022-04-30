@@ -13,4 +13,5 @@
 - view on: http://172.26.128.166/dashapp/
 
 - query the REST API on: http://172.26.128.166/api
-    - todo
+    - /api/tweet?id=<tweet_id>
+        - returns a Tweet with the provided ID
