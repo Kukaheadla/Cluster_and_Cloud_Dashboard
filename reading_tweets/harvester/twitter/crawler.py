@@ -121,7 +121,7 @@ def rule_regulation(client, rules):
 
 ##The following functions are for the search method:
 @app.route("/melbourne_test")
-def main_search(id_lst, bearer_token, client, couchdb_server):
+def main_search(id_lst, bearer_token, client, couchdb_server, city_name):
     """
     Main non-streaming search function.
     """
@@ -135,7 +135,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server):
         print("Database created: twitter_stream")
 
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
-    query = "melbourne"
+    query = city_name
 
     max_results = 100
     counter = 0
@@ -172,6 +172,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server):
                         # print(tweet.__repr__())
                         tmp["created_at"] = str(tmp["created_at"])
                         # First check if the ids match:
+                        # twitter_stream_search["_id"] = str(tmp["id"]) # todo: fix
                         twitter_stream_search.save(tmp)
                         (client.tweet_id_lst).append(str(tmp["id"]))
                         # json.dump(tmp, fp)
@@ -255,7 +256,7 @@ def do_work(twitter_credentials, args, couchdb_server, mode="search"):
     if mode == "search":
         log("running the search API", args.debug)
         search_result = main_search(
-            [], twitter_credentials["bearer_token"], client, couchdb_server
+            [], twitter_credentials["bearer_token"], client, couchdb_server, args.city
         )
         log(
             f"Total number of tweets read for search API is {str(search_result[1])}\nTotal number of unique tweets obtained for search API is {str(search_result[0])}",
