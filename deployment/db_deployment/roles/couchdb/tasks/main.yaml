@@ -1,0 +1,110 @@
+---
+- name: Create CouchDB directory
+  become: yes
+  ansible.builtin.file:
+    path: "{{ couchdb_dir }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+    state: directory
+
+# - name: Configure CouchDB docker-compose
+#   become: yes
+#   ansible.builtin.template:
+#     src: docker-compose.yaml.j2
+#     dest: "{{ couchdb_dir }}/docker-compose.yaml"
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+
+# - name: Run CouchDB docker-compose
+#   become: yes
+#   community.docker.docker_compose:
+#     project_src: "{{ couchdb_dir }}"
+#     pull: yes
+#     state: present
+#     remove_orphans: yes
+#     recreate: always
+
+- name: Stop existing CouchDB container
+  become: yes
+  docker_container:
+    name: couchdb_container
+    state: absent
+
+- name: Creating CouchDB Container
+  become: yes
+  docker_container:
+    name: couchdb_container
+    image: "couchdb:latest"
+    ports:
+      - "5984:5984"
+      - "4369:4369"
+      - "15984:15984"
+      - "25984:25984"
+      - "9100-9200:9100-9200"
+      - "80:80"
+    volumes:
+      - "{{ couchdb_dir }}:/opt/couchdb/data"
+    env:
+      COUCHDB_USER: "{{ database_user }}"
+      COUCHDB_PASSWORD: "{{ database_password }}"
+      COUCHDB_SECRET: "{{ database_cookie }}"
+      NODE_NAME: "{{ ansible_host }}"
+
+- name: Pause for 1 minute to build CouchDB container
+  pause:
+    minutes: 1
+
+- name: Enable CouchDB workernode cluster setup
+  become: yes
+  condition: item != {{ groups['masterNode'][0] }}
+  uri:
+    url: http://{{ groups['masterNode'][0] }}:5984/_cluster_setup
+    status_code: 200, 201, 400 # in case the cluster is created, it will return 400
+    method: POST
+    user: "{{ database_user }}"
+    password: "{{ database_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    headers:
+      Content-Type: "application/json"
+    body_format: json
+    body: "{\"action\": \"enable_cluster\", \"bind_address\":\"0.0.0.0\", \"port\": \"5984\", \
+            \"username\": \"{{ database_user }}\", \"password\":\"{{ database_password }}\",\
+            \"remote_current_user\": \"{{ database_user }}\", \
+            \"remote_current_password\": \"{{ database_password }}\", \
+            \"remote_node\": \"{{ item }}\", \"node_count\": \"{{ groups['workerNodes'] | length }}\"}"
+  loop: "{{ groups['workerNodes'] }}"
+
+- name: Add workernodes to CouchDB Cluster
+  become: yes
+  condition: item != {{ groups['masterNode'][0] }}
+  uri:
+    url: http://{{ groups['masterNode'][0] }}:5984/_cluster_setup
+    status_code: 201, 400 # in case the nodes are added, it will return 400
+    method: POST
+    user: "{{ database_user }}"
+    password: "{{ database_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    body_format: json
+    body: "{\"action\": \"add_node\", \"host\":\"{{ item }}\", \"port\": 5984, \
+          \"username\": \"{{ database_user }}\", \"password\":\"{{ database_password }}\"}"
+    headers:
+      Content-Type: "application/json"
+  loop: "{{ groups['workerNodes'] }}"
+
+- name: Finish CouchDB Cluster
+  become: yes
+  uri: 
+    url: http://{{ groups['masterNode'][0] }}:5984/_cluster_setup
+    status_code: 201, 500
+    method: POST
+    user: "{{ database_user }}"
+    password: "{{ database_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    body_format: json
+    body: "{\"action\": \"finish_cluster\"}"
+    headers:
+      Content-Type: "application/json"
