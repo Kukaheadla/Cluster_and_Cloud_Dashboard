@@ -266,7 +266,10 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
     total = []
 
     client = TweetListener(
-        couchdb_server, args.city, twitter_credentials["bearer_token"], wait_on_rate_limit=True
+        couchdb_server,
+        args.city,
+        twitter_credentials["bearer_token"],
+        wait_on_rate_limit=True,
     )
 
     if mode == "stream":
