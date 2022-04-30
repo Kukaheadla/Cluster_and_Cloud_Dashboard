@@ -1,6 +1,6 @@
 # run from entrypoint passing in relevant flags
 # this is really just an example, make sure it does what you expect!
-python main.py --credentials-id 0 --debug --couchdb-host localhost:5984 --couchdb-username admin --city melbourne --mode search --debug 
+python main.py --credentials-id 0 --couchdb-host localhost:5984 --couchdb-username admin --city melbourne --mode search --debug 
 
 
 

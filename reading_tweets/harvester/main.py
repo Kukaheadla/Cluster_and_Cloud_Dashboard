@@ -45,6 +45,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "--debug", help="enables debug logging", action="store_const", const=True
     )
+    parser.add_argument(
+        "--verbose", help="enables verbose logging", action="store_const", const=True
+    )
     args = parser.parse_args()
 
     # connect to couchdb server

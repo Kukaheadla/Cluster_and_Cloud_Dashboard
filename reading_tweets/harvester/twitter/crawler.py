@@ -39,18 +39,6 @@ place_fields = [
     "full_name",
 ]
 
-# CouchDB connections
-##
-couch = couchdb.Server("http://admin:password@localhost:5984/")
-
-if "twitter_stream" in couch:
-    twitter_stream = couch["twitter_stream"]
-    print("Existing database used: twitter_stream")
-
-elif "twitter_stream" not in couch:
-    twitter_stream = couch.create("twitter_stream")
-    print("Database created: twitter_stream")
-
 
 ids = ["893542"]
 
@@ -70,8 +58,24 @@ class TweetListener(tweepy.StreamingClient):
     tweet_id_lst = []
     start_time = time.time()
 
+    def __init__(self, couchdb_server, twitter_bearer_token, **kwargs):
+        """
+        Creates a Tweetlistener which will listen for a certain amount of time.
+        todo: describe properly.
+        """
+        super().__init__(twitter_bearer_token, **kwargs)
+        self.couchdb_server = couchdb_server
+        if "twitter_stream" in self.couchdb_server:
+            self.twitter_stream = self.couchdb_server["twitter_stream"]
+
+        elif "twitter_stream" not in self.couchdb_server:
+            self.twitter_stream = self.couchdb_server.create("twitter_stream")
+
     # Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
+        """
+        Event listener for Tweet events in the HTTP long poll.
+        """
 
         if time.time() - self.start_time > 60:
             print("Streaming Count is:", str(self.count))
@@ -85,7 +89,16 @@ class TweetListener(tweepy.StreamingClient):
             tmp["created_at"] = str(tmp["created_at"])
             if "created_at" in tmp.keys() and tmp["created_at"] != None:
                 tmp["created_at"] = str(tmp["created_at"])
-                twitter_stream.save(tmp)
+                # duplicate update check.
+                # we use the tweet ID from twitter as the primary key for rows
+                # this prevents duplicates being written into the database
+                # however it will make couchdb throw an error.
+                try:
+                    self.twitter_stream[str(tmp["id"])] = tmp
+                except Exception as e:
+                    log(e, False)
+                    pass
+
                 self.tweet_id_lst.append(tmp["id"])
                 self.count += 1
         self.total_tweets_read += 1
@@ -121,19 +134,20 @@ def rule_regulation(client, rules):
 
 ##The following functions are for the search method:
 @app.route("/melbourne_test")
-def main_search(id_lst, bearer_token, client, couchdb_server, city_name):
+def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
     """
     Main non-streaming search function.
     """
     twitter_stream_search = None
-    if "twitter_stream" in couch:
+    if "twitter_stream" in couchdb_server:
         twitter_stream_search = couchdb_server["twitter_stream"]
         print("Existing database used: twitter_stream")
 
-    elif "twitter_stream" not in couch:
+    elif "twitter_stream" not in couchdb_server:
         twitter_stream_search = couchdb_server.create("twitter_stream")
         print("Database created: twitter_stream")
 
+    # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     query = city_name
 
@@ -163,24 +177,32 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name):
             if resp.errors:
                 raise RuntimeError(resp.errors)
 
+            # successfully got data returned
             if resp.data:
                 for tweet in resp.data:
                     tmp = dict(tweet)
-                    # todo: remove duplicates purely by using couchDB's functionality
-                    # as checking like this will not work if multiple harvesters are working simultaneously
                     if str(tmp["id"]) not in client.tweet_id_lst:
                         # print(tweet.__repr__())
                         tmp["created_at"] = str(tmp["created_at"])
-                        # First check if the ids match:
-                        # twitter_stream_search["_id"] = str(tmp["id"]) # todo: fix
-                        twitter_stream_search.save(tmp)
+
+                        # duplicate update check.
+                        # we use the tweet ID from twitter as the primary key for rows
+                        # this prevents duplicates being written into the database
+                        # however it will make couchdb throw an error.
+                        try:
+                            twitter_stream_search[str(tmp["id"])] = tmp
+                        except Exception as e:
+                            log(e, args.verbose)
+                            pass
+
+                        # twitter_stream_search.save(tmp)
                         (client.tweet_id_lst).append(str(tmp["id"]))
                         # json.dump(tmp, fp)
                         counter += 1
             if counter % 100 == 0:
-                print("Search counter is", counter)
+                log(f"search counter is {str(counter)}", args.debug)
     except KeyboardInterrupt or Exception or RuntimeError:
-        print("Stop the searching API")
+        log("terminating due to received event", True)
         return [counter, total_tweets_read]
 
 
@@ -238,9 +260,7 @@ def do_work(twitter_credentials, args, couchdb_server, mode="search"):
 
     total = []
 
-    client = TweetListener(
-        twitter_credentials["bearer_token"], wait_on_rate_limit=True
-    )
+    client = TweetListener(couchdb_server, twitter_credentials["bearer_token"], wait_on_rate_limit=True)
 
     if mode == "stream":
         log("running the streaming API", args.debug)
@@ -256,7 +276,12 @@ def do_work(twitter_credentials, args, couchdb_server, mode="search"):
     if mode == "search":
         log("running the search API", args.debug)
         search_result = main_search(
-            [], twitter_credentials["bearer_token"], client, couchdb_server, args.city
+            [],
+            twitter_credentials["bearer_token"],
+            client,
+            couchdb_server,
+            args.city,
+            args,
         )
         log(
             f"Total number of tweets read for search API is {str(search_result[1])}\nTotal number of unique tweets obtained for search API is {str(search_result[0])}",
