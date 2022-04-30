@@ -120,6 +120,10 @@ if __name__ == "__main__":
         # we can do in that case and the crawler(s) will eventually all terminate.
         current_credential_index += 1
         log("sleeping before attempting with new credentials", args.debug)
+
+        # the random sleep time here is supposed to make it such that no two harvesters (in our cluster)
+        # will acquire the same credentials *at the same time*. It is not a _huge_ problem if two harvesters do this,
+        # but it may lead to unnecessary cycling between credentials.
         time.sleep(randint(3, 20))
         if current_credential_index >= len(doc["val"]):
             # we have reached the end of the array
