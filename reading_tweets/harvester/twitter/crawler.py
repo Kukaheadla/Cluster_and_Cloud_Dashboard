@@ -13,13 +13,13 @@ Authors: David, Alex
 """
 from numpy import (
     place,
-)  # logging is used to track events that occur when the software runs.
+)
 from flask import Flask, make_response, jsonify
 import tweepy
 import time
 from logger.logger import log
 
-##Fields
+# tweet fields that we want returned in the Twitter API response
 tweet_fields = [
     "attachments",
     "author_id",
@@ -43,14 +43,12 @@ place_fields = [
     "full_name",
 ]
 
-
-ids = ["893542"]
-
-# An optional file to read the tweets to:
-
+"""
+Flask application for optional use. Does not need to be run as a server unless you want to create some custom views etc.
+"""
 app = Flask(__name__, static_url_path="")
 
-# TweetListener(twitter_credentials["bearer_token"], wait_on_rate_limit=True)
+
 class TweetListener(tweepy.StreamingClient):
     """
     StreamingClient allows filtering and sampling of realtime Tweets using Twitter API v2.
@@ -65,7 +63,7 @@ class TweetListener(tweepy.StreamingClient):
     def __init__(self, couchdb_server, twitter_bearer_token, **kwargs):
         """
         Creates a Tweetlistener which will listen for a certain amount of time.
-        todo: describe properly.
+        Including our own override so we can use the couchdb server defined in main.py
         """
         super().__init__(twitter_bearer_token, **kwargs)
         self.couchdb_server = couchdb_server
@@ -253,7 +251,7 @@ def main_stream(client, city_name="melbourne"):
     return [client.tweet_id_lst, client.count, client.total_tweets_read]
 
 
-def do_work(twitter_credentials, args, couchdb_server, mode="search"):
+def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
     """
     Does the main loop for the crawler.
     """
@@ -264,7 +262,9 @@ def do_work(twitter_credentials, args, couchdb_server, mode="search"):
 
     total = []
 
-    client = TweetListener(couchdb_server, twitter_credentials["bearer_token"], wait_on_rate_limit=True)
+    client = TweetListener(
+        couchdb_server, twitter_credentials["bearer_token"], wait_on_rate_limit=True
+    )
 
     if mode == "stream":
         log("running the streaming API", args.debug)
