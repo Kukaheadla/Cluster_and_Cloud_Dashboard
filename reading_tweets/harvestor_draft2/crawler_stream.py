@@ -181,7 +181,6 @@ if __name__ == "__main__":
         person = User(value, _keys[value]["bearer_token"], _keys[value]["consumer_key"], _keys[value]["consumer_secret"], 
             _keys[value]["access_token"], _keys[value]["access_token_secret"]) 
 
-        print("Run the streaming API")
         if not _keys[value]["bearer_token"]:
             raise RuntimeError("Not found bearer token")
 
