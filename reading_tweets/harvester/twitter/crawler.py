@@ -264,8 +264,7 @@ def do_work(twitter_credentials, args, couchdb_server, mode="search"):
             )
             total_tweets_obtained += search_result[0]
             total_tweets_read += search_result[1]
-
-            print("Complete for id", str(value))
+            log(f"Complete for ID {str(value)}")
             print("Total number of tweets read", str(search_result[1]))
             print("Total number of unique tweets obtained:", search_result[0])
 
