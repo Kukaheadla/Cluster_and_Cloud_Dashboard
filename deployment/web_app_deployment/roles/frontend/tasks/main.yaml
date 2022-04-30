@@ -11,7 +11,7 @@
 - name: Copy files to remote
   become: yes
   copy:
-    src: "{{ playbook_dir }}/../web_application/"
+    src: "{{ playbook_dir }}/../../web_application/"
     dest: "{{ web_app_dir }}/"
     force: true
 
