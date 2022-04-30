@@ -1,4 +1,3 @@
-
 def log(message: str, debug: bool):
     """
     Logs a message if debug flag is True.

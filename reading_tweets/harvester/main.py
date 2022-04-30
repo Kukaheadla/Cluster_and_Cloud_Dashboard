@@ -12,17 +12,22 @@ from twitter.crawler import do_work
 from logger.logger import log
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("main")
+    parser.add_argument("--couchdb-host", help="IP:Port", type=str, required=True)
     parser.add_argument(
-        "--couchdb-host", help="IP:Port", type=str, required=True
+        "--couchdb-username",
+        help="username of couchdb",
+        type=str,
+        required=False,
+        default="user",
     )
     parser.add_argument(
-        "--couchdb-username", help="username of couchdb", type=str, required=False, default="user"
-    )
-    parser.add_argument(
-        "--couchdb-password", help="password of couchdb user", type=str, required=False, default="password"
+        "--couchdb-password",
+        help="password of couchdb user",
+        type=str,
+        required=False,
+        default="password",
     )
     parser.add_argument(
         "--credentials-id", help="credentials ID number", type=int, required=True
@@ -30,9 +35,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--city", help="city topic, e.g. melbourne or sydney", type=str, required=True
     )
-    parser.add_argument(
-        "--mode", help="e.g. stream or search", type=str, required=True
-    )
+    parser.add_argument("--mode", help="e.g. stream or search", type=str, required=True)
     parser.add_argument(
         "-o",
         help="specify an output file for returned Tweets.",
@@ -45,7 +48,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # connect to couchdb server
-    couchdb_server = couchdb.Server(f"http://{args.couchdb_username}:{args.couchdb_password}@{args.couchdb_host}/")
+    couchdb_server = couchdb.Server(
+        f"http://{args.couchdb_username}:{args.couchdb_password}@{args.couchdb_host}/"
+    )
 
     # get Twitter credentials from CouchDB table
     # in the DB it should look like the following in a credentials table:
@@ -72,10 +77,10 @@ if __name__ == "__main__":
     try:
         twitter_credentials = doc["val"][args.credentials_id]
     except IndexError:
-        log(f"No credentials object found at index {str(args.credentials_id)}",True)
-        sys.exit() # cannot do anything further, so quit.
+        log(f"No credentials object found at index {str(args.credentials_id)}", True)
+        sys.exit()  # cannot do anything further, so quit.
     log(twitter_credentials, args.debug)
-    
+
     if args.mode.lower() == "stream":
         # do some streaming
         # this will run until terminated, or an API error is encountered from which we cannot recover
@@ -85,4 +90,4 @@ if __name__ == "__main__":
         # do some searching
         # this will also run until terminated or an API error etc.
         log("searching", args.debug)
-        do_work(twitter_credentials, args,couchdb_server, mode="search")
+        do_work(twitter_credentials, args, couchdb_server, mode="search")

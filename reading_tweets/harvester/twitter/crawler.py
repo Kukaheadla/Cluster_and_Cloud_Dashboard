@@ -13,6 +13,7 @@ from flask import Flask, request, abort, make_response, url_for, jsonify
 import pandas as pd
 import tweepy, os, json, datetime
 import pandas as pd
+from logger.logger import log
 
 ##Fields
 tweet_fields = [
@@ -57,7 +58,7 @@ ids = ["893542"]
 
 app = Flask(__name__, static_url_path="")
 
-
+# TweetListener(twitter_credentials["bearer_token"], wait_on_rate_limit=True)
 class TweetListener(tweepy.StreamingClient):
     """
     StreamingClient allows filtering and sampling of realtime Tweets using Twitter API v2.
@@ -120,7 +121,18 @@ def rule_regulation(client, rules):
 
 ##The following functions are for the search method:
 @app.route("/melbourne_test")
-def main_search(id_lst, bearer_token, client):
+def main_search(id_lst, bearer_token, client, couchdb_server):
+    """
+    Main non-streaming search function.
+    """
+    twitter_stream_search = None
+    if "twitter_stream" in couch:
+        twitter_stream_search = couchdb_server["twitter_stream"]
+        print("Existing database used: twitter_stream")
+
+    elif "twitter_stream" not in couch:
+        twitter_stream_search = couchdb_server.create("twitter_stream")
+        print("Database created: twitter_stream")
 
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     query = "melbourne"
@@ -154,11 +166,13 @@ def main_search(id_lst, bearer_token, client):
             if resp.data:
                 for tweet in resp.data:
                     tmp = dict(tweet)
+                    # todo: remove duplicates purely by using couchDB's functionality
+                    # as checking like this will not work if multiple harvesters are working simultaneously
                     if str(tmp["id"]) not in client.tweet_id_lst:
                         # print(tweet.__repr__())
                         tmp["created_at"] = str(tmp["created_at"])
                         # First check if the ids match:
-                        twitter_stream.save(tmp)
+                        twitter_stream_search.save(tmp)
                         (client.tweet_id_lst).append(str(tmp["id"]))
                         # json.dump(tmp, fp)
                         counter += 1
@@ -224,26 +238,29 @@ def do_work(twitter_credentials, args, couchdb_server, mode="search"):
     total = []
     for value in ids:
 
-        client = TweetListener(twitter_credentials["bearer_token"], wait_on_rate_limit=True)
+        client = TweetListener(
+            twitter_credentials["bearer_token"], wait_on_rate_limit=True
+        )
 
         if mode == "stream":
-            print("Run the streaming API")
+            log("running the streaming API", args.debug)
             val = main_stream(client, args.city)
             id_lst = val[0]
-            print("Total number of tweets read for streaming API is", str(val[2]))
-            print(
-                "Total number of unique tweets obtained for streaming API is", str(val[1])
+            log(
+                f"Total number of tweets read for streaming API is {str(val[2])}\nTotal number of unique tweets obtained for streaming API is {str(val[1])}",
+                args.debug,
             )
             total_tweets_obtained += val[1]
             total_tweets_read += val[2]
 
         if mode == "search":
-            print("Run the search API")
-            search_result = main_search([], twitter_credentials["bearer_token"], client)
-            print("Total number of tweets read for search API is", str(search_result[1]))
-            print(
-                "Total number of unique tweets obtained for search API is",
-                str(search_result[0]),
+            log("running the search API", args.debug)
+            search_result = main_search(
+                [], twitter_credentials["bearer_token"], client, couchdb_server
+            )
+            log(
+                f"Total number of tweets read for search API is {str(search_result[1])}\nTotal number of unique tweets obtained for search API is {str(search_result[0])}",
+                args.debug,
             )
             total_tweets_obtained += search_result[0]
             total_tweets_read += search_result[1]
