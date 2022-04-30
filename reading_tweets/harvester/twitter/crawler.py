@@ -20,6 +20,7 @@ import time
 from logger.logger import log
 
 # tweet fields that we want returned in the Twitter API response
+#Left out 'referenced_tweets' in tweet_fields as it may lead to RunTimeError.
 tweet_fields = [
     "attachments",
     "author_id",
@@ -28,21 +29,32 @@ tweet_fields = [
     "created_at",
     "entities",
     "geo",
-    "lang",
     "id",
+    "in_reply_to_user_id",
+    "lang",
+    "public_metrics",
+    "possibly_sensitive",
+    "reply_settings",
+    "source",
     "text",
+    "withheld",
 ]
-user_fields = ["name", "username", "location", "verified", "description"]
-expansions = ["author_id", "entities.mentions.username", "geo.place_id"]
+user_fields = ["created_at", "description", "entities", "id", "location", "name", "pinned_tweet_id", "profile_image_url", "protected", 
+    "public_metrics", "url", "username", "verified", "withheld"]
+expansions = ["attachments.poll_ids", "attachments.media_keys", "author_id", "entities.mentions.username", "geo.place_id", 
+    "in_reply_to_user_id", "referenced_tweets.id", "referenced_tweets.id.author_id"]
+media_fields = ["duration_ms", "height", "media_key", "preview_image_url", "type", "url", "width", "public_metrics", "alt_text"]
 place_fields = [
     "contained_within",
     "country",
     "country_code",
-    "geo",
-    "name",
     "full_name",
+    "geo",
+    "id",
+    "name",
+    "place_type",
 ]
-
+poll_fields = ["duration_minutes", "end_datetime", "id", "options", "voting_status"]
 """
 Flask application for optional use. Does not need to be run as a server unless you want to create some custom views etc.
 """
@@ -165,6 +177,10 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
         max_results=max_results,
         tweet_fields=tweet_fields,
         user_fields=user_fields,
+        expansions=expansions,
+        media_fields=media_fields,
+        place_fields=place_fields,
+        poll_fields=poll_fields
     )
     print("Search counter at the start is", counter)
 
@@ -176,6 +192,10 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                 next_token=resp.meta["next_token"],
                 tweet_fields=tweet_fields,
                 user_fields=user_fields,
+                expansions=expansions,
+                media_fields=media_fields,
+                place_fields=place_fields,
+                poll_fields=poll_fields
             )
             total_tweets_read += max_results
 
@@ -232,6 +252,8 @@ def read_stream(client, start_time):
             place_fields=place_fields,
             tweet_fields=tweet_fields,
             user_fields=user_fields,
+            media_fields=media_fields,
+            poll_fields=poll_fields,
             threaded=False,
         )
     except KeyboardInterrupt or Exception:
