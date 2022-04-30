@@ -80,6 +80,10 @@ if __name__ == "__main__":
     twitter_credentials = None
 
     current_credential_index = args.credentials_id
+    log(
+        f"There are {str(len(doc['val']))} credential keys in the database",
+        args.verbose,
+    )
 
     while True:
 
