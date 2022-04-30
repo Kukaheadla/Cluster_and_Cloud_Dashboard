@@ -236,37 +236,35 @@ def do_work(twitter_credentials, args, couchdb_server, mode="search"):
     total_tweets_obtained = 0
 
     total = []
-    for value in ids:
 
-        client = TweetListener(
-            twitter_credentials["bearer_token"], wait_on_rate_limit=True
+    client = TweetListener(
+        twitter_credentials["bearer_token"], wait_on_rate_limit=True
+    )
+
+    if mode == "stream":
+        log("running the streaming API", args.debug)
+        val = main_stream(client, args.city)
+        id_lst = val[0]
+        log(
+            f"Total number of tweets read for streaming API is {str(val[2])}\nTotal number of unique tweets obtained for streaming API is {str(val[1])}",
+            args.debug,
         )
+        total_tweets_obtained += val[1]
+        total_tweets_read += val[2]
 
-        if mode == "stream":
-            log("running the streaming API", args.debug)
-            val = main_stream(client, args.city)
-            id_lst = val[0]
-            log(
-                f"Total number of tweets read for streaming API is {str(val[2])}\nTotal number of unique tweets obtained for streaming API is {str(val[1])}",
-                args.debug,
-            )
-            total_tweets_obtained += val[1]
-            total_tweets_read += val[2]
-
-        if mode == "search":
-            log("running the search API", args.debug)
-            search_result = main_search(
-                [], twitter_credentials["bearer_token"], client, couchdb_server
-            )
-            log(
-                f"Total number of tweets read for search API is {str(search_result[1])}\nTotal number of unique tweets obtained for search API is {str(search_result[0])}",
-                args.debug,
-            )
-            total_tweets_obtained += search_result[0]
-            total_tweets_read += search_result[1]
-            log(f"Complete for ID {str(value)}")
-            print("Total number of tweets read", str(search_result[1]))
-            print("Total number of unique tweets obtained:", search_result[0])
+    if mode == "search":
+        log("running the search API", args.debug)
+        search_result = main_search(
+            [], twitter_credentials["bearer_token"], client, couchdb_server
+        )
+        log(
+            f"Total number of tweets read for search API is {str(search_result[1])}\nTotal number of unique tweets obtained for search API is {str(search_result[0])}",
+            args.debug,
+        )
+        total_tweets_obtained += search_result[0]
+        total_tweets_read += search_result[1]
+        print("Total number of tweets read", str(search_result[1]))
+        print("Total number of unique tweets obtained:", search_result[0])
 
     # Print the results:
     print("Number of tweets read", str(total_tweets_read))

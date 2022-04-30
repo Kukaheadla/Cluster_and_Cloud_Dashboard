@@ -81,13 +81,15 @@ if __name__ == "__main__":
         sys.exit()  # cannot do anything further, so quit.
     log(twitter_credentials, args.debug)
 
+    # todo: convert to loop
     if args.mode.lower() == "stream":
         # do some streaming
         # this will run until terminated, or an API error is encountered from which we cannot recover
         log("streaming", args.debug)
-        do_work(twitter_credentials, args, couchdb_server, mode="stream")
+        result = do_work(twitter_credentials, args, couchdb_server, mode="stream")
     elif args.mode.lower() == "search":
         # do some searching
         # this will also run until terminated or an API error etc.
         log("searching", args.debug)
-        do_work(twitter_credentials, args, couchdb_server, mode="search")
+        result = do_work(twitter_credentials, args, couchdb_server, mode="search")
+        # todo: handle an error such as running out of API space! We can cycle here
