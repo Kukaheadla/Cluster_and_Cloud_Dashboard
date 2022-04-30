@@ -76,21 +76,23 @@ if __name__ == "__main__":
     """
     doc_id = "twitter_credentials"
     credentials_server = couchdb_server["credentials"]
-    doc = credentials_server["twitter_credentials"]
     twitter_credentials = None
-
     current_credential_index = args.credentials_id
-    log(
-        f"There are {str(len(doc['val']))} credential keys in the database",
-        args.verbose,
-    )
 
     while True:
-
+        doc = credentials_server["twitter_credentials"]
+        log(
+            f"There are {str(len(doc['val']))} credential keys in the database",
+            args.verbose,
+        )
         # attempt to find the credentials by position. If this is server 0 and that was the ID passed in,
         # then we will attempt to use the credentials at array position 0 in the twitter_credentials record in couchDB.
         try:
-            twitter_credentials = doc["val"][args.credentials_id]
+            twitter_credentials = doc["val"][current_credential_index]
+            log(
+                f"using credentials with name: {doc['val'][current_credential_index]['name']}",
+                args.debug,
+            )
         except IndexError:
             log(
                 f"No credentials object found at index {str(args.credentials_id)}", True
