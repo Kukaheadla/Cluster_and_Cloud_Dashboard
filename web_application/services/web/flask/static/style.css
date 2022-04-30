@@ -59,7 +59,7 @@ footer {
 }
 
 footer::before {
-    content: "v1.5";
+    content: "v1.6";
     padding: 2px;
     font-size: 18px;
 }
