@@ -197,10 +197,13 @@ def read_stream(client, start_time):
         return
 
 
-def main_stream(client):
+def main_stream(client, city_name="melbourne"):
+    """
+    Main function for streaming Tweets using the Twitter Streaming API.
+    """
     # First obtain the necessary authorization data
 
-    rules = [tweepy.StreamRule(value="melbourne")]
+    rules = [tweepy.StreamRule(value=city_name)]
     rule_regulation(client, rules)
     # https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
     print(client.get_rules())
@@ -211,10 +214,7 @@ def main_stream(client):
 
 def do_work(twitter_credentials, args, couchdb_server, mode="search"):
     """
-    - Save it in a secure location
-    - Treat it like a password or a set of keys
-    - If security has been compromised, regenerate it
-    - DO NOT store it in public places or shared docs
+    Does the main loop for the crawler.
     """
     streaming_no = 0
     search_no = 0
@@ -228,7 +228,7 @@ def do_work(twitter_credentials, args, couchdb_server, mode="search"):
 
         if mode == "stream":
             print("Run the streaming API")
-            val = main_stream(client)
+            val = main_stream(client, args.city)
             id_lst = val[0]
             print("Total number of tweets read for streaming API is", str(val[2]))
             print(
@@ -239,7 +239,7 @@ def do_work(twitter_credentials, args, couchdb_server, mode="search"):
 
         if mode == "search":
             print("Run the search API")
-            search_result = main_search(id_lst, twitter_credentials["bearer_token"], client)
+            search_result = main_search([], twitter_credentials["bearer_token"], client)
             print("Total number of tweets read for search API is", str(search_result[1]))
             print(
                 "Total number of unique tweets obtained for search API is",

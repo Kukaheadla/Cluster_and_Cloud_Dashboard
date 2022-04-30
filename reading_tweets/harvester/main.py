@@ -84,5 +84,5 @@ if __name__ == "__main__":
     elif args.mode.lower() == "search":
         # do some searching
         # this will also run until terminated or an API error etc.
-        log("searching", args.debug, args)
+        log("searching", args.debug)
         do_work(twitter_credentials, args,couchdb_server, mode="search")
