@@ -13,23 +13,20 @@ import tweepy, os, json, datetime
 import pandas as pd
 
 ##Fields
-tweet_fields = ["attachments", "author_id", "context_annotations", "conversation_id", "created_at", "entities", "geo", "id", "in_reply_to_user_id", "lang", "non_public_metrics", "public_metrics", 
-    "organic_metrics", "promoted_metrics", "possibly_sensitive", "referenced_tweets", "reply_settings", "source", "text", "withheld"]
-user_fields = ["created_at", "description", "entities", "id", "location", "name", "pinned_tweet_id", "profile_image_url", "protected", "public_metrics", 
-    "url", "username", "verified", "withheld"]
-expansions = ["attachments.poll_ids", "attachments.media_keys", "author_id", "entities.mentions.username", "geo.place_id", "in_reply_to_user_id", "referenced_tweets.id", "referenced_tweets.id.author_id"]
-place_fields = ["contained_within", "country", "country_code", "full_name", "geo", "id", "name", "place_type"]
-poll_fields = ["duration_minutes", "end_datetime", "id", "options", "voting_status"]
+tweet_fields = ["attachments", "author_id", "context_annotations", "conversation_id", "created_at", "entities", "geo", "lang", "id", "text"]
+user_fields = ["name", "username", "location", "verified", "description"]
+expansions = ["author_id", "entities.mentions.username", "geo.place_id"]
+place_fields = ["contained_within", "country", "country_code", "geo", "name", "full_name"]
 ##
 couch = couchdb.Server('http://user:pass@localhost:5984/')
 
-if 'twitter_stream1' in couch:
-    twitter_stream = couch['twitter_stream1']
-    print("Existing database used: twitter_stream1")
+if 'twitter_stream' in couch:
+    twitter_stream = couch['twitter_stream']
+    print("Existing database used: twitter_stream")
 
-elif 'twitter_stream1' not in couch:
-    twitter_stream = couch.create('twitter_stream1')
-    print("Database created: twitter_stream1")
+elif 'twitter_stream' not in couch:
+    twitter_stream = couch.create('twitter_stream')
+    print("Database created: twitter_stream")
 
 
 ids = ["893542"]
