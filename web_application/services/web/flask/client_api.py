@@ -20,7 +20,7 @@ for dbname in couchserver:
     # print(dbname)
     pass
 
-db = couchserver["test2"]
+db = couchserver["twitter_stream"]
 
 api_bp = Blueprint("api", __name__)
 

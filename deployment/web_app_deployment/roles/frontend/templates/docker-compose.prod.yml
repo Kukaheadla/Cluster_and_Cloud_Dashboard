@@ -13,9 +13,9 @@ services:
     expose:
       - 5000
     environment:
-      - COUCHDB_DATABASE=http://admin:password@172.26.132.25:5984
-      - COUCHDB_DATABASE_NAME=test2
-      - COUCHDB_USERNAME=admin
+      - COUCHDB_DATABASE=http://user:password@172.26.130.155:5984
+      - COUCHDB_DATABASE_NAME=twitter_stream
+      - COUCHDB_USERNAME=user
   nginx:
     build: ./services/nginx
     ports:
