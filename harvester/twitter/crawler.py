@@ -87,15 +87,15 @@ class TweetListener(tweepy.StreamingClient):
         self.city_name = city_name
         api = tweepy.API(auth)
         self.api = api
-        if "twitter_stream_geo_2" in self.couchdb_server:
+        if "twitter_stream_geo2" in self.couchdb_server:
             print("Use existing database")
-            self.twitter_stream = self.couchdb_server["twitter_stream_geo_2"]
-            print("Existing database used: twitter_stream_geo_2")
+            self.twitter_stream = self.couchdb_server["twitter_stream_geo2"]
+            print("Existing database used: twitter_stream_geo2")
 
-        elif "twitter_stream_geo_2" not in self.couchdb_server:
+        elif "twitter_stream_geo2" not in self.couchdb_server:
             print("Create new database")
-            self.twitter_stream = self.couchdb_server.create("twitter_stream_geo_2")
-            print("Database created: twitter_stream_geo_2")
+            self.twitter_stream = self.couchdb_server.create("twitter_stream_geo2")
+            print("Database created: twitter_stream_geo2")
 
     # Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
@@ -117,7 +117,7 @@ class TweetListener(tweepy.StreamingClient):
                     print("Geo available")
                     loc = tmp["geo"]["place_id"]
                     location = self.api.geo_id(loc)
-                    tmp["geo_location"] = {
+                    tmp["geo"]["geo_location"] = {
                         "id" : location.id,
                         "url" : location.url,
                         "place_type" : location.place_type,
@@ -151,6 +151,7 @@ class TweetListener(tweepy.StreamingClient):
         self.total_tweets_read += 1
 
     def on_request_error(self, status_code):
+        print(status_code)
         log(status_code, True)
         # rate limit error
         if status_code == 420:
@@ -189,15 +190,15 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
     Main non-streaming search function.
     """
     twitter_stream_search = None
-    if "twitter_stream_geo_2" in couchdb_server:
+    if "twitter_stream_geo2" in couchdb_server:
         print("Use existing database")
-        twitter_stream_search = couchdb_server["twitter_stream_geo_2"]
-        print("Existing database used: twitter_stream_geo_2")
+        twitter_stream_search = couchdb_server["twitter_stream_geo2"]
+        print("Existing database used: twitter_stream_geo2")
 
-    elif "twitter_stream_geo_2" not in couchdb_server:
+    elif "twitter_stream_geo2" not in couchdb_server:
         print("Create new database")
-        twitter_stream_search = couchdb_server.create("twitter_stream_geo_2")
-        print("Database created: twitter_stream_geo_2")
+        twitter_stream_search = couchdb_server.create("twitter_stream_geo2")
+        print("Database created: twitter_stream_geo2")
 
     # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
@@ -250,7 +251,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                                 print("Geo available")
                                 loc = tmp["geo"]["place_id"]
                                 location = client.api.geo_id(loc)
-                                tmp["geo_location"] = {
+                                tmp["geo"]["geo_location"] = {
                                     "id" : location.id,
                                     "url" : location.url,
                                     "place_type" : location.place_type,
@@ -275,6 +276,8 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                         except Exception as e:
                             log(e, args.verbose)
                             pass
+                        #twitter_stream_search.save(tmp)
+                        # json.dump(tmp, fp)
             if counter % 100 == 0:
                 log(f"search counter is {str(counter)}", args.debug)
     except KeyboardInterrupt or Exception or RuntimeError:
