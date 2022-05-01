@@ -122,7 +122,11 @@ class TweetListener(tweepy.StreamingClient):
         self.total_tweets_read += 1
 
     def on_request_error(self, status_code):
-        print(status_code)
+        log(status_code, True)
+        # rate limit error
+        if status_code == 420:
+            return False
+
 
     # def on_connection_error(self):
     #     self.disconnect()
