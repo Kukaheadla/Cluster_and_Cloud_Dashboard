@@ -112,6 +112,9 @@ if __name__ == "__main__":
             # this will also run until terminated or an API error etc.
             log("searching", args.debug)
             result = do_work(twitter_credentials, args, couchdb_server, mode="search")
+        elif args.mode.lower() == "both":
+            log("do both", args.debug)
+            result = do_work(twitter_credentials, args, couchdb_server, mode="both")
 
         # the idea here is that if a rate limit error was returned, we can continue to cycle through credentials
         # until we find some credentials that let us continue
@@ -126,6 +129,8 @@ if __name__ == "__main__":
         # but it may lead to unnecessary cycling between credentials.
         time.sleep(randint(3, 20))
         if current_credential_index >= len(doc["val"]):
+            print("length is", str(len(doc["val"])))
+            print("Exit")
             # we have reached the end of the array
             # aspirationally this could continue to cycle in a more interesting way
             # however this is unlikely to be implemented
