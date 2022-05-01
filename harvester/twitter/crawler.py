@@ -120,14 +120,13 @@ class TweetListener(tweepy.StreamingClient):
                 # this prevents duplicates being written into the database
                 # however it will make couchdb throw an error.
                 try:
+                    tmp = attach_sentiment(tmp)
                     self.twitter_stream[str(tmp["id"])] = tmp
+                    self.tweet_id_lst.append(tmp["id"])
+                    self.count += 1
                 except Exception as e:
                     log(e, False)
                     pass
-                tmp = attach_sentiment(tmp)
-                self.twitter_stream.save(tmp)
-                self.tweet_id_lst.append(tmp["id"])
-                self.count += 1
         self.total_tweets_read += 1
 
     def on_request_error(self, status_code):
@@ -230,15 +229,13 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                         # this prevents duplicates being written into the database
                         # however it will make couchdb throw an error.
                         try:
+                            tmp = attach_sentiment(tmp)
                             twitter_stream_search[str(tmp["id"])] = tmp
+                            (client.tweet_id_lst).append(str(tmp["id"]))
+                            counter += 1
                         except Exception as e:
                             log(e, args.verbose)
                             pass
-                        tmp = attach_sentiment(tmp)
-                        twitter_stream_search.save(tmp)
-                        (client.tweet_id_lst).append(str(tmp["id"]))
-                        # json.dump(tmp, fp)
-                        counter += 1
             if counter % 100 == 0:
                 log(f"search counter is {str(counter)}", args.debug)
     except KeyboardInterrupt or Exception or RuntimeError:
