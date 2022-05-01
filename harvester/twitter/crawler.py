@@ -82,10 +82,14 @@ class TweetListener(tweepy.StreamingClient):
         self.couchdb_server = couchdb_server
         self.city_name = city_name
         if "twitter_stream" in self.couchdb_server:
+            print("Use existing database")
             self.twitter_stream = self.couchdb_server["twitter_stream"]
+            print("Existing database used: twitter_stream")
 
         elif "twitter_stream" not in self.couchdb_server:
+            print("Create new database")
             self.twitter_stream = self.couchdb_server.create("twitter_stream")
+            print("Database created: twitter_stream")
 
     # Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
@@ -116,7 +120,7 @@ class TweetListener(tweepy.StreamingClient):
                 except Exception as e:
                     log(e, False)
                     pass
-
+                self.twitter_stream.save(tmp)
                 self.tweet_id_lst.append(tmp["id"])
                 self.count += 1
         self.total_tweets_read += 1
@@ -126,7 +130,6 @@ class TweetListener(tweepy.StreamingClient):
         # rate limit error
         if status_code == 420:
             return False
-
 
     # def on_connection_error(self):
     #     self.disconnect()
@@ -162,10 +165,12 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
     """
     twitter_stream_search = None
     if "twitter_stream" in couchdb_server:
+        print("Use existing database")
         twitter_stream_search = couchdb_server["twitter_stream"]
         print("Existing database used: twitter_stream")
 
     elif "twitter_stream" not in couchdb_server:
+        print("Create new database")
         twitter_stream_search = couchdb_server.create("twitter_stream")
         print("Database created: twitter_stream")
 
@@ -225,7 +230,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                             log(e, args.verbose)
                             pass
 
-                        # twitter_stream_search.save(tmp)
+                        twitter_stream_search.save(tmp)
                         (client.tweet_id_lst).append(str(tmp["id"]))
                         # json.dump(tmp, fp)
                         counter += 1
@@ -311,6 +316,35 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
         total_tweets_read += val[2]
 
     if mode == "search":
+        log("running the search API", args.debug)
+        search_result = main_search(
+            [],
+            twitter_credentials["bearer_token"],
+            client,
+            couchdb_server,
+            args.city,
+            args,
+        )
+        log(
+            f"Total number of tweets read for search API is {str(search_result[1])}\nTotal number of unique tweets obtained for search API is {str(search_result[0])}",
+            args.debug,
+        )
+        total_tweets_obtained += search_result[0]
+        total_tweets_read += search_result[1]
+        print("Total number of tweets read", str(search_result[1]))
+        print("Total number of unique tweets obtained:", search_result[0])
+    
+    if mode == "both":
+        log("first run the streaming API", args.debug)
+        val = main_stream(client, args.city)
+        id_lst = val[0]
+        log(
+            f"Total number of tweets read for streaming API is {str(val[2])}\nTotal number of unique tweets obtained for streaming API is {str(val[1])}",
+            args.debug,
+        )
+        total_tweets_obtained += val[1]
+        total_tweets_read += val[2]
+
         log("running the search API", args.debug)
         search_result = main_search(
             [],
