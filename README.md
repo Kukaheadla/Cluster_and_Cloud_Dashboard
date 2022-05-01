@@ -6,7 +6,11 @@
 
 - run the harvester like so: 
     
-    - $ python main.py --credentials-id 0 --couchdb-host 172.26.130.155:5984 --couchdb-username user --city melbourne --mode stream --debug 
+    - $ python main.py --credentials-id 0 --couchdb-host 172.26.130.155:5984 --couchdb-username user --city melbourne --mode stream --debug
+
+- see help for CLI options:
+
+    - $ python main.py --help
 
 *web_application/* contains frontend web app and server
 
