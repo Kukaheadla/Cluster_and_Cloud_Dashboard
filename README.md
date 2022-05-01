@@ -4,6 +4,10 @@
 
 *harvester/* contains the tweet harvesting code
 
+- to use the text sentiment function the vaderSentiment and contraction modules need to be imported.
+
+  - One way is to use "python -m pip install vaderSentiment --no-cache-dir" "python -m pip install contractions --no-cache-dir" respectively as I personally found it difficult to install using pip.
+
 - run the harvester like so: 
     
     - $ python main.py --credentials-id 0 --couchdb-host 172.26.130.155:5984 --couchdb-username user --city melbourne --mode stream --debug
