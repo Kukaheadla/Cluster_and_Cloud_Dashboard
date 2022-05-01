@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+{% for n in range(1) %}
+  crawler-{{ n | string }}-melbourne:
+    build: ./
+    command: python main.py --credentials-id {{ n | string }} --couchdb-host 172.26.130.155:5984 --couchdb-username user --city melbourne --mode stream --debug 
+    expose:
+      - 5000
+    restart: always
+    environment:
+      - TEST=123
+{% endfor %}
+{% for n in range(1) %}
+  crawler-{{ n | string }}-sydney:
+    build: ./
+    command: python main.py --credentials-id {{ n | string }} --couchdb-host 172.26.130.155:5984 --couchdb-username user --city sydney --mode stream --debug 
+    expose:
+      - 5000
+    restart: always
+    environment:
+      - TEST=123
+{% endfor %}

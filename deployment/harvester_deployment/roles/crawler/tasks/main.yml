@@ -1,0 +1,49 @@
+---
+- name: Create crawler directory
+  become: yes
+  ansible.builtin.file:
+    path: "{{ web_app_dir }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+    state: directory
+
+
+- name: Configure compose
+  become: yes
+  ansible.builtin.template:
+    src: "docker-compose.prod.yml.j2"
+    dest: "{{ web_app_dir }}/docker-compose.prod.yml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+# - name: Run docker compose
+#   become: yes
+#   community.docker.docker_compose:
+#     project_src: "{{ web_app_dir }}"
+#     files:
+#       - "docker-compose.prod.yml"
+#     pull: yes
+#     state: present
+#     remove_orphans: yes
+#     recreate: always
+#     debug: true
+
+- name: Start and build docker
+  become: yes
+  command: "docker-compose -f {{ web_app_dir }}/docker-compose.prod.yml up -d --build"
+
+- name: Get infos on container
+  become: yes
+  docker_container_info:
+    name: crawler_crawler_1
+  register: result
+
+- name: Does at least one crawler container exist?
+  debug:
+    msg: "The container {{ 'exists' if result.exists else 'does not exist' }}"
+
+- name: Print the status of the container
+  debug:
+    msg: "The container status is {{ result.container['State']['Status'] }}"
+  when: result.exists
