@@ -19,6 +19,10 @@ import tweepy
 import time
 from logger.logger import log
 
+#To run the text_sentiment function:
+from twitter.text_sentiment import attach_sentiment
+import json, re
+
 # tweet fields that we want returned in the Twitter API response
 #Left out 'referenced_tweets' in tweet_fields as it may lead to RuntimeError.
 #Left out "entities.mentions.username", "referenced_tweets.id" and "referenced_tweets.id.author_id" as can lead to RuntimeError.
@@ -120,6 +124,7 @@ class TweetListener(tweepy.StreamingClient):
                 except Exception as e:
                     log(e, False)
                     pass
+                tmp = attach_sentiment(tmp)
                 self.twitter_stream.save(tmp)
                 self.tweet_id_lst.append(tmp["id"])
                 self.count += 1
@@ -229,7 +234,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                         except Exception as e:
                             log(e, args.verbose)
                             pass
-
+                        tmp = attach_sentiment(tmp)
                         twitter_stream_search.save(tmp)
                         (client.tweet_id_lst).append(str(tmp["id"]))
                         # json.dump(tmp, fp)
