@@ -22,45 +22,7 @@ import re
 import melbourne
 import random
 
-
-my_csv = """Country Name,Indicator Name,day,Value
-Melbourne,"Distinct Languages",2016-01,2
-Melbourne,"Distinct Languages",2016-02,8
-Melbourne,"Distinct Languages",2016-03,16
-Melbourne,"Distinct Languages",2016-04,5
-Melbourne,"Distinct Languages",2016-05,7
-Melbourne,"Distinct Languages",2016-06,25
-Sydney,"Distinct Languages",2016-01,20
-"""
-csv_acc = "Country Name,Indicator Name,day,Value\n"
-my_data = get_languages_by_time_view()
-
-
-# df = pd.read_csv('https://plotly.github.io/datasets/country_indicators.csv')
-df3 = pd.read_csv(StringIO(my_csv))
-# print(df)
-columns = ["Country Name", "Indicator Name", "day", "value"]
-
-df = pd.DataFrame(my_data).transpose().sum(axis=1)
-df = df.reset_index().rename_axis("index_test")
-df.columns = ["day", "Value"]
-df["Indicator Name"] = ["Tweets Total"] * 15
-df["Country Name"] = ["Melbourne"] * 15
-df = df.sort_values("day")
-
-df2 = pd.DataFrame(my_data).transpose().product(axis=1)
-df2 = df2.reset_index().rename_axis("index_test")
-df2.columns = ["day", "Value"]
-df2["Indicator Name"] = ["Tweets Total"] * 15
-df2["Country Name"] = ["Sydney"] * 15
-df2 = df2.sort_values("day")
-
-# df = pd.DataFrame(my_data)
-# df["Indicator Name"] = ["Distinct Languages"]
-# print(df)
-df = pd.concat([df, df2, df3])
-print(df)
-
+df = None
 
 def init_dashboard(server):
     """Create a Plotly Dash dashboard."""
@@ -102,6 +64,8 @@ def init_dashboard(server):
     register_callbacks(dash_app)
 
     return dash_app.server
+
+
 
 
 def language_frequency_graph(data):
@@ -186,8 +150,51 @@ def recent_tweets_written_to_db_table():
 
 def cross_compare():
     """
-    Interactive comparison.
+    Allows editing of variables for comparison.
     """
+
+    global df
+
+    my_csv = """Country Name,Indicator Name,day,Value
+    Melbourne,"Distinct Languages",2016-01,2
+    Melbourne,"Distinct Languages",2016-02,8
+    Melbourne,"Distinct Languages",2016-03,16
+    Melbourne,"Distinct Languages",2016-04,5
+    Melbourne,"Distinct Languages",2016-05,7
+    Melbourne,"Distinct Languages",2016-06,25
+    Sydney,"Distinct Languages",2016-01,20
+    """
+    csv_acc = "Country Name,Indicator Name,day,Value\n"
+    my_data = get_languages_by_time_view()
+
+
+    # df = pd.read_csv('https://plotly.github.io/datasets/country_indicators.csv')
+    df3 = pd.read_csv(StringIO(my_csv))
+    # print(df)
+
+    columns = ["Country Name", "Indicator Name", "day", "value"]
+
+    df = pd.DataFrame(my_data).transpose().sum(axis=1)
+    df = df.reset_index().rename_axis("index_test")
+    df.columns = ["day", "Value"]
+    df["Indicator Name"] = ["Tweets Total"] * 15
+    df["Country Name"] = ["Melbourne"] * 15
+    df = df.sort_values("day")
+
+    df2 = pd.DataFrame(my_data).transpose().product(axis=1)
+    df2 = df2.reset_index().rename_axis("index_test")
+    df2.columns = ["day", "Value"]
+    df2["Indicator Name"] = ["Tweets Total"] * 15
+    df2["Country Name"] = ["Sydney"] * 15
+    df2 = df2.sort_values("day")
+
+    # df = pd.DataFrame(my_data)
+    # df["Indicator Name"] = ["Distinct Languages"]
+    # print(df)
+    df = pd.concat([df, df2, df3])
+    print(df)
+
+
     layout = html.Div([
         html.Div([
 
