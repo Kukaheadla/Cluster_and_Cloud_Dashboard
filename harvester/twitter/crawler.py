@@ -80,7 +80,7 @@ class TweetListener(tweepy.StreamingClient):
     tweet_id_lst = []
     start_time = time.time()
 
-    def __init__(self, couchdb_server, city_name, twitter_bearer_token, auth, **kwargs):
+    def __init__(self, couchdb_server, city_name, topic, twitter_bearer_token, auth, **kwargs):
         """
         Creates a Tweetlistener which will listen for a certain amount of time.
         Including our own override so we can use the couchdb server defined in main.py
@@ -88,6 +88,7 @@ class TweetListener(tweepy.StreamingClient):
         super().__init__(twitter_bearer_token, **kwargs)
         self.couchdb_server = couchdb_server
         self.city_name = city_name
+        self.topic_name = topic
         api = tweepy.API(auth)
         self.api = api
         if "twitter_stream_geo2" in self.couchdb_server:
@@ -146,6 +147,7 @@ class TweetListener(tweepy.StreamingClient):
             if "created_at" in tmp.keys() and tmp["created_at"] != None:
                 tmp["created_at"] = str(tmp["created_at"])
                 tmp["city_rule_key"] = self.city_name
+                tmp["topic_name"] = self.topic_name
 
                 # duplicate update check.
                 # we use the tweet ID from twitter as the primary key for rows
@@ -215,7 +217,7 @@ def get_suburb(tweet_coords):
 
 ##The following functions are for the search method:
 @app.route("/melbourne_test")
-def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
+def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, args):
     """
     Main non-streaming search function.
     """
@@ -232,7 +234,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
 
     # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
-    query = city_name
+    query = city_name + ' ' + topic
 
     max_results = 100
     counter = 0
@@ -354,13 +356,13 @@ def read_stream(client, start_time):
         return
 
 
-def main_stream(client, city_name="melbourne"):
+def main_stream(client, city_name="melbourne", topic):
     """
     Main function for streaming Tweets using the Twitter Streaming API.
     """
     # First obtain the necessary authorization data
-
-    rules = [tweepy.StreamRule(value=city_name)]
+    query = city_name +  " " + topic
+    rules = [tweepy.StreamRule(value=query)]
     rule_regulation(client, rules)
     # https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
     print(client.get_rules())
@@ -386,6 +388,7 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
     client = TweetListener(
         couchdb_server,
         args.city,
+        args.topic,
         twitter_credentials["bearer_token"],
         auth,
         wait_on_rate_limit=True, 
@@ -393,7 +396,7 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
 
     if mode == "stream":
         log("running the streaming API", args.debug)
-        val = main_stream(client, args.city)
+        val = main_stream(client, args.city, args.topic)
         id_lst = val[0]
         log(
             f"Total number of tweets read for streaming API is {str(val[2])}\nTotal number of unique tweets obtained for streaming API is {str(val[1])}",
@@ -410,6 +413,7 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
             client,
             couchdb_server,
             args.city,
+            args.topic,
             args,
         )
         log(
