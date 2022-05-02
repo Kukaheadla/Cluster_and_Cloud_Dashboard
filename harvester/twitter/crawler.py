@@ -434,6 +434,8 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
     if mode == "stream":
         log("running the streaming API", args.debug)
         val = main_stream(client, args.city, args.topic)
+        if val == False:
+            return False
         id_lst = val[0]
         log(
             f"Total number of tweets read for streaming API is {str(val[2])}\nTotal number of unique tweets obtained for streaming API is {str(val[1])}",
