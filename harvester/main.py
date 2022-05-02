@@ -4,7 +4,7 @@ This file serves as the entry point to the crawler application.
 This file is essentially a dispatch point for various options relating to crawling Tweets.
 You can set various modes, and pass in particular relevant keys.
 
-Authors: Alex
+Authors: Alex, David
 """
 
 import argparse
@@ -41,6 +41,9 @@ if __name__ == "__main__":
         "--city", help="city topic, e.g. melbourne or sydney", type=str, required=True
     )
     parser.add_argument("--mode", help="e.g. stream or search", type=str, required=True)
+    
+    parser.add_argument("--topic", help="e.g. environment or transport", type=str, required=True)
+    
     parser.add_argument(
         "-o",
         help="specify an output file for returned Tweets.",
@@ -113,9 +116,6 @@ if __name__ == "__main__":
             # this will also run until terminated or an API error etc.
             log("searching", args.debug)
             result = do_work(twitter_credentials, args, couchdb_server, mode="search")
-        elif args.mode.lower() == "both":
-            log("do both", args.debug)
-            result = do_work(twitter_credentials, args, couchdb_server, mode="both")
 
         # the idea here is that if a rate limit error was returned, we can continue to cycle through credentials
         # until we find some credentials that let us continue
