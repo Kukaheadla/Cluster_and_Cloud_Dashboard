@@ -2,13 +2,10 @@
 Main crawler application which can do one of two things:
     - stream data via the Twitter API, that is, look at real time tweets and write them to the database
     - perform a search back into the past seven days and write those tweets into the database
-
 The functions found here all relate to the Twitter API and crucially, what specific fields and data
 we wish to extract from the API.
-
 The main loop of the application should not be performed here. For example, if the credentials used encounter the daily limit
 or the monthly account limit, that error should be passed back to the main module, and called with new credentials.
-
 Authors: David, Alex
 """
 from numpy import (
@@ -23,6 +20,12 @@ from logger.logger import log
 #To run the text_sentiment function:
 from twitter.text_sentiment import attach_sentiment
 import json, re
+
+#To get the suburb:
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point, shape
+from shapely.geometry.polygon import Polygon
 
 # tweet fields that we want returned in the Twitter API response
 #Left out 'referenced_tweets' in tweet_fields as it may lead to RuntimeError.
@@ -113,6 +116,7 @@ class TweetListener(tweepy.StreamingClient):
         tmp = dict(tweet.data)
         if "geo" in tmp.keys() and tmp["geo"] != {}:
             print("Geo available")
+            suburb = ''
             if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
                 loc = tmp["geo"]["place_id"]
                 location = self.api.geo_id(loc)
@@ -129,6 +133,14 @@ class TweetListener(tweepy.StreamingClient):
                     "centroid" : str(location.centroid),
                     "bounding_box" : str(location.bounding_box)
                 }
+                #Using the centroid:
+                suburb = get_suburb(location.centroid)
+                tmp["geo"]["suburb"] = suburb
+            elif "coordinates" in tmp["geo"].keys():
+                #Get the coordinates directly:
+                suburb = get_suburb(tmp["geo"]["coordinates"])
+                tmp["geo"]["suburb"] = suburb
+            
         if tmp["id"] not in self.tweet_id_lst:
             tmp["created_at"] = str(tmp["created_at"])
             if "created_at" in tmp.keys() and tmp["created_at"] != None:
@@ -159,7 +171,6 @@ class TweetListener(tweepy.StreamingClient):
     # def on_connection_error(self):
     #     self.disconnect()
 
-
 def rule_regulation(client, rules):
 
     # remove existing rules
@@ -180,8 +191,32 @@ def rule_regulation(client, rules):
     resp = client.add_rules(rules)
     if resp.errors:
         raise RuntimeError(resp.errors)
+        
+#### Working with shapefiles
+def get_suburb(tweet_coords):
+    #First read in the shapefile.
+    #This will be used to check if the Point objects are in Australia or not.
+    shapefile = gpd.read_file("SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
+    #Then obtain the point as a Point object.
+    pt = Point(tweet_coords[0], tweet_coords[1])
+    #Now iterate through the shapes.
+    count = 0
+    suburb = '
+    for shape in shapefile.geometry:
+        if shape.contains(pt) or shape.touches(pt) and shape != None:
+            #surburb is determined:
+            suburb = shapefile.SA2_NAME21[count]
+            return suburb
+        count += 1
+     #In this case the location is outside Australia.
+    return "ZZZZZZZZZ"
+####
 
-
+#### Now working with sentiment:
+####Variations are "positive_sentiment", "negative_sentiment" and "neutral_sentiment"
+def obtain_sentiment():
+    
+####
 ##The following functions are for the search method:
 @app.route("/melbourne_test")
 def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
@@ -247,6 +282,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                         tmp["city_rule_key"] = city_name
                         if "geo" in tmp.keys() and tmp["geo"] != {}:
                             print("Geo available")
+                            suburb = ''
                             if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
                                 loc = tmp["geo"]["place_id"]
                                 location = client.api.geo_id(loc)
@@ -263,6 +299,14 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                                     "centroid" : str(location.centroid),
                                     "bounding_box" : str(location.bounding_box)
                                 }
+                                #Now obtain the suburb:
+                                #Using the centroid:
+                                suburb = get_suburb(location.centroid)
+                                tmp["geo"]["suburb"] = suburb
+                            elif "coordinates" in tmp["geo"].keys():
+                                #Get the coordinates directly:
+                                suburb = get_suburb(tmp["geo"]["coordinates"])
+                                tmp["geo"]["suburb"] = suburb
                         # duplicate update check.
                         # we use the tweet ID from twitter as the primary key for rows
                         # this prevents duplicates being written into the database
@@ -380,36 +424,7 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
         total_tweets_read += search_result[1]
         print("Total number of tweets read", str(search_result[1]))
         print("Total number of unique tweets obtained:", search_result[0])
-    
-    if mode == "both":
-        log("first run the streaming API", args.debug)
-        val = main_stream(client, args.city)
-        id_lst = val[0]
-        log(
-            f"Total number of tweets read for streaming API is {str(val[2])}\nTotal number of unique tweets obtained for streaming API is {str(val[1])}",
-            args.debug,
-        )
-        total_tweets_obtained += val[1]
-        total_tweets_read += val[2]
-
-        log("running the search API", args.debug)
-        search_result = main_search(
-            [],
-            twitter_credentials["bearer_token"],
-            client,
-            couchdb_server,
-            args.city,
-            args,
-        )
-        log(
-            f"Total number of tweets read for search API is {str(search_result[1])}\nTotal number of unique tweets obtained for search API is {str(search_result[0])}",
-            args.debug,
-        )
-        total_tweets_obtained += search_result[0]
-        total_tweets_read += search_result[1]
-        print("Total number of tweets read", str(search_result[1]))
-        print("Total number of unique tweets obtained:", search_result[0])
-
+   
     # Print the results:
     print("Number of tweets read", str(total_tweets_read))
     print("Number of valid tweets obtained", str(total_tweets_obtained))
