@@ -14,7 +14,8 @@ from twitter.crawler import do_work
 from logger.logger import log
 from random import randint
 import time
-
+import tweepy
+from tweepy import OAuthHandler
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("main")

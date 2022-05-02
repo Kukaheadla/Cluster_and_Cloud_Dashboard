@@ -16,6 +16,7 @@ from numpy import (
 )
 from flask import Flask, make_response, jsonify
 import tweepy
+from tweepy import OAuthHandler
 import time
 from logger.logger import log
 
@@ -65,7 +66,6 @@ Flask application for optional use. Does not need to be run as a server unless y
 """
 app = Flask(__name__, static_url_path="")
 
-
 class TweetListener(tweepy.StreamingClient):
     """
     StreamingClient allows filtering and sampling of realtime Tweets using Twitter API v2.
@@ -77,7 +77,7 @@ class TweetListener(tweepy.StreamingClient):
     tweet_id_lst = []
     start_time = time.time()
 
-    def __init__(self, couchdb_server, city_name, twitter_bearer_token, **kwargs):
+    def __init__(self, couchdb_server, city_name, twitter_bearer_token, auth, **kwargs):
         """
         Creates a Tweetlistener which will listen for a certain amount of time.
         Including our own override so we can use the couchdb server defined in main.py
@@ -85,15 +85,17 @@ class TweetListener(tweepy.StreamingClient):
         super().__init__(twitter_bearer_token, **kwargs)
         self.couchdb_server = couchdb_server
         self.city_name = city_name
-        if "twitter_stream" in self.couchdb_server:
+        api = tweepy.API(auth)
+        self.api = api
+        if "twitter_stream_geo2" in self.couchdb_server:
             print("Use existing database")
-            self.twitter_stream = self.couchdb_server["twitter_stream"]
-            print("Existing database used: twitter_stream")
+            self.twitter_stream = self.couchdb_server["twitter_stream_geo2"]
+            print("Existing database used: twitter_stream_geo2")
 
-        elif "twitter_stream" not in self.couchdb_server:
+        elif "twitter_stream_geo2" not in self.couchdb_server:
             print("Create new database")
-            self.twitter_stream = self.couchdb_server.create("twitter_stream")
-            print("Database created: twitter_stream")
+            self.twitter_stream = self.couchdb_server.create("twitter_stream_geo2")
+            print("Database created: twitter_stream_geo2")
 
     # Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
@@ -109,6 +111,24 @@ class TweetListener(tweepy.StreamingClient):
         if self.total_tweets_read % 10 == 0:
             print("Number of streamed tweets read is", self.total_tweets_read)
         tmp = dict(tweet.data)
+        if "geo" in tmp.keys() and tmp["geo"] != {}:
+            print("Geo available")
+            if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
+                loc = tmp["geo"]["place_id"]
+                location = self.api.geo_id(loc)
+                tmp["geo"]["geo_location"] = {
+                    "id" : location.id,
+                    "url" : location.url,
+                    "place_type" : location.place_type,
+                    "name" : location.name,
+                    "full_name" : location.full_name,
+                    "country_code" : location.country_code,
+                    "contained_within" : str(location.contained_within),
+                    "geometry" : str(location.geometry),
+                    "polylines" : str(location.polylines),
+                    "centroid" : str(location.centroid),
+                    "bounding_box" : str(location.bounding_box)
+                }
         if tmp["id"] not in self.tweet_id_lst:
             tmp["created_at"] = str(tmp["created_at"])
             if "created_at" in tmp.keys() and tmp["created_at"] != None:
@@ -120,17 +140,17 @@ class TweetListener(tweepy.StreamingClient):
                 # this prevents duplicates being written into the database
                 # however it will make couchdb throw an error.
                 try:
+                    tmp = attach_sentiment(tmp)
                     self.twitter_stream[str(tmp["id"])] = tmp
+                    self.tweet_id_lst.append(tmp["id"])
+                    self.count += 1
                 except Exception as e:
                     log(e, False)
                     pass
-                tmp = attach_sentiment(tmp)
-                self.twitter_stream.save(tmp)
-                self.tweet_id_lst.append(tmp["id"])
-                self.count += 1
         self.total_tweets_read += 1
 
     def on_request_error(self, status_code):
+        print(status_code)
         log(status_code, True)
         # rate limit error
         if status_code == 420:
@@ -169,15 +189,15 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
     Main non-streaming search function.
     """
     twitter_stream_search = None
-    if "twitter_stream" in couchdb_server:
+    if "twitter_stream_geo2" in couchdb_server:
         print("Use existing database")
-        twitter_stream_search = couchdb_server["twitter_stream"]
-        print("Existing database used: twitter_stream")
+        twitter_stream_search = couchdb_server["twitter_stream_geo2"]
+        print("Existing database used: twitter_stream_geo2")
 
-    elif "twitter_stream" not in couchdb_server:
+    elif "twitter_stream_geo2" not in couchdb_server:
         print("Create new database")
-        twitter_stream_search = couchdb_server.create("twitter_stream")
-        print("Database created: twitter_stream")
+        twitter_stream_search = couchdb_server.create("twitter_stream_geo2")
+        print("Database created: twitter_stream_geo2")
 
     # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
@@ -225,20 +245,38 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                         # print(tweet.__repr__())
                         tmp["created_at"] = str(tmp["created_at"])
                         tmp["city_rule_key"] = city_name
+                        if "geo" in tmp.keys() and tmp["geo"] != {}:
+                            print("Geo available")
+                            if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
+                                loc = tmp["geo"]["place_id"]
+                                location = client.api.geo_id(loc)
+                                tmp["geo"]["geo_location"] = {
+                                    "id" : location.id,
+                                    "url" : location.url,
+                                    "place_type" : location.place_type,
+                                    "name" : location.name,
+                                    "full_name" : location.full_name,
+                                    "country_code" : location.country_code,
+                                    "contained_within" : str(location.contained_within),
+                                    "geometry" : str(location.geometry),
+                                    "polylines" : str(location.polylines),
+                                    "centroid" : str(location.centroid),
+                                    "bounding_box" : str(location.bounding_box)
+                                }
                         # duplicate update check.
                         # we use the tweet ID from twitter as the primary key for rows
                         # this prevents duplicates being written into the database
                         # however it will make couchdb throw an error.
                         try:
+                            tmp = attach_sentiment(tmp)
                             twitter_stream_search[str(tmp["id"])] = tmp
+                            (client.tweet_id_lst).append(str(tmp["id"]))
+                            counter += 1
                         except Exception as e:
                             log(e, args.verbose)
                             pass
-                        tmp = attach_sentiment(tmp)
-                        twitter_stream_search.save(tmp)
-                        (client.tweet_id_lst).append(str(tmp["id"]))
+                        #twitter_stream_search.save(tmp)
                         # json.dump(tmp, fp)
-                        counter += 1
             if counter % 100 == 0:
                 log(f"search counter is {str(counter)}", args.debug)
     except KeyboardInterrupt or Exception or RuntimeError:
@@ -302,11 +340,15 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
 
     total = []
 
+    auth = OAuthHandler(twitter_credentials["consumer_key"], twitter_credentials["consumer_secret"])
+    auth.set_access_token(twitter_credentials["access_token"], twitter_credentials["access_token_secret"])
+
     client = TweetListener(
         couchdb_server,
         args.city,
         twitter_credentials["bearer_token"],
-        wait_on_rate_limit=True,
+        auth,
+        wait_on_rate_limit=True, 
     )
 
     if mode == "stream":
