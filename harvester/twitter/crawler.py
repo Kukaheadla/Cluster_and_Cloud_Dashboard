@@ -210,13 +210,9 @@ def get_suburb(tweet_coords):
         count += 1
      #In this case the location is outside Australia.
     return "ZZZZZZZZZ"
+
 ####
 
-#### Now working with sentiment:
-####Variations are "positive_sentiment", "negative_sentiment" and "neutral_sentiment"
-def obtain_sentiment():
-    
-####
 ##The following functions are for the search method:
 @app.route("/melbourne_test")
 def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
