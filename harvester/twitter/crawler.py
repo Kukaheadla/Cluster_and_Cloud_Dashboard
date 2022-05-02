@@ -2,13 +2,10 @@
 Main crawler application which can do one of two things:
     - stream data via the Twitter API, that is, look at real time tweets and write them to the database
     - perform a search back into the past seven days and write those tweets into the database
-
 The functions found here all relate to the Twitter API and crucially, what specific fields and data
 we wish to extract from the API.
-
 The main loop of the application should not be performed here. For example, if the credentials used encounter the daily limit
 or the monthly account limit, that error should be passed back to the main module, and called with new credentials.
-
 Authors: David, Alex
 """
 from numpy import (
@@ -17,16 +14,23 @@ from numpy import (
 from flask import Flask, make_response, jsonify
 import tweepy
 from tweepy import OAuthHandler
-import time
+import time, datetime
 from logger.logger import log
 
 #To run the text_sentiment function:
 from twitter.text_sentiment import attach_sentiment
 import json, re
 
+#To get the suburb:
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point, shape
+from shapely.geometry.polygon import Polygon
+
 # tweet fields that we want returned in the Twitter API response
 #Left out 'referenced_tweets' in tweet_fields as it may lead to RuntimeError.
 #Left out "entities.mentions.username", "referenced_tweets.id" and "referenced_tweets.id.author_id" as can lead to RuntimeError.
+
 tweet_fields = [
     "attachments",
     "author_id",
@@ -77,7 +81,7 @@ class TweetListener(tweepy.StreamingClient):
     tweet_id_lst = []
     start_time = time.time()
 
-    def __init__(self, couchdb_server, city_name, twitter_bearer_token, auth, **kwargs):
+    def __init__(self, couchdb_server, city_name, topic, twitter_bearer_token, auth, **kwargs):
         """
         Creates a Tweetlistener which will listen for a certain amount of time.
         Including our own override so we can use the couchdb server defined in main.py
@@ -85,17 +89,18 @@ class TweetListener(tweepy.StreamingClient):
         super().__init__(twitter_bearer_token, **kwargs)
         self.couchdb_server = couchdb_server
         self.city_name = city_name
+        self.topic_name = topic
         api = tweepy.API(auth)
         self.api = api
-        if "twitter_stream_geo2" in self.couchdb_server:
+        if "twitter_stream_envir" in self.couchdb_server:
             print("Use existing database")
-            self.twitter_stream = self.couchdb_server["twitter_stream_geo2"]
-            print("Existing database used: twitter_stream_geo2")
+            self.twitter_stream = self.couchdb_server["twitter_stream_envir"]
+            print("Existing database used: twitter_stream_envir")
 
-        elif "twitter_stream_geo2" not in self.couchdb_server:
+        elif "twitter_stream_envir" not in self.couchdb_server:
             print("Create new database")
-            self.twitter_stream = self.couchdb_server.create("twitter_stream_geo2")
-            print("Database created: twitter_stream_geo2")
+            self.twitter_stream = self.couchdb_server.create("twitter_stream_envir")
+            print("Database created: twitter_stream_envir")
 
     # Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
@@ -113,6 +118,7 @@ class TweetListener(tweepy.StreamingClient):
         tmp = dict(tweet.data)
         if "geo" in tmp.keys() and tmp["geo"] != {}:
             print("Geo available")
+            suburb = ''
             if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
                 loc = tmp["geo"]["place_id"]
                 location = self.api.geo_id(loc)
@@ -129,11 +135,25 @@ class TweetListener(tweepy.StreamingClient):
                     "centroid" : str(location.centroid),
                     "bounding_box" : str(location.bounding_box)
                 }
+                #Using the centroid:
+                suburb = get_suburb(location.centroid)
+                tmp["geo"]["suburb"] = suburb
+            elif "coordinates" in tmp["geo"].keys():
+                #Get the coordinates directly:
+                suburb = get_suburb(tmp["geo"]["coordinates"])
+                tmp["geo"]["suburb"] = suburb
+            
         if tmp["id"] not in self.tweet_id_lst:
-            tmp["created_at"] = str(tmp["created_at"])
+            tmp["day_of_week"] = tmp["created_at"].strftime("%A")
+            tmp["year"] = tmp["created_at"].strftime("%Y")
+            tmp["month"] = tmp["created_at"].strftime("%m")
+            tmp["day"] = tmp["created_at"].strftime("%d")
+            tmp["hour"] = tmp["created_at"].strftime("%H")
+
             if "created_at" in tmp.keys() and tmp["created_at"] != None:
                 tmp["created_at"] = str(tmp["created_at"])
                 tmp["city_rule_key"] = self.city_name
+                tmp["topic_name"] = self.topic_name
 
                 # duplicate update check.
                 # we use the tweet ID from twitter as the primary key for rows
@@ -145,6 +165,7 @@ class TweetListener(tweepy.StreamingClient):
                     self.tweet_id_lst.append(tmp["id"])
                     self.count += 1
                 except Exception as e:
+                    print("Exception B")
                     log(e, False)
                     pass
         self.total_tweets_read += 1
@@ -153,8 +174,9 @@ class TweetListener(tweepy.StreamingClient):
         print(status_code)
         log(status_code, True)
         # rate limit error
-        if status_code == 420:
+        if status_code == 420 or status_code == 429:
             return False
+        return False
 
     # def on_connection_error(self):
     #     self.disconnect()
@@ -179,29 +201,56 @@ def rule_regulation(client, rules):
     resp = client.add_rules(rules)
     if resp.errors:
         raise RuntimeError(resp.errors)
+        
+#### Working with shapefiles
+def get_suburb(tweet_coords):
+    #First read in the shapefile.
+    #This will be used to check if the Point objects are in Australia or not.
+    shapefile = gpd.read_file("twitter/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
+    #Then obtain the point as a Point object.
+    pt = Point(tweet_coords[0], tweet_coords[1])
+    #Now iterate through the shapes.
+    count = 0
+    suburb = ''
+    for shape in shapefile.geometry:
+        if shape != None:
+            if shape.contains(pt) or shape.touches(pt):
+                #surburb is determined:
+                suburb = shapefile.SA2_NAME21[count]
+                return suburb
+        count += 1
+     #In this case the location is outside Australia.
+    return "ZZZZZZZZZ"
 
+####
 
 ##The following functions are for the search method:
 @app.route("/melbourne_test")
-def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
+def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, args):
     """
     Main non-streaming search function.
     """
     twitter_stream_search = None
-    if "twitter_stream_geo2" in couchdb_server:
+    if "twitter_stream_envir" in couchdb_server:
         print("Use existing database")
-        twitter_stream_search = couchdb_server["twitter_stream_geo2"]
-        print("Existing database used: twitter_stream_geo2")
+        twitter_stream_search = couchdb_server["twitter_stream_envir"]
+        print("Existing database used: twitter_stream_envir")
 
-    elif "twitter_stream_geo2" not in couchdb_server:
+    elif "twitter_stream_envir" not in couchdb_server:
         print("Create new database")
-        twitter_stream_search = couchdb_server.create("twitter_stream_geo2")
-        print("Database created: twitter_stream_geo2")
+        twitter_stream_search = couchdb_server.create("twitter_stream_envir")
+        print("Database created: twitter_stream_envir")
 
     # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
-    query = city_name
+    if topic == "environment":
+        query = "(" + city_name + ' ' + topic + " OR nature OR sustainable OR bio OR plant OR green) - biology - party"
+    elif topic == "transport":
+        query = city_name + ' ' + topic + " OR bus OR (public transport) OR train OR tram"
+    elif topic != "transport" and topic != "environment":
+        query = city_name
 
+    print("The query is", query)
     max_results = 100
     counter = 0
     total_tweets_read = 0
@@ -242,10 +291,17 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                     tmp = dict(tweet)
                     if str(tmp["id"]) not in client.tweet_id_lst:
                         # print(tweet.__repr__())
+                        tmp["day_of_week"] = tmp["created_at"].strftime("%A")
+                        tmp["year"] = tmp["created_at"].strftime("%Y")
+                        tmp["month"] = tmp["created_at"].strftime("%m")
+                        tmp["day"] = tmp["created_at"].strftime("%d")
+                        tmp["hour"] = tmp["created_at"].strftime("%H")
                         tmp["created_at"] = str(tmp["created_at"])
                         tmp["city_rule_key"] = city_name
+                        tmp["topic_name"] = topic
                         if "geo" in tmp.keys() and tmp["geo"] != {}:
                             print("Geo available")
+                            suburb = ''
                             if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
                                 loc = tmp["geo"]["place_id"]
                                 location = client.api.geo_id(loc)
@@ -262,6 +318,14 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                                     "centroid" : str(location.centroid),
                                     "bounding_box" : str(location.bounding_box)
                                 }
+                                #Now obtain the suburb:
+                                #Using the centroid:
+                                suburb = get_suburb(location.centroid)
+                                tmp["geo"]["suburb"] = suburb
+                            elif "coordinates" in tmp["geo"].keys():
+                                #Get the coordinates directly:
+                                suburb = get_suburb(tmp["geo"]["coordinates"])
+                                tmp["geo"]["suburb"] = suburb
                         # duplicate update check.
                         # we use the tweet ID from twitter as the primary key for rows
                         # this prevents duplicates being written into the database
@@ -278,9 +342,12 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                         # json.dump(tmp, fp)
             if counter % 100 == 0:
                 log(f"search counter is {str(counter)}", args.debug)
-    except KeyboardInterrupt or Exception or RuntimeError:
+    except KeyboardInterrupt:
         log("terminating due to received event", True)
         return [counter, total_tweets_read]
+    except Exception or RuntimeError:
+        print("Exception A")
+        return False
 
 
 @app.errorhandler(400)
@@ -308,23 +375,35 @@ def read_stream(client, start_time):
             poll_fields=poll_fields,
             threaded=False,
         )
-    except KeyboardInterrupt or Exception:
+    except KeyboardInterrupt:
         print("Stop the streaming")
-        return
+        return client
+    except Exception:
+        print("Exception")
+        return False
 
 
-def main_stream(client, city_name="melbourne"):
+def main_stream(client, city_name="melbourne", topic="environment"):
     """
     Main function for streaming Tweets using the Twitter Streaming API.
     """
     # First obtain the necessary authorization data
-
-    rules = [tweepy.StreamRule(value=city_name)]
+    if topic == "environment":
+        query = city_name + ' ' + topic
+    elif topic == "transport":
+        query = city_name + ' ' + topic
+    elif topic != "transport" and topic != "environment":
+        query = city_name
+    print("The query is:", query)
+    rules = [tweepy.StreamRule(value=query)]
     rule_regulation(client, rules)
     # https://developer.twitter.com/en/docs/twitter-api/tweets/filtered-stream/api-reference/get-tweets-search-stream-rules
     print(client.get_rules())
     start_time = time.time()
-    read_stream(client, start_time)
+    result = read_stream(client, start_time)
+    if result == False:
+        #The cause is exceeding the rate limit.
+        return False
     return [client.tweet_id_lst, client.count, client.total_tweets_read]
 
 
@@ -345,6 +424,7 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
     client = TweetListener(
         couchdb_server,
         args.city,
+        args.topic,
         twitter_credentials["bearer_token"],
         auth,
         wait_on_rate_limit=True, 
@@ -352,7 +432,7 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
 
     if mode == "stream":
         log("running the streaming API", args.debug)
-        val = main_stream(client, args.city)
+        val = main_stream(client, args.city, args.topic)
         id_lst = val[0]
         log(
             f"Total number of tweets read for streaming API is {str(val[2])}\nTotal number of unique tweets obtained for streaming API is {str(val[1])}",
@@ -369,8 +449,11 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
             client,
             couchdb_server,
             args.city,
+            args.topic,
             args,
         )
+        if search_result == False:
+            return False
         log(
             f"Total number of tweets read for search API is {str(search_result[1])}\nTotal number of unique tweets obtained for search API is {str(search_result[0])}",
             args.debug,
@@ -380,7 +463,6 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
         print("Total number of tweets read", str(search_result[1]))
         print("Total number of unique tweets obtained:", search_result[0])
    
-
     # Print the results:
     print("Number of tweets read", str(total_tweets_read))
     print("Number of valid tweets obtained", str(total_tweets_obtained))
