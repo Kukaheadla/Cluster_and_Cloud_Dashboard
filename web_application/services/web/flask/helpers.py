@@ -1,3 +1,9 @@
+"""
+Author: Alex T
+
+This file contains miscellaneous helper functions.
+Any function which does not have a clear place elsewhere in the project can go here.
+"""
 import requests
 import json
 import os

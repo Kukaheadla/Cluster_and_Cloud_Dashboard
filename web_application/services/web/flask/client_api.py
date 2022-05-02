@@ -1,8 +1,11 @@
 """
-This file contains endpoints and functions relating to client access to the cloud infrastructure. The RESTful api here can be queried
-to e.g. return tweets, or aggregate statistics from couchdb.
-"""
+Author: Alex T
 
+This file contains endpoints and functions relating to client access to the cloud infrastructure. The RESTful api here can be queried
+to e.g. return tweets, or aggregate statistics from couchdb, depending on the desired functionality.
+
+All front-end REST API functions should be contained within this file.
+"""
 from flask import Blueprint, request
 from couchdb import Server
 import requests
@@ -22,6 +25,7 @@ for dbname in couchserver:
 
 db = couchserver["test"]
 
+# this is the destination /api/<route> for requests to the front-end api.
 api_bp = Blueprint("api", __name__)
 
 
@@ -82,14 +86,19 @@ def get_tweet_n(id):
 
 @api_bp.route("/tweets/latest/")
 def get_latest_tweets():
+    """
+    Returns the latest tweets (_changes) written to the couchDB database.
+    """
     r = requests.get(
         f"{os.getenv('COUCHDB_DATABASE')}/test/_changes?descending=true&limit=10"
     )
-    # print(json.loads(r.content)["results"][0])
     return r.content
 
 
 @api_bp.route("/tweet/")
 def get_tweet():
+    """
+    Gets a specific Tweet by its ID query parameter.
+    """
     tweet_id = request.args.get("id")
     return db[tweet_id]
