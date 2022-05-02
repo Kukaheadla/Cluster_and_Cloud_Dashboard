@@ -22,40 +22,7 @@ import re
 import melbourne
 import random
 
-
-my_csv = """Country Name,Indicator Name,Year,Value
-Arab World,"Agriculture, value added (% of GDP)",01,
-Arab World,CO2 emissions (metric tons per capita),01,0.760995978569
-Arab World,Domestic credit provided by financial sector (% of GDP),01,18.1686895397
-Arab World,Electric power consumption (kWh per capita),01,
-Arab World,Energy use (kg of oil equivalent per capita),01,
-Arab World,Exports of goods and services (% of GDP),01,
-Arab World,"Fertility rate, total (births per woman)",01,6.9644537164699996
-Arab World,GDP growth (annual %),01,
-Arab World,Imports of goods and services (% of GDP),01,
-Arab World,"Industry, value added (% of GDP)",01,
-Arab World,"Inflation, GDP deflator (annual %)",01,
-Arab World,"Life expectancy at birth, total (years)",01,48.008602901
-Arab World,Population density (people per sq. km of land area),01,7.1684738533
-Arab World,"Services, etc., value added (% of GDP)",01,
-Caribbean small states,"Agriculture, value added (% of GDP)",01,
-Caribbean small states,CO2 emissions (metric tons per capita),01,2.7038747574299995
-Caribbean small states,Domestic credit provided by financial sector (% of GDP),01,15.054971343900002
-Caribbean small states,Electric power consumption (kWh per capita),01,
-Caribbean small states,Energy use (kg of oil equivalent per capita),01,
-Caribbean small states,Exports of goods and services (% of GDP),01,53.285880543699996
-Caribbean small states,"Fertility rate, total (births per woman)",01,5.52302044416
-Caribbean small states,GDP growth (annual %),01,
-Caribbean small states,Imports of goods and services (% of GDP),01,53.5410416247
-Caribbean small states,"Industry, value added (% of GDP)",01,
-Caribbean small states,"Inflation, GDP deflator (annual %)",01,
-Caribbean small states,"Life expectancy at birth, total (years)",01,63.27171776229999
-Caribbean small states,Population density (people per sq. km of land area),01,10.7612722332
-Caribbean small states,"Services, etc., value added (% of GDP)",01,
-"""
-df = pd.read_csv('https://plotly.github.io/datasets/country_indicators.csv')
-# df = pd.read_csv(StringIO(my_csv))
-
+df = None
 
 def init_dashboard(server):
     """Create a Plotly Dash dashboard."""
@@ -97,6 +64,8 @@ def init_dashboard(server):
     register_callbacks(dash_app)
 
     return dash_app.server
+
+
 
 
 def language_frequency_graph(data):
@@ -181,8 +150,51 @@ def recent_tweets_written_to_db_table():
 
 def cross_compare():
     """
-    Interactive comparison.
+    Allows editing of variables for comparison.
     """
+
+    global df
+
+    my_csv = """Country Name,Indicator Name,day,Value
+    Melbourne,"Distinct Languages",2016-01,2
+    Melbourne,"Distinct Languages",2016-02,8
+    Melbourne,"Distinct Languages",2016-03,16
+    Melbourne,"Distinct Languages",2016-04,5
+    Melbourne,"Distinct Languages",2016-05,7
+    Melbourne,"Distinct Languages",2016-06,25
+    Sydney,"Distinct Languages",2016-01,20
+    """
+    csv_acc = "Country Name,Indicator Name,day,Value\n"
+    my_data = get_languages_by_time_view()
+
+
+    # df = pd.read_csv('https://plotly.github.io/datasets/country_indicators.csv')
+    df3 = pd.read_csv(StringIO(my_csv))
+    # print(df)
+
+    columns = ["Country Name", "Indicator Name", "day", "value"]
+
+    df = pd.DataFrame(my_data).transpose().sum(axis=1)
+    df = df.reset_index().rename_axis("index_test")
+    df.columns = ["day", "Value"]
+    df["Indicator Name"] = ["Tweets Total"] * 15
+    df["Country Name"] = ["Melbourne"] * 15
+    df = df.sort_values("day")
+
+    df2 = pd.DataFrame(my_data).transpose().product(axis=1)
+    df2 = df2.reset_index().rename_axis("index_test")
+    df2.columns = ["day", "Value"]
+    df2["Indicator Name"] = ["Tweets Total"] * 15
+    df2["Country Name"] = ["Sydney"] * 15
+    df2 = df2.sort_values("day")
+
+    # df = pd.DataFrame(my_data)
+    # df["Indicator Name"] = ["Distinct Languages"]
+    # print(df)
+    df = pd.concat([df, df2, df3])
+    print(df)
+
+
     layout = html.Div([
         html.Div([
 
@@ -230,12 +242,12 @@ def cross_compare():
         ], style={'display': 'inline-block', 'width': '49%'}),
 
         html.Div(dcc.Slider(
-            df['Year'].min(),
-            df['Year'].max(),
+            df['day'].min(),
+            df['day'].max(),
             step=None,
             id='crossfilter-year--slider',
-            value=df['Year'].max(),
-            marks={str(year): str(year) for year in df['Year'].unique()}
+            value=df['day'].max(),
+            marks={str(year): str(year) for year in df['day'].unique()}
         ), style={'width': '49%', 'padding': '0px 20px 20px 20px'})
     ])
     return layout
@@ -372,7 +384,7 @@ def register_callbacks(dash_app):
     def update_graph(xaxis_column_name, yaxis_column_name,
                     xaxis_type, yaxis_type,
                     year_value):
-        dff = df[df['Year'] == year_value]
+        dff = df[df['day'] == year_value]
 
         fig = px.scatter(x=dff[dff['Indicator Name'] == xaxis_column_name]['Value'],
                 y=dff[dff['Indicator Name'] == yaxis_column_name]['Value'],
@@ -392,7 +404,7 @@ def register_callbacks(dash_app):
 
     def create_time_series(dff, axis_type, title):
 
-        fig = px.scatter(dff, x='Year', y='Value')
+        fig = px.scatter(dff, x='day', y='Value')
 
         fig.update_traces(mode='lines+markers')
 
