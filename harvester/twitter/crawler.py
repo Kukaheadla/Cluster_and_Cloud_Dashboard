@@ -244,9 +244,9 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     if topic == "environment":
-        query = "(" + city_name + ' ' + topic + " OR nature OR sustainable OR bio OR plant OR green) - biology - party"
+        query = city_name + ' (' + topic + " OR nature OR sustainable OR bio OR plant OR green) - biology - party)"
     elif topic == "transport":
-        query = city_name + ' ' + topic + " OR bus OR (public transport) OR train OR tram"
+        query = city_name + ' (' + topic + " OR bus OR (public transport) OR train OR tram)"
     elif topic != "transport" and topic != "environment":
         query = city_name
 
@@ -389,11 +389,12 @@ def main_stream(client, city_name="melbourne", topic="environment"):
     """
     # First obtain the necessary authorization data
     if topic == "environment":
-        query = city_name + ' ' + topic
+        query = city_name + ' (' + topic + " OR nature OR sustainable OR bio OR plant OR green) - biology - party)"
     elif topic == "transport":
-        query = city_name + ' ' + topic
+        query = city_name + ' (' + topic + " OR bus OR (public transport) OR train OR tram)"
     elif topic != "transport" and topic != "environment":
         query = city_name
+        
     print("The query is:", query)
     rules = [tweepy.StreamRule(value=query)]
     rule_regulation(client, rules)
