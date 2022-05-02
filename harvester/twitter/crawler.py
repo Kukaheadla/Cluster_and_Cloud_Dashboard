@@ -111,25 +111,24 @@ class TweetListener(tweepy.StreamingClient):
         if self.total_tweets_read % 10 == 0:
             print("Number of streamed tweets read is", self.total_tweets_read)
         tmp = dict(tweet.data)
-        if "geo" in tmp.keys():
-            if tmp["geo"] != {}:
-                if "place_id" in tmp["geo"]:
-                    print("Geo available")
-                    loc = tmp["geo"]["place_id"]
-                    location = self.api.geo_id(loc)
-                    tmp["geo"]["geo_location"] = {
-                        "id" : location.id,
-                        "url" : location.url,
-                        "place_type" : location.place_type,
-                        "name" : location.name,
-                        "full_name" : location.full_name,
-                        "country_code" : location.country_code,
-                        "contained_within" : str(location.contained_within),
-                        "geometry" : str(location.geometry),
-                        "polylines" : str(location.polylines),
-                        "centroid" : str(location.centroid),
-                        "bounding_box" : str(location.bounding_box)
-                    }
+        if "geo" in tmp.keys() and tmp["geo"] != {}:
+            print("Geo available")
+            if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
+                loc = tmp["geo"]["place_id"]
+                location = self.api.geo_id(loc)
+                tmp["geo"]["geo_location"] = {
+                    "id" : location.id,
+                    "url" : location.url,
+                    "place_type" : location.place_type,
+                    "name" : location.name,
+                    "full_name" : location.full_name,
+                    "country_code" : location.country_code,
+                    "contained_within" : str(location.contained_within),
+                    "geometry" : str(location.geometry),
+                    "polylines" : str(location.polylines),
+                    "centroid" : str(location.centroid),
+                    "bounding_box" : str(location.bounding_box)
+                }
         if tmp["id"] not in self.tweet_id_lst:
             tmp["created_at"] = str(tmp["created_at"])
             if "created_at" in tmp.keys() and tmp["created_at"] != None:
@@ -247,8 +246,8 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, args):
                         tmp["created_at"] = str(tmp["created_at"])
                         tmp["city_rule_key"] = city_name
                         if "geo" in tmp.keys() and tmp["geo"] != {}:
-                            if "place_id" in tmp["geo"]:
-                                print("Geo available")
+                            print("Geo available")
+                            if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
                                 loc = tmp["geo"]["place_id"]
                                 location = client.api.geo_id(loc)
                                 tmp["geo"]["geo_location"] = {
