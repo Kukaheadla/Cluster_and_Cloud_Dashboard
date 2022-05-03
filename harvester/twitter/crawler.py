@@ -92,15 +92,15 @@ class TweetListener(tweepy.StreamingClient):
         self.topic_name = topic
         api = tweepy.API(auth)
         self.api = api
-        if "twitter_stream_envir" in self.couchdb_server:
+        if "twitter_stream_envir2" in self.couchdb_server:
             print("Use existing database")
-            self.twitter_stream = self.couchdb_server["twitter_stream_envir"]
-            print("Existing database used: twitter_stream_envir")
+            self.twitter_stream = self.couchdb_server["twitter_stream_envir2"]
+            print("Existing database used: twitter_stream_envir2")
 
-        elif "twitter_stream_envir" not in self.couchdb_server:
+        elif "twitter_stream_envir2" not in self.couchdb_server:
             print("Create new database")
-            self.twitter_stream = self.couchdb_server.create("twitter_stream_envir")
-            print("Database created: twitter_stream_envir")
+            self.twitter_stream = self.couchdb_server.create("twitter_stream_envir2")
+            print("Database created: twitter_stream_envir2")
 
     # Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
@@ -137,11 +137,13 @@ class TweetListener(tweepy.StreamingClient):
                 }
                 #Using the centroid:
                 suburb = get_suburb(location.centroid)
-                tmp["geo"]["suburb"] = suburb
+                tmp["geo"]["suburb"] = suburb[0]
+                tmp["geo"]["suburb_code"] = suburb[1]
             elif "coordinates" in tmp["geo"].keys():
                 #Get the coordinates directly:
                 suburb = get_suburb(tmp["geo"]["coordinates"])
-                tmp["geo"]["suburb"] = suburb
+                tmp["geo"]["suburb"] = suburb[0]
+                tmp["geo"]["suburb_code"] = suburb[1]
             
         if tmp["id"] not in self.tweet_id_lst:
             tmp["day_of_week"] = tmp["created_at"].strftime("%A")
@@ -211,16 +213,17 @@ def get_suburb(tweet_coords):
     pt = Point(tweet_coords[0], tweet_coords[1])
     #Now iterate through the shapes.
     count = 0
-    suburb = ''
+    suburb = ['', '']
     for shape in shapefile.geometry:
         if shape != None:
             if shape.contains(pt) or shape.touches(pt):
                 #surburb is determined:
-                suburb = shapefile.SA2_NAME21[count]
+                suburb[0] = shapefile.SA2_NAME21[count]
+                suburb[1] = shapefile.SA2_CODE21[count]
                 return suburb
         count += 1
      #In this case the location is outside Australia.
-    return "ZZZZZZZZZ"
+    return ["ZZZZZZZZZ", "ZZZZZZZZZ"]
 
 ####
 
@@ -231,15 +234,15 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     Main non-streaming search function.
     """
     twitter_stream_search = None
-    if "twitter_stream_envir" in couchdb_server:
+    if "twitter_stream_envir2" in couchdb_server:
         print("Use existing database")
-        twitter_stream_search = couchdb_server["twitter_stream_envir"]
-        print("Existing database used: twitter_stream_envir")
+        twitter_stream_search = couchdb_server["twitter_stream_envir2"]
+        print("Existing database used: twitter_stream_envir2")
 
-    elif "twitter_stream_envir" not in couchdb_server:
+    elif "twitter_stream_envir2" not in couchdb_server:
         print("Create new database")
-        twitter_stream_search = couchdb_server.create("twitter_stream_envir")
-        print("Database created: twitter_stream_envir")
+        twitter_stream_search = couchdb_server.create("twitter_stream_envir2")
+        print("Database created: twitter_stream_envir2")
 
     # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
@@ -321,11 +324,14 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
                                 #Now obtain the suburb:
                                 #Using the centroid:
                                 suburb = get_suburb(location.centroid)
-                                tmp["geo"]["suburb"] = suburb
+                                tmp["geo"]["suburb"] = suburb[0]
+                                tmp["geo"]["suburb_code"] = suburb[1]
+                                
                             elif "coordinates" in tmp["geo"].keys():
                                 #Get the coordinates directly:
                                 suburb = get_suburb(tmp["geo"]["coordinates"])
-                                tmp["geo"]["suburb"] = suburb
+                                tmp["geo"]["suburb"] = suburb[0]
+                                tmp["geo"]["suburb_code"] = suburb[1]
                         # duplicate update check.
                         # we use the tweet ID from twitter as the primary key for rows
                         # this prevents duplicates being written into the database
