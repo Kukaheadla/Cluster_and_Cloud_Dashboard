@@ -21,7 +21,7 @@ function (doc) {
         date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
         var week1 = new Date(date.getFullYear(), 0, 4);
         week_of_year = 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-        week_of_year_str = `w${week_of_year}-${b[7]}` // "w24-2017"
+        week_of_year_str = `w${week_of_year}-${b[0]}` // "w24-2017"
         //#endregion
     
         //#region Getting the location/ suburb name
