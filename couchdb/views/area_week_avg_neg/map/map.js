@@ -1,10 +1,9 @@
 function (doc) {
     if (!doc.sentiments || !doc.geo?.suburb || !doc.geo?.geo_location?.full_name || !doc.location || !doc.user?.location) {
-        
         // This section is to handle the historical tweet's date format
         // "Fri Jun 16 13:18:45 +0000 2017"
         /*
-        var b = s.split(/[: ]/g); 
+        var b = doc.created_at.split(/[: ]/g); 
         var m = {jan:0, feb:1, mar:2, apr:3, may:4, jun:5, jul:6,
                  aug:7, sep:8, oct:9, nov:10, dec:11};
       
@@ -12,7 +11,7 @@ function (doc) {
         */
         
         // 2022-04-30 21:21:31+00:00
-        var b = s.split(/[-: /+]/g)
+        var b = doc.created_at.split(/[-: /+]/g)
         var date = new Date(Date.UTC(b[0], b[1], b[2], b[3], b[4], b[5]));
 
         //#region Getting which week of the year
