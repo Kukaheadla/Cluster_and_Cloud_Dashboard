@@ -1,17 +1,20 @@
+## Author: Alex topic
+## This docker compose file deploys the cross product of cities and topics containers
+## for two cities and two topics, that is four containers, on the single host.
+
 version: '3.8'
 
+{% set cities = ["melbourne", "sydney"] %}
+{% set topics = ["environment", "transport"] %}
+
 services:
-{% for i in range(1,2,2) %}
-  crawler-{{ i | string }}-melbourne:
-    build: ./
-    command: python main.py --credentials-id {{ i | string }} --couchdb-host 172.26.130.155:5984 --couchdb-username user --city melbourne --mode stream --debug 
-    expose:
-      - 5000
-    restart: always
-  crawler-{{ i | string }}-sydney:
-    build: ./
-    command: python main.py --credentials-id {{ (i+1) | string }} --couchdb-host 172.26.130.155:5984 --couchdb-username user --city sydney --mode stream --debug 
-    expose:
-      - 5000
-    restart: always
+{% for city in cities %}
+  {% for topic in topics %}
+    crawler-{{ city }}-{{ topic }}:
+      build: ./
+      command: python main.py --credentials-id {{ loop.index | string }} --couchdb-host 172.26.130.155:5984 --couchdb-username user --city {{ city }} --topic {{ topic }} --mode stream --debug 
+      expose:
+        - 5000
+      restart: always
+    {% endfor %}
 {% endfor %}
