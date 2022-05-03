@@ -24,6 +24,15 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import json, re, contractions
 
 shapefile = gpd.read_file("SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
+sa2_name21 = shapefile.SA2_NAME21
+sa2_code21 = shapefile.SA2_CODE21
+
+sa3_name21 = shapefile.SA3_NAME21
+sa3_code21 = shapefile.SA3_CODE21
+
+sa4_name21 = shapefile.SA4_NAME21
+sa4_code21 = shapefile.SA4_CODE21
+#shapefile = shapefile.loc[shapefile["STE_NAME21"].isin(["New South Wales", "Victoria"])]
 
 def attach_sentiment(tweet_object):
 
@@ -112,31 +121,61 @@ def get_suburb(tweet_coords):
     pt = Point(tweet_coords[1], tweet_coords[0])
     #Now iterate through the shapes.
     count = 0
-    suburb = ['', '']
+    suburb = ['', '', '', '', '', '']
     for shape in shapefile.geometry:
         if shape != None:
             if shape.contains(pt) or shape.touches(pt):
                 #surburb is determined:
-                suburb[0] = shapefile.SA2_NAME21[count]
-                suburb[1] = shapefile.SA2_CODE21[count]
+                suburb[0] = sa2_name21[count]
+                suburb[1] = sa2_code21[count]
+                #SA3
+                suburb[2] = sa3_name21[count]
+                suburb[3] = sa3_code21[count]
+                #SA4
+                suburb[4] = sa4_name21[count]
+                suburb[5] = sa4_code21[count]
                 return suburb
         count += 1
      #In this case the location is outside Australia.
-    return ["ZZZZZZZZZ", "ZZZZZZZZZ"]
+    return ["ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ"]
 
 count = 0
 
 for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
 
-    print(item["id"])
+    print(item["id"], str(count))
     tweet_id = item["id"]
     tmp = dict(db[tweet_id])
     res = get_suburb(tmp["doc"]["geo"]["coordinates"])
     tmp["doc"]["suburb"] = res[0]
     tmp["doc"]["suburb_code"] = res[1]
 
+    tmp["doc"]["suburb_SA3"] = res[2]
+    tmp["doc"]["suburb_code_SA3"] = res[3]
+
+    tmp["doc"]["suburb_SA4"] = res[4]
+    tmp["doc"]["suburb_code_SA4"] = res[5]
+
     tmp = attach_sentiment(tmp)
+
+    if "suburb_name" in list(tmp.keys()):
+        tmp.pop("suburb_name")
+    
+    if "suburb" in list(tmp.keys()):
+        tmp.pop("suburb")
+
+    if "suburb_code" in list(tmp.keys()):
+        tmp.pop("suburb_code")
+    
+    if "sentiments" in list(tmp.keys()):
+        tmp.pop("sentiments")
+    
+    if "overall_sentiment" in list(tmp.keys()):
+        tmp.pop("overall_sentiment")
+
+
     db[str(tmp["_id"])] = tmp
     count += 1
 
 print("count is", str(count))
+
