@@ -23,6 +23,8 @@ from shapely.geometry.polygon import Polygon
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import json, re, contractions
 
+shapefile = gpd.read_file("SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
+
 def attach_sentiment(tweet_object):
 
     analyzer = SentimentIntensityAnalyzer()
@@ -106,7 +108,6 @@ db = couchserver["historical_tweets"]
 def get_suburb(tweet_coords):
     #First read in the shapefile.
     #This will be used to check if the Point objects are in Australia or not.
-    shapefile = gpd.read_file("SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
     #Then obtain the point as a Point object.
     pt = Point(tweet_coords[1], tweet_coords[0])
     #Now iterate through the shapes.
