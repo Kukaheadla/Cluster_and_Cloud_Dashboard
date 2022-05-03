@@ -22,7 +22,9 @@ from shapely.geometry.polygon import Polygon
 ##
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import json, re, contractions
+
 def attach_sentiment(tweet_object):
+
     analyzer = SentimentIntensityAnalyzer()
     sentence = tweet_object["doc"]['text']
     #Remove url from string
@@ -38,33 +40,47 @@ def attach_sentiment(tweet_object):
 
     sentiment_dict = analyzer.polarity_scores(sentence)
     #Using the sentiment results, can also obtain the general sentiment:
-    
+        
     neg = sentiment_dict["neg"]
     neu = sentiment_dict["neu"]
     pos = sentiment_dict["pos"]
     
     if neg > neu and neg > pos:
-        tweet_object.update({"overall_sentiment" : "negative_sentiment"})
-    
+        tweet_object["doc"].update({"sentiments" : sentiment_dict})
+        tweet_object["doc"].update({"overall_sentiment" : "negative_sentiment"})
+        return tweet_object
+
     elif neu > pos and neu > neg:
-        tweet_object.update({"overall_sentiment" : "neutral_sentiment"})
-    
+        tweet_object["doc"].update({"sentiments" : sentiment_dict})
+        tweet_object["doc"].update({"overall_sentiment" : "neutral_sentiment"})
+        return tweet_object
+
     elif pos > neu and pos > neg:
-        tweet_object.update({"overall_sentiment" : "positive_sentiment"})
-        
+        tweet_object["doc"].update({"sentiments" : sentiment_dict})
+        tweet_object["doc"].update({"overall_sentiment" : "positive_sentiment"})
+        return tweet_object
+
     elif pos == neu and pos == neg:
-        tweet_object.update({"overall_sentiment" : "no_clear_sentiment"})
-    
+        tweet_object["doc"].update({"sentiments" : sentiment_dict})
+        tweet_object["doc"].update({"overall_sentiment" : "no_clear_sentiment"})
+        return tweet_object
+
     elif pos == neu and pos != neg:
-        tweet_object.update({"overall_sentiment" : "positive_neutral_sentiment"}) 
-    
+        tweet_object["doc"].update({"sentiments" : sentiment_dict})
+        tweet_object["doc"].update({"overall_sentiment" : "positive_neutral_sentiment"}) 
+        return tweet_object
+
     elif neg == neu and neu != neg:
-        tweet_object.update({"overall_sentiment" : "negative_neutral_sentiment"})    
-    
+        tweet_object["doc"].update({"sentiments" : sentiment_dict})
+        tweet_object["doc"].update({"overall_sentiment" : "negative_neutral_sentiment"})    
+        return tweet_object
+
     elif neg == pos and neu != pos:
-        tweet_object.update({"overall_sentiment" : "positive_negative_sentiment"})    
-        
-    tweet_object.update({"sentiments" : sentiment_dict})
+        tweet_object["doc"].update({"sentiments" : sentiment_dict})
+        tweet_object["doc"].update({"overall_sentiment" : "positive_negative_sentiment"})    
+        return tweet_object
+
+    tweet_object["doc"].update({"sentiments" : sentiment_dict})
     return tweet_object
 ##
 
@@ -95,21 +111,31 @@ def get_suburb(tweet_coords):
     pt = Point(tweet_coords[1], tweet_coords[0])
     #Now iterate through the shapes.
     count = 0
-    suburb = ''
+    suburb = ['', '']
     for shape in shapefile.geometry:
         if shape != None:
             if shape.contains(pt) or shape.touches(pt):
                 #surburb is determined:
-                suburb = shapefile.SA2_NAME21[count]
+                suburb[0] = shapefile.SA2_NAME21[count]
+                suburb[1] = shapefile.SA2_CODE21[count]
                 return suburb
         count += 1
      #In this case the location is outside Australia.
-    return "ZZZZZZZZZ"
+    return ["ZZZZZZZZZ", "ZZZZZZZZZ"]
+
+count = 0
 
 for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
+
     print(item["id"])
     tweet_id = item["id"]
     tmp = dict(db[tweet_id])
-    tmp["suburb"] = get_suburb(tmp["doc"]["geo"]["coordinates"])
+    res = get_suburb(tmp["doc"]["geo"]["coordinates"])
+    tmp["doc"]["suburb"] = res[0]
+    tmp["doc"]["suburb_code"] = res[1]
+
     tmp = attach_sentiment(tmp)
     db[str(tmp["_id"])] = tmp
+    count += 1
+
+print("count is", str(count))
