@@ -1,5 +1,5 @@
 function (doc) {
-    if (!doc.topic || !doc.geo?.suburb || !doc.geo?.geo_location?.full_name || !doc.location || !doc.user?.location) {
+    if (doc.topic || doc.geo?.suburb || doc.geo?.geo_location?.full_name || doc.location || doc.user?.location) {
         // This section is to handle the historical tweet's date format
         // "Fri Jun 16 13:18:45 +0000 2017"
         /*
@@ -27,17 +27,17 @@ function (doc) {
         //#region Getting the location/ suburb name
         var location = "none";
 
-        if (!doc.geo?.suburb) {
+        if (doc.geo?.suburb) {
             location = doc.geo.suburb.trim().toLowerCase();
         }
-        else if (!doc.geo?.geo_location?.full_name) {
+        else if (doc.geo?.geo_location?.full_name) {
             full_name = doc.geo?.geo_location?.full_name // "Rajasthan, India"
             location = full_name.split(',')[0].trim().toLowerCase();
         }
-        else if (!doc.location) {
+        else if (doc.location) {
             location = doc.location.trim().toLowerCase()
         }
-        else if (!doc.user?.location) {
+        else if (doc.user?.location) {
             // Get the location from user's profile
             location = doc.user.location.trim().toLowerCase()
         }
