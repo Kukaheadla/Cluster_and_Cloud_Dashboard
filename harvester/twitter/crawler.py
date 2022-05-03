@@ -31,6 +31,19 @@ from shapely.geometry.polygon import Polygon
 #Left out 'referenced_tweets' in tweet_fields as it may lead to RuntimeError.
 #Left out "entities.mentions.username", "referenced_tweets.id" and "referenced_tweets.id.author_id" as can lead to RuntimeError.
 
+###For the shapefiles:
+shapefile = gpd.read_file("SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
+
+sa2_name21 = shapefile.SA2_NAME21
+sa2_code21 = shapefile.SA2_CODE21
+
+sa3_name21 = shapefile.SA3_NAME21
+sa3_code21 = shapefile.SA3_CODE21
+
+sa4_name21 = shapefile.SA4_NAME21
+sa4_code21 = shapefile.SA4_CODE21
+###
+
 tweet_fields = [
     "attachments",
     "author_id",
@@ -139,11 +152,24 @@ class TweetListener(tweepy.StreamingClient):
                 suburb = get_suburb(location.centroid)
                 tmp["geo"]["suburb"] = suburb[0]
                 tmp["geo"]["suburb_code"] = suburb[1]
+
+                tmp["geo"]["suburb_SA3"] = suburb[2]
+                tmp["geo"]["suburb_code_SA3"] = suburb[3]
+
+                tmp["geo"]["suburb_SA4"] = suburb[4]
+                tmp["geo"]["suburb_code_SA4"] = suburb[5]
+
             elif "coordinates" in tmp["geo"].keys():
                 #Get the coordinates directly:
                 suburb = get_suburb(tmp["geo"]["coordinates"])
                 tmp["geo"]["suburb"] = suburb[0]
                 tmp["geo"]["suburb_code"] = suburb[1]
+
+                tmp["geo"]["suburb_SA3"] = suburb[2]
+                tmp["geo"]["suburb_code_SA3"] = suburb[3]
+
+                tmp["geo"]["suburb_SA4"] = suburb[4]
+                tmp["geo"]["suburb_code_SA4"] = suburb[5]
             
         if tmp["id"] not in self.tweet_id_lst:
             tmp["day_of_week"] = tmp["created_at"].strftime("%A")
@@ -182,6 +208,12 @@ class TweetListener(tweepy.StreamingClient):
 
     # def on_connection_error(self):
     #     self.disconnect()
+def log(message: str, debug: bool):
+    """
+    Logs a message if debug flag is True.
+    """
+    if debug:
+        print(message)
 
 def rule_regulation(client, rules):
 
@@ -208,22 +240,33 @@ def rule_regulation(client, rules):
 def get_suburb(tweet_coords):
     #First read in the shapefile.
     #This will be used to check if the Point objects are in Australia or not.
-    shapefile = gpd.read_file("twitter/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
+
     #Then obtain the point as a Point object.
     pt = Point(tweet_coords[0], tweet_coords[1])
     #Now iterate through the shapes.
     count = 0
-    suburb = ['', '']
+    suburb = ['', '', '', '', '', '']
+
     for shape in shapefile.geometry:
+
         if shape != None:
+
             if shape.contains(pt) or shape.touches(pt):
                 #surburb is determined:
-                suburb[0] = shapefile.SA2_NAME21[count]
-                suburb[1] = shapefile.SA2_CODE21[count]
+                suburb[0] = sa2_name21[count]
+                suburb[1] = sa2_code21[count]
+                #SA3
+                suburb[2] = sa3_name21[count]
+                suburb[3] = sa3_code21[count]
+                #SA4
+                suburb[4] = sa4_name21[count]
+                suburb[5] = sa4_code21[count]
+
                 return suburb
+
         count += 1
      #In this case the location is outside Australia.
-    return ["ZZZZZZZZZ", "ZZZZZZZZZ"]
+    return ["ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ"]
 
 ####
 
@@ -326,12 +369,25 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
                                 suburb = get_suburb(location.centroid)
                                 tmp["geo"]["suburb"] = suburb[0]
                                 tmp["geo"]["suburb_code"] = suburb[1]
+
+                                tmp["geo"]["suburb_SA3"] = suburb[2]
+                                tmp["geo"]["suburb_code_SA3"] = suburb[3]
+
+                                tmp["geo"]["suburb_SA4"] = suburb[4]
+                                tmp["geo"]["suburb_code_SA4"] = suburb[5]
                                 
                             elif "coordinates" in tmp["geo"].keys():
                                 #Get the coordinates directly:
                                 suburb = get_suburb(tmp["geo"]["coordinates"])
                                 tmp["geo"]["suburb"] = suburb[0]
                                 tmp["geo"]["suburb_code"] = suburb[1]
+
+                                tmp["geo"]["suburb_SA3"] = suburb[2]
+                                tmp["geo"]["suburb_code_SA3"] = suburb[3]
+
+                                tmp["geo"]["suburb_SA4"] = suburb[4]
+                                tmp["geo"]["suburb_code_SA4"] = suburb[5]
+
                         # duplicate update check.
                         # we use the tweet ID from twitter as the primary key for rows
                         # this prevents duplicates being written into the database
