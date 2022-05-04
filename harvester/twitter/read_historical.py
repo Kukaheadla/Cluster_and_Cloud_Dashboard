@@ -23,7 +23,14 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import json, re, contractions
 
 shapefile = gpd.read_file("SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
-shapefile = shapefile.loc[shapefile["STE_NAME21"].isin(["Victoria"])]
+
+# Reduce the search polygons to Melbourne/ Sydney only
+melb_polygon = Polygon([(144.4, -37.52), (144.40, -38.42), (145.58, -38.42), (145.58, -37.52) ]) # Melbourne rectangle
+sydney_polygon = Polygon([(150.50, -33.51), (150.50, -34.16), (151.35, -34.16), (151.35, -33.51)]) # Sydney rectangle
+
+shapefile = shapefile[shapefile.geometry.intersects(melb_polygon) | shapefile.geometry.intersects(sydney_polygon)]
+
+# shapefile = shapefile.loc[shapefile["STE_NAME21"].isin(["Victoria"])]
 
 sa2_name21 = list(shapefile.SA2_NAME21)
 sa2_code21 = list(shapefile.SA2_CODE21)
