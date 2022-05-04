@@ -23,16 +23,21 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import json, re, contractions
 
 shapefile = gpd.read_file("SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
-sa2_name21 = shapefile.SA2_NAME21
-sa2_code21 = shapefile.SA2_CODE21
+shapefile_vic = shapefile.loc[shapefile["STE_NAME21"].isin(["Victoria"])]
 
-sa3_name21 = shapefile.SA3_NAME21
-sa3_code21 = shapefile.SA3_CODE21
+sa2_name21 = list(shapefile_vic.SA2_NAME21)
+sa2_code21 = list(shapefile_vic.SA2_CODE21)
 
-sa4_name21 = shapefile.SA4_NAME21
-sa4_code21 = shapefile.SA4_CODE21
-shapefile = shapefile.loc[shapefile["STE_NAME21"].isin(["Victoria"])]
-shapefile_geometry = shapefile.geometry
+sa3_name21 = list(shapefile_vic.SA3_NAME21)
+sa3_code21 = list(shapefile_vic.SA3_CODE21)
+
+sa4_name21 = list(shapefile_vic.SA4_NAME21)
+sa4_code21 = list(shapefile_vic.SA4_CODE21)
+
+gcc_name21 = list(shapefile_vic.GCC_NAME21)
+gcc_code21 = list(shapefile_vic.GCC_CODE21)
+
+shapefile_vic_geometry = shapefile_vic.geometry
 
 def attach_sentiment(tweet_object):
 
@@ -129,8 +134,8 @@ def get_suburb(tweet_coords):
     pt = Point(tweet_coords[1], tweet_coords[0])
     #Now iterate through the shapes.
     count = 0
-    suburb = ['', '', '', '', '', '']
-    for shape in shapefile_geometry:
+    suburb = ['', '', '', '', '', '', '', '']
+    for shape in shapefile_vic_geometry:
         if shape != None:
             if shape.contains(pt) or shape.touches(pt):
                 #surburb is determined:
@@ -142,13 +147,16 @@ def get_suburb(tweet_coords):
                 #SA4
                 suburb[4] = sa4_name21[count]
                 suburb[5] = sa4_code21[count]
+                #GCC
+                suburb[6] = gcc_name21[count]
+                suburb[7] = gcc_code21[count]
                 return suburb
         count += 1
      #In this case the location is outside Australia.
-    return ["ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ"]
+    return ["ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ"]
 
 count_tweet = 0
-check_point = 109128 #82000
+check_point = 0    #109128 #82000
 
 for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
 
@@ -160,11 +168,13 @@ for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
     tweet_id = item["id"]
     tmp = dict(db[tweet_id])
 
+    '''
     if "suburb" in tmp["doc"] and "suburb_code" in tmp["doc"]:
         print(item["id"], "pass")
         count_tweet += 1
         #Already done
         continue
+    '''
     
     print(item["id"], str(count_tweet))
 
@@ -179,19 +189,10 @@ for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
     tmp["doc"]["suburb_SA4"] = res[4]
     tmp["doc"]["suburb_code_SA4"] = res[5]
 
-    tmp = attach_sentiment(tmp)
-    
-    #if "suburb" in list(tmp.keys()):
-    #    tmp.pop("suburb")
+    tmp["doc"]["GCC_NAME21"] = res[6]
+    tmp["doc"]["GCC_CODE21"] = res[7]
 
-    #if "suburb_code" in list(tmp.keys()):
-    #    tmp.pop("suburb_code")
-    
-    #if "sentiments" in list(tmp.keys()):
-    #    tmp.pop("sentiments")
-    
-    #if "overall_sentiment" in list(tmp.keys()):
-    #    tmp.pop("overall_sentiment")
+    tmp = attach_sentiment(tmp)
 
     db[str(tmp["_id"])] = tmp
     count_tweet += 1
