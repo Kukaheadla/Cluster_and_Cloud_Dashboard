@@ -1,4 +1,14 @@
+"""
+Author: Alex T
+Geojson credit: todo
+
+This file contains functions relating to Melbourne and GeoJSON.
+"""
+
 def melbourne_geo():
+    """
+    Returns a GeoJSON (python dict) of Melbourne.
+    """
     return {
         "type": "FeatureCollection",
         "features": [

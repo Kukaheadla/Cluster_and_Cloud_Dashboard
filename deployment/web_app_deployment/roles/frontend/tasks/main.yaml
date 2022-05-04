@@ -57,7 +57,7 @@
   debug:
     msg: "The container {{ 'exists' if result.exists else 'does not exist' }}"
 
-- name: Print the status of the container
+- name: Print the status of the flask/gunicorn container
   debug:
     msg: "The container status is {{ result.container['State']['Status'] }}"
   when: result.exists

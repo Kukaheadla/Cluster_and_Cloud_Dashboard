@@ -28,5 +28,5 @@ security_groups:
 
 # Instance
 instances:
-  - name: crawler-main
+  - name: crawler-1
     volumes: ['crawler-vol-1-1']
