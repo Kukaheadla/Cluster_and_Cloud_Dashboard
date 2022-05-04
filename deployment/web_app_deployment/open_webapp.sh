@@ -2,4 +2,4 @@
 
 . ./openrc.sh
 
-ansible-playbook -i hosts -u ubuntu --key-file=~/.ssh/project-key.pem all.yaml --flush-cache
+ansible-playbook -i hosts -u ubuntu --key-file=~/.ssh/demo.pem all.yaml --flush-cache
