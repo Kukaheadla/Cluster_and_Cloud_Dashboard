@@ -143,10 +143,19 @@ count = 0
 
 for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
 
-    print(item["id"], str(count))
     tweet_id = item["id"]
     tmp = dict(db[tweet_id])
+
+    if "suburb" in tmp["doc"] and "suburb_code" in tmp["doc"]:
+        print(item["id"], "pass")
+        count += 1
+        #Already done
+        continue
+    
+    print(item["id"], str(count))
+
     res = get_suburb(tmp["doc"]["geo"]["coordinates"])
+    
     tmp["doc"]["suburb"] = res[0]
     tmp["doc"]["suburb_code"] = res[1]
 
@@ -157,25 +166,20 @@ for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
     tmp["doc"]["suburb_code_SA4"] = res[5]
 
     tmp = attach_sentiment(tmp)
-
-    if "suburb_name" in list(tmp.keys()):
-        tmp.pop("suburb_name")
     
-    if "suburb" in list(tmp.keys()):
-        tmp.pop("suburb")
+    #if "suburb" in list(tmp.keys()):
+    #    tmp.pop("suburb")
 
-    if "suburb_code" in list(tmp.keys()):
-        tmp.pop("suburb_code")
+    #if "suburb_code" in list(tmp.keys()):
+    #    tmp.pop("suburb_code")
     
-    if "sentiments" in list(tmp.keys()):
-        tmp.pop("sentiments")
+    #if "sentiments" in list(tmp.keys()):
+    #    tmp.pop("sentiments")
     
-    if "overall_sentiment" in list(tmp.keys()):
-        tmp.pop("overall_sentiment")
-
+    #if "overall_sentiment" in list(tmp.keys()):
+    #    tmp.pop("overall_sentiment")
 
     db[str(tmp["_id"])] = tmp
     count += 1
 
 print("count is", str(count))
-
