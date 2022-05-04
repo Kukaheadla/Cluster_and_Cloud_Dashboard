@@ -21,3 +21,4 @@ tweepy==4.8.0
 urllib3==1.26.9
 vaderSentiment==3.3.2
 Werkzeug==2.1.2
+geopandas==0.10.2
