@@ -12,7 +12,7 @@ services:
   {% for topic in topics %}
     crawler-{{ city }}-{{ topic }}:
       build: ./
-      command: python main.py --credentials-id {{ loop.index | string }} --couchdb-host 172.26.130.155:5984 --couchdb-username user --city {{ city }} --topic {{ topic }} --mode stream --debug 
+      command: python main.py --credentials-id {{ loop.index | string }} --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ city }} --topic {{ topic }} --mode stream --debug 
       expose:
         - 5000
       restart: always

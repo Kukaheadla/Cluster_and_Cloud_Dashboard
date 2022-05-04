@@ -3,7 +3,7 @@ availability_zone: melbourne-qh2-uom
 instance_image: 356ff1ed-5960-4ac2-96a1-0c0198e6a999
 instance_key_name: demo
 instance_flavor: uom.mse.2c9g
-cloud_network: qh2-uom
+public_cloud_network: qh2-uom
 
 # Volume
 volumes:
