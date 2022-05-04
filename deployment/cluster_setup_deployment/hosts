@@ -1,0 +1,9 @@
+[CouchDBCluster]
+172.26.134.34
+172.26.131.95
+
+[CoordinationNode]
+172.26.134.34
+
+[WorkerNodes]
+172.26.131.95

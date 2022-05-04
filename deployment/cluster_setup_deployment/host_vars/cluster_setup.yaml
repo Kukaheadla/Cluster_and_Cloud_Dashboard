@@ -1,0 +1,4 @@
+coordination_node: "{{ groups['CoordinationNode'][0] }}"
+last_node: "{{ groups['WorkerNodes'][-1] }}"
+database_user: user
+database_password: password

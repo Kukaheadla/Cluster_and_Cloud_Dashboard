@@ -1,0 +1,10 @@
+- hosts: CouchDBCluster
+  vars_files:
+    - host_vars/cluster_setup.yaml
+  gather_facts: false
+  vars:
+    - ansible_user: ubuntu
+    - ansible_ssh_private_key_file: ~/.ssh/project-key.pem
+    - ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+  roles:
+    - role: setup-db-cluster
