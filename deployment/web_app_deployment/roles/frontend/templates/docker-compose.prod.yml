@@ -6,16 +6,13 @@ services:
       - "host.docker.internal:host-gateway"
     build: ./services/web/flask
     command: gunicorn --bind 0.0.0.0:5000 wsgi:application
-    # volumes:
-    #   - ./services/web/:/usr/src/app/
-    # ports:
-    #   - 5000:5000
     expose:
       - 5000
     environment:
       - COUCHDB_DATABASE=http://user:password@172.26.130.155:5984
       - COUCHDB_DATABASE_NAME=twitter_stream
       - COUCHDB_USERNAME=user
+      - COUCHDB_HISTORICAL_TWEETS_TABLE_NAME=historical_tweets
   nginx:
     build: ./services/nginx
     ports:
