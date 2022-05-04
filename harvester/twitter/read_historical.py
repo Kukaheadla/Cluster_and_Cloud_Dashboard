@@ -18,7 +18,6 @@ import geopandas as gpd
 from shapely.geometry import Point, shape
 from shapely.geometry.polygon import Polygon
 
-
 ##
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import json, re, contractions
@@ -32,16 +31,25 @@ sa3_code21 = shapefile.SA3_CODE21
 
 sa4_name21 = shapefile.SA4_NAME21
 sa4_code21 = shapefile.SA4_CODE21
-#shapefile = shapefile.loc[shapefile["STE_NAME21"].isin(["New South Wales", "Victoria"])]
+shapefile = shapefile.loc[shapefile["STE_NAME21"].isin(["Victoria"])]
+shapefile_geometry = shapefile.geometry
 
 def attach_sentiment(tweet_object):
 
     analyzer = SentimentIntensityAnalyzer()
     sentence = tweet_object["doc"]['text']
+
     #Remove url from string
     sentence = re.sub(r'http\S+', '', sentence).strip()
     #fix contractions
-    sentence = contractions.fix(sentence, slang=True)
+    #IndexError for 3005469185e7ce96f1066bf3b1ffbcb7:
+    #İsrail temsilcisiyle yanyana oturmamak için Münih Güvenlik Konferansına katılmayan dış İşleri Bakanı Mevlüt Çavuşoğlu'nu ayakta alkışlıyoruz
+    try:
+        prior = sentence
+        sentence = contractions.fix(sentence, slang=True)
+    except IndexError:
+        sentence = prior
+
     #remove punctuation from string
     sentence = re.sub(r'[^\w\s]','', sentence).strip()
     #remove extra whitespace
@@ -122,7 +130,7 @@ def get_suburb(tweet_coords):
     #Now iterate through the shapes.
     count = 0
     suburb = ['', '', '', '', '', '']
-    for shape in shapefile.geometry:
+    for shape in shapefile_geometry:
         if shape != None:
             if shape.contains(pt) or shape.touches(pt):
                 #surburb is determined:
@@ -139,20 +147,26 @@ def get_suburb(tweet_coords):
      #In this case the location is outside Australia.
     return ["ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ"]
 
-count = 0
+count_tweet = 0
+check_point = 109128 #82000
 
 for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
+
+    if count_tweet < check_point:
+        print("skip count =", str(count_tweet))
+        count_tweet += 1
+        continue
 
     tweet_id = item["id"]
     tmp = dict(db[tweet_id])
 
     if "suburb" in tmp["doc"] and "suburb_code" in tmp["doc"]:
         print(item["id"], "pass")
-        count += 1
+        count_tweet += 1
         #Already done
         continue
     
-    print(item["id"], str(count))
+    print(item["id"], str(count_tweet))
 
     res = get_suburb(tmp["doc"]["geo"]["coordinates"])
     
@@ -180,6 +194,6 @@ for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
     #    tmp.pop("overall_sentiment")
 
     db[str(tmp["_id"])] = tmp
-    count += 1
+    count_tweet += 1
 
-print("count is", str(count))
+print("count is", str(count_tweet))
