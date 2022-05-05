@@ -23,14 +23,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import json, re, contractions
 
 shapefile = gpd.read_file("SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
-
-# Reduce the search polygons to Melbourne/ Sydney only
-melb_polygon = Polygon([(144.4, -37.52), (144.40, -38.42), (145.58, -38.42), (145.58, -37.52) ]) # Melbourne rectangle
-sydney_polygon = Polygon([(150.50, -33.51), (150.50, -34.16), (151.35, -34.16), (151.35, -33.51)]) # Sydney rectangle
-
-shapefile = shapefile[shapefile.geometry.intersects(melb_polygon) | shapefile.geometry.intersects(sydney_polygon)]
-
-# shapefile = shapefile.loc[shapefile["STE_NAME21"].isin(["Victoria"])]
+shapefile = shapefile.loc[shapefile["STE_NAME21"].isin(["Victoria"])]
 
 sa2_name21 = list(shapefile.SA2_NAME21)
 sa2_code21 = list(shapefile.SA2_CODE21)
@@ -163,7 +156,7 @@ def get_suburb(tweet_coords):
     return ["ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ"]
 
 count_tweet = 0
-check_point = 0    #109128 #82000
+check_point = 28880    #28885 #109128 #82000
 
 for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
 
@@ -171,17 +164,11 @@ for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
         print("skip count =", str(count_tweet))
         count_tweet += 1
         continue
-
+    
     tweet_id = item["id"]
-    tmp = dict(db[tweet_id])
 
-    '''
-    if "suburb" in tmp["doc"] and "suburb_code" in tmp["doc"]:
-        print(item["id"], "pass")
-        count_tweet += 1
-        #Already done
-        continue
-    '''
+    #tmp = dict(db[tweet_id])
+    tmp = db[tweet_id]
     
     print(item["id"], str(count_tweet))
 
@@ -202,6 +189,5 @@ for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
     tmp = attach_sentiment(tmp)
 
     db[str(tmp["_id"])] = tmp
-    count_tweet += 1
 
-print("count is", str(count_tweet))
+    count_tweet += 1
