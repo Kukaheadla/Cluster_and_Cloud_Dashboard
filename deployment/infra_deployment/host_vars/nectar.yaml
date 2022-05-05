@@ -6,14 +6,18 @@ instance_flavor: uom.mse.2c9g
 
 # Volume
 volumes:
-  - vol_name: web-vol-1-1
-    vol_size: 10
+  # - vol_name: web-vol-1-1
+  #   vol_size: 10
   - vol_name: web-vol-2-1
     vol_size: 10
-  - vol_name: db-vol-1-1
-    vol_size: 50
+  # - vol_name: db-vol-1-1
+  #   vol_size: 50
   - vol_name: db-vol-2-1
-    vol_size: 50
+    vol_size: 80
+  - vol_name: web-vol-3-1
+    vol_size: 10
+  - vol_name: db-vol-3-1
+    vol_size: 80
 
 # Security group
 security_groups:
@@ -56,7 +60,9 @@ security_groups:
   
 # Instance
 instances:
-  - name: Instance-1
-    volumes: ['web-vol-1-1', 'db-vol-1-1']
+  # - name: Instance-1
+  #   volumes: ['web-vol-1-1', 'db-vol-1-1']
   - name: Instance-2
     volumes: ['web-vol-2-1', 'db-vol-2-1']
+  - name: Instance-3
+    volumes: ['web-vol-3-1', 'db-vol-3-1']

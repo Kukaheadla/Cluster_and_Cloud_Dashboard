@@ -1,0 +1,61 @@
+- name: Enable CouchDB workernode cluster setup
+  become: yes
+  uri:
+    url: http://{{ coordination_node }}:5984/_cluster_setup
+    status_code: 200, 201 # in case the cluster is created, it will return 400
+    method: POST
+    user: "{{ database_user }}"
+    password: "{{ database_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    headers:
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      action: "enable_cluster"
+      bind_address: "0.0.0.0"
+      username: "{{ database_user }}"
+      password: "{{ database_password }}"
+      remote_current_user: "{{ database_user }}"
+      remote_current_password: "{{ database_password }}"
+      remote_node: "{{ ansible_host }}"
+      node_count: "{{ groups['CouchDBCluster'] | length }}"
+  when: ansible_host != coordination_node 
+
+- name: Add workernodes to CouchDB Cluster
+  become: yes
+  when: ansible_host != coordination_node 
+  uri:
+    url: http://{{ coordination_node }}:5984/_cluster_setup
+    status_code: 201, 400 # in case the nodes are added, it will return 400
+    method: POST
+    user: "{{ database_user }}"
+    password: "{{ database_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    body_format: json
+    headers:
+      Content-Type: "application/json"
+    body:
+      action: "add_node"
+      host: "{{ ansible_host }}"
+      port: "5984"
+      username: "{{ database_user }}"
+      password: "{{ database_password }}"
+
+- name: Finish CouchDB Cluster
+  become: yes
+  uri:
+    url: http://{{ coordination_node }}:5984/_cluster_setup
+    status_code: 201
+    method: POST
+    user: "{{ database_user }}"
+    password: "{{ database_password }}"
+    force_basic_auth: yes
+    return_content: yes
+    body_format: json
+    headers:
+      Content-Type: "application/json"
+    body:
+      action: "finish_cluster"
+  when: ansible_host == last_node
