@@ -41,9 +41,11 @@ if __name__ == "__main__":
         "--city", help="city topic, e.g. melbourne or sydney", type=str, required=True
     )
     parser.add_argument("--mode", help="e.g. stream or search", type=str, required=True)
-    
-    parser.add_argument("--topic", help="e.g. environment or transport", type=str, required=True)
-    
+
+    parser.add_argument(
+        "--topic", help="e.g. environment or transport", type=str, required=False
+    )
+
     parser.add_argument(
         "-o",
         help="specify an output file for returned Tweets.",
@@ -82,6 +84,7 @@ if __name__ == "__main__":
     credentials_server = couchdb_server["credentials"]
     twitter_credentials = None
     current_credential_index = args.credentials_id
+    result = None
 
     while True:
         doc = credentials_server["twitter_credentials"]
@@ -110,7 +113,17 @@ if __name__ == "__main__":
             # this will run until terminated, or an API error is encountered from which we cannot recover
             # if for example this hits the tweet quota for a developer account, the loop should cycle to new credentials
             log("streaming", args.debug)
-            result = do_work(twitter_credentials, args, couchdb_server, mode="stream")
+            try:
+                result = do_work(
+                    twitter_credentials, args, couchdb_server, mode="stream"
+                )
+            except tweepy.errors.HTTPException:
+                # probably a disconnect for misc. reasons, we can deal with this.
+                current_credential_index -= (
+                    1  # keep the index the same on the next retry
+                )
+            except Exception as e:
+                log(str(e), args.debug)
         elif args.mode.lower() == "search":
             # do some searching
             # this will also run until terminated or an API error etc.
