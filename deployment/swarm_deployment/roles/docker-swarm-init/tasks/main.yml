@@ -1,0 +1,15 @@
+---
+- name: Check if Swarm has already been Initialized
+  become: yes
+  shell: docker node ls
+  register: swarm_status
+  ignore_errors: true
+  tags: swarm
+
+- name: Initialize Docker Swarm
+  become: yes
+  docker_swarm:
+    state: present
+  when: swarm_status.rc != 0
+  run_once: true
+  tags: swarm

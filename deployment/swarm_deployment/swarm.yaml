@@ -1,0 +1,15 @@
+---
+- name: Common
+  hosts: all
+  roles:
+    - common
+
+- name: Install Docker
+  hosts: all
+  roles:
+    - docker-install
+
+- name: Initialize Docker Swarm cluster
+  hosts: swarm_managers
+  roles:
+    - docker-swarm-init
