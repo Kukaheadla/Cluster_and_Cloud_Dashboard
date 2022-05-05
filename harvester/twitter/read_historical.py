@@ -156,7 +156,7 @@ def get_suburb(tweet_coords):
     return ["ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ", "ZZZZZZZZZ"]
 
 count_tweet = 0
-check_point = 28880    #28885 #109128 #82000
+check_point = 49200 #28880    #28885 #109128 #82000
 
 for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
 
@@ -167,8 +167,7 @@ for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
     
     tweet_id = item["id"]
 
-    #tmp = dict(db[tweet_id])
-    tmp = db[tweet_id]
+    tmp = dict(db[tweet_id])
     
     print(item["id"], str(count_tweet))
 
@@ -191,3 +190,5 @@ for item in db.view('_design/GeoInfo/_view/TweetsWithGeoInfo'):
     db[str(tmp["_id"])] = tmp
 
     count_tweet += 1
+
+print("count is", str(count_tweet))
