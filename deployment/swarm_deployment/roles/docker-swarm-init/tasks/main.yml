@@ -13,3 +13,13 @@
   when: swarm_status.rc != 0
   run_once: true
   tags: swarm
+
+- name: Create token for managers
+  shell: docker swarm join-token -q manager
+  register: manager_token
+  tags: swarm
+
+- name: Create token for workers
+  shell: docker swarm join-token -q worker
+  register: worker_token
+  tags: swarm
