@@ -33,16 +33,20 @@ from shapely.geometry.polygon import Polygon
 # Left out "entities.mentions.username", "referenced_tweets.id" and "referenced_tweets.id.author_id" as can lead to RuntimeError.
 
 ###For the shapefiles:
-shapefile = gpd.read_file("SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
+shapefile = gpd.read_file("twitter/SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
 
-sa2_name21 = shapefile.SA2_NAME21
-sa2_code21 = shapefile.SA2_CODE21
+sa2_name21 = list(shapefile.SA2_NAME21)
+sa2_code21 = list(shapefile.SA2_CODE21)
 
-sa3_name21 = shapefile.SA3_NAME21
-sa3_code21 = shapefile.SA3_CODE21
+sa3_name21 = list(shapefile.SA3_NAME21)
+sa3_code21 = list(shapefile.SA3_CODE21)
 
-sa4_name21 = shapefile.SA4_NAME21
-sa4_code21 = shapefile.SA4_CODE21
+sa4_name21 = list(shapefile.SA4_NAME21)
+sa4_code21 = list(shapefile.SA4_CODE21)
+
+gcc_name21 = list(shapefile.GCC_NAME21)
+gcc_code21 = list(shapefile.GCC_CODE21)
+
 ###
 
 tweet_fields = [
@@ -142,15 +146,15 @@ class TweetListener(tweepy.StreamingClient):
         self.topic_name = topic
         api = tweepy.API(auth)
         self.api = api
-        if "twitter_stream_envir2" in self.couchdb_server:
+        if "envir_test1" in self.couchdb_server:
             print("Use existing database")
-            self.twitter_stream = self.couchdb_server["twitter_stream_envir2"]
-            print("Existing database used: twitter_stream_envir2")
+            self.twitter_stream = self.couchdb_server["envir_test1"]
+            print("Existing database used: envir_test1")
 
-        elif "twitter_stream_envir2" not in self.couchdb_server:
+        elif "envir_test1" not in self.couchdb_server:
             print("Create new database")
-            self.twitter_stream = self.couchdb_server.create("twitter_stream_envir2")
-            print("Database created: twitter_stream_envir2")
+            self.twitter_stream = self.couchdb_server.create("envir_test1")
+            print("Database created: envir_test1")
 
     # Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
@@ -196,6 +200,9 @@ class TweetListener(tweepy.StreamingClient):
                 tmp["geo"]["suburb_SA4"] = suburb[4]
                 tmp["geo"]["suburb_code_SA4"] = suburb[5]
 
+                tmp["doc"]["GCC_NAME21"] = suburb[6]
+                tmp["doc"]["GCC_CODE21"] = suburb[7]
+
             elif "coordinates" in tmp["geo"].keys():
                 # Get the coordinates directly:
                 suburb = get_suburb(tmp["geo"]["coordinates"])
@@ -207,6 +214,9 @@ class TweetListener(tweepy.StreamingClient):
 
                 tmp["geo"]["suburb_SA4"] = suburb[4]
                 tmp["geo"]["suburb_code_SA4"] = suburb[5]
+
+                tmp["doc"]["GCC_NAME21"] = suburb[6]
+                tmp["doc"]["GCC_CODE21"] = suburb[7]
 
         if tmp["id"] not in self.tweet_id_lst:
             try:
@@ -285,14 +295,18 @@ def rule_regulation(client, rules):
 
 #### Working with shapefiles
 def get_suburb(tweet_coords):
-    # First read in the shapefile.
+
+    #Important to check the format type of tweet_coords:
+    if type(tweet_coords) is dict:
+        tweet_coords = tweet_coords["coordinates"] 
+
     # This will be used to check if the Point objects are in Australia or not.
 
     # Then obtain the point as a Point object.
     pt = Point(tweet_coords[0], tweet_coords[1])
     # Now iterate through the shapes.
     count = 0
-    suburb = ["", "", "", "", "", ""]
+    suburb = ["", "", "", "", "", "", "", ""]
 
     for shape in shapefile.geometry:
 
@@ -309,6 +323,10 @@ def get_suburb(tweet_coords):
                 suburb[4] = sa4_name21[count]
                 suburb[5] = sa4_code21[count]
 
+                suburb[6] = gcc_name21[count]
+                suburb[7] = gcc_name21[count]
+
+
                 return suburb
 
         count += 1
@@ -320,6 +338,8 @@ def get_suburb(tweet_coords):
         "ZZZZZZZZZ",
         "ZZZZZZZZZ",
         "ZZZZZZZZZ",
+        "ZZZZZZZZZ",
+        "ZZZZZZZZZ"
     ]
 
 
@@ -332,29 +352,22 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     Main non-streaming search function.
     """
     twitter_stream_search = None
-    if "twitter_stream_envir2" in couchdb_server:
+    if "envir_test1" in couchdb_server:
         print("Use existing database")
-        twitter_stream_search = couchdb_server["twitter_stream_envir2"]
-        print("Existing database used: twitter_stream_envir2")
+        twitter_stream_search = couchdb_server["envir_test1"]
+        print("Existing database used: envir_test1")
 
-    elif "twitter_stream_envir2" not in couchdb_server:
+    elif "envir_test1" not in couchdb_server:
         print("Create new database")
-        twitter_stream_search = couchdb_server.create("twitter_stream_envir2")
-        print("Database created: twitter_stream_envir2")
+        twitter_stream_search = couchdb_server.create("envir_test1")
+        print("Database created: envir_test1")
 
     # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     if topic == "environment":
-        query = (
-            city_name
-            + " ("
-            + topic
-            + " OR nature OR sustainable OR bio OR plant OR green - biology)"
-        )
+        query = city_name + ' (' + topic + ' pollution OR ("carbon monoxide" OR "carbon dioxide") OR chemicals OR nature OR sustainable OR bio OR (green - ticks) OR plant)'
     elif topic == "transport":
-        query = (
-            city_name + " (" + topic + ' OR bus OR "public transport" OR train OR tram)'
-        )
+        query = city_name + ' (' + topic + ' OR bus OR "public transport" OR train OR tram)'
     elif topic != "transport" and topic != "environment":
         query = city_name
 
@@ -363,118 +376,111 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     counter = 0
     total_tweets_read = 0
 
-    resp = search_client.search_recent_tweets(
-        query,
-        max_results=max_results,
-        tweet_fields=tweet_fields,
-        user_fields=user_fields,
-        expansions=expansions,
-        media_fields=media_fields,
-        place_fields=place_fields,
-        poll_fields=poll_fields,
-    )
-    print("Search counter at the start is", counter)
-
     try:
-        while resp.meta["next_token"]:
-            resp = search_client.search_recent_tweets(
-                query,
-                max_results=max_results,
-                next_token=resp.meta["next_token"],
-                tweet_fields=tweet_fields,
-                user_fields=user_fields,
-                expansions=expansions,
-                media_fields=media_fields,
-                place_fields=place_fields,
-                poll_fields=poll_fields,
-            )
-            total_tweets_read += max_results
+        tst_paginator = tweepy.Paginator(search_client.search_recent_tweets, query, max_results=max_results, tweet_fields=tweet_fields, 
+            user_fields=user_fields, expansions=expansions, media_fields=media_fields, place_fields=place_fields, poll_fields=poll_fields).flatten(limit=1000)
+        
+        print("As a check: ")
 
-            if resp.errors:
-                raise RuntimeError(resp.errors)
+        for tweet in tst_paginator:
 
-            # successfully got data returned
-            if resp.data:
-                for tweet in resp.data:
-                    tmp = dict(tweet)
-                    if str(tmp["id"]) not in client.tweet_id_lst:
-                        # print(tweet.__repr__())
-                        tmp["day_of_week"] = tmp["created_at"].strftime("%A")
-                        tmp["year"] = tmp["created_at"].strftime("%Y")
-                        tmp["month"] = tmp["created_at"].strftime("%m")
-                        tmp["day"] = tmp["created_at"].strftime("%d")
-                        tmp["hour"] = tmp["created_at"].strftime("%H")
-                        tmp["created_at"] = str(tmp["created_at"])
-                        tmp["city_rule_key"] = city_name
-                        tmp["topic_name"] = topic
-                        if "geo" in tmp.keys() and tmp["geo"] != {}:
-                            print("Geo available")
-                            suburb = ""
-                            if (
-                                "place_id" in tmp["geo"]
-                                and "coordinates" not in tmp["geo"].keys()
-                            ):
-                                loc = tmp["geo"]["place_id"]
-                                location = client.api.geo_id(loc)
-                                tmp["geo"]["geo_location"] = {
-                                    "id": location.id,
-                                    "url": location.url,
-                                    "place_type": location.place_type,
-                                    "name": location.name,
-                                    "full_name": location.full_name,
-                                    "country_code": location.country_code,
-                                    "contained_within": str(location.contained_within),
-                                    "geometry": str(location.geometry),
-                                    "polylines": str(location.polylines),
-                                    "centroid": str(location.centroid),
-                                    "bounding_box": str(location.bounding_box),
-                                }
-                                # Now obtain the suburb:
-                                # Using the centroid:
-                                suburb = get_suburb(location.centroid)
-                                tmp["geo"]["suburb"] = suburb[0]
-                                tmp["geo"]["suburb_code"] = suburb[1]
+            total_tweets_read += 1
 
-                                tmp["geo"]["suburb_SA3"] = suburb[2]
-                                tmp["geo"]["suburb_code_SA3"] = suburb[3]
+            tmp = dict(tweet)
+            if str(tmp["id"]) not in client.tweet_id_lst:
+                # print(tweet.__repr__())
+                tmp["day_of_week"] = tmp["created_at"].strftime("%A")
+                tmp["year"] = tmp["created_at"].strftime("%Y")
+                tmp["month"] = tmp["created_at"].strftime("%m")
+                tmp["day"] = tmp["created_at"].strftime("%d")
+                tmp["hour"] = tmp["created_at"].strftime("%H")
+                tmp["created_at"] = str(tmp["created_at"])
+                tmp["city_rule_key"] = city_name
+                tmp["topic_name"] = topic
+                if "geo" in tmp.keys() and tmp["geo"] != {}:
+                    print("Geo available")
+                    suburb = ['', '', '', '', '', '', '', '']
+                    if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
+                        loc = tmp["geo"]["place_id"]
+                        location = client.api.geo_id(loc)
+                        tmp["geo"]["geo_location"] = {
+                            "id" : location.id,
+                            "url" : location.url,
+                            "place_type" : location.place_type,
+                            "name" : location.name,
+                            "full_name" : location.full_name,
+                            "country_code" : location.country_code,
+                            "contained_within" : str(location.contained_within),
+                            "geometry" : str(location.geometry),
+                            "polylines" : str(location.polylines),
+                            "centroid" : str(location.centroid),
+                            "bounding_box" : str(location.bounding_box)
+                        }
+                        #Now obtain the suburb:
+                        #Using the centroid:
+                        suburb = get_suburb(location.centroid)
+                        tmp["geo"]["suburb"] = suburb[0]
+                        tmp["geo"]["suburb_code"] = suburb[1]
 
-                                tmp["geo"]["suburb_SA4"] = suburb[4]
-                                tmp["geo"]["suburb_code_SA4"] = suburb[5]
+                        tmp["geo"]["suburb_SA3"] = suburb[2]
+                        tmp["geo"]["suburb_code_SA3"] = suburb[3]
 
-                            elif "coordinates" in tmp["geo"].keys():
-                                # Get the coordinates directly:
-                                suburb = get_suburb(tmp["geo"]["coordinates"])
-                                tmp["geo"]["suburb"] = suburb[0]
-                                tmp["geo"]["suburb_code"] = suburb[1]
+                        tmp["geo"]["suburb_SA4"] = suburb[4]
+                        tmp["geo"]["suburb_code_SA4"] = suburb[5]
 
-                                tmp["geo"]["suburb_SA3"] = suburb[2]
-                                tmp["geo"]["suburb_code_SA3"] = suburb[3]
+                        tmp["geo"]["GCC_NAME21"] = suburb[6]
+                        tmp["geo"]["GCC_CODE21"] = suburb[7]
+              
+                    elif "coordinates" in tmp["geo"].keys() and len(tmp["geo"]["coordinates"]) > 0:
+                        #Get the coordinates directly:
+                        suburb = get_suburb(tmp["geo"]["coordinates"])
+                        tmp["geo"]["suburb"] = suburb[0]
+                        tmp["geo"]["suburb_code"] = suburb[1]
 
-                                tmp["geo"]["suburb_SA4"] = suburb[4]
-                                tmp["geo"]["suburb_code_SA4"] = suburb[5]
+                        tmp["geo"]["suburb_SA3"] = suburb[2]
+                        tmp["geo"]["suburb_code_SA3"] = suburb[3]
 
-                        # duplicate update check.
-                        # we use the tweet ID from twitter as the primary key for rows
-                        # this prevents duplicates being written into the database
-                        # however it will make couchdb throw an error.
-                        try:
-                            tmp = attach_sentiment(tmp)
-                            twitter_stream_search[str(tmp["id"])] = tmp
-                            (client.tweet_id_lst).append(str(tmp["id"]))
-                            counter += 1
-                        except Exception as e:
-                            log(e, args.verbose)
-                            pass
-                        # twitter_stream_search.save(tmp)
-                        # json.dump(tmp, fp)
-            if counter % 100 == 0:
-                log(f"search counter is {str(counter)}", args.debug)
+                        tmp["geo"]["suburb_SA4"] = suburb[4]
+                        tmp["geo"]["suburb_code_SA4"] = suburb[5]
+
+                        tmp["geo"]["GCC_NAME21"] = suburb[6]
+                        tmp["geo"]["GCC_CODE21"] = suburb[7]
+
+                 # duplicate update check.
+                 # we use the tweet ID from twitter as the primary key for rows
+                 # this prevents duplicates being written into the database
+                 # however it will make couchdb throw an error.
+
+                try:
+                    tmp = attach_sentiment(tmp)
+                    twitter_stream_search[str(tmp["id"])] = tmp
+                    (client.tweet_id_lst).append(str(tmp["id"]))
+                    counter += 1
+                except Exception as e:
+                    log(e, args.verbose)
+                    pass
+
+            if total_tweets_read % 100 == 0:
+                print("total tweets read =", str(total_tweets_read))
+
     except KeyboardInterrupt:
+        print("number of tweets read is", str(total_tweets_read)) 
         log("terminating due to received event", True)
         return [counter, total_tweets_read]
+
+    except KeyError:
+        print("number of tweets read is", str(total_tweets_read))
+        log("all (or some number of) Tweets are collected.")
+        return [counter, total_tweets_read]
+
     except Exception or RuntimeError:
+        print("number of tweets read is", str(total_tweets_read))
         print("Exception A")
-        return False
+        return [counter, total_tweets_read]
+    
+    print("Reached the end")
+    print("number of tweets read is", str(total_tweets_read))
+    return [counter, total_tweets_read]
 
 
 @app.errorhandler(400)
@@ -490,14 +496,15 @@ def not_found(error):
 ###
 
 
-def read_stream(
-    client, start_time
-) -> (
-    typing.Any
-    | tuple[typing.Literal[False], typing.Any]
-    | tuple[typing.Literal[False], Exception]
-    | None
-):
+def read_stream(client, start_time): 
+    '''
+    -> (
+        typing.Any
+        | tuple[typing.Literal[False], typing.Any]
+        | tuple[typing.Literal[False], Exception]
+        | None
+    ):
+    '''
     """
     todo
     """
