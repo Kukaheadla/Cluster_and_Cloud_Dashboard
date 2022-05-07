@@ -131,7 +131,7 @@ if __name__ == "__main__":
                         1  # keep the index the same on the next retry
                     )
                 except Exception as e:
-                    log(str(e), args.debug)
+                    log(e, args.debug)
             elif args.mode.lower() == "search":
                 # do some searching
                 # this will also run until terminated or an API error etc.

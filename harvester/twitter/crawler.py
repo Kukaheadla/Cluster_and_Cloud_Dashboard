@@ -262,7 +262,6 @@ class TweetListener(tweepy.StreamingClient):
         # rate limit error
         if status_code == 420:
             return False
-        return False
 
     # def on_connection_error(self):
     #     self.disconnect()
