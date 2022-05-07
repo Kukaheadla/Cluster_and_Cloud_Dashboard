@@ -119,7 +119,11 @@ if __name__ == "__main__":
                 result = do_work(
                     twitter_credentials, args, couchdb_server, mode="stream"
                 )
-            except tweepy.errors.HTTPException:
+            except tweepy.errors.HTTPException as tweepyHTTPException:
+                log(
+                    f"main loop excepted Tweepy HTTP error: {tweepyHTTPException}",
+                    args.debug,
+                )
                 # probably a disconnect for misc. reasons, we can deal with this.
                 current_credential_index -= (
                     1  # keep the index the same on the next retry
