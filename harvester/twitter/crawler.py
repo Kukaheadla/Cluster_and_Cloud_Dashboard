@@ -8,6 +8,7 @@ The main loop of the application should not be performed here. For example, if t
 or the monthly account limit, that error should be passed back to the main module, and called with new credentials.
 Authors: David, Alex
 """
+from asyncore import poll
 from numpy import (
     place,
 )
@@ -134,13 +135,15 @@ class TweetListener(tweepy.StreamingClient):
     start_time = time.time()
 
     def __init__(
-        self, couchdb_server, city_name, topic, twitter_bearer_token, auth, **kwargs
+        self, tweet_id_lst, author_id_lst, couchdb_server, city_name, topic, twitter_bearer_token, auth, **kwargs
     ):
         """
         Creates a Tweetlistener which will listen for a certain amount of time.
         Including our own override so we can use the couchdb server defined in main.py
         """
         super().__init__(twitter_bearer_token, **kwargs)
+        self.tweet_id_lst = tweet_id_lst
+        self.user_id = author_id_lst
         self.couchdb_server = couchdb_server
         self.city_name = city_name
         self.topic_name = topic
@@ -150,6 +153,8 @@ class TweetListener(tweepy.StreamingClient):
             print("Use existing database")
             self.twitter_stream = self.couchdb_server["new_tweets"]
             print("Existing database used: new_tweets")
+            for item in self.twitter_stream.view("_all_docs"):
+                self.tweet_id_lst.append(item["id"])
 
         elif "new_tweets" not in self.couchdb_server:
             print("Create new database")
@@ -162,10 +167,10 @@ class TweetListener(tweepy.StreamingClient):
         Event listener for Tweet events in the HTTP long poll.
         """
 
-        # if time.time() - self.start_time > 60:
-        #     print("Streaming Count is:", str(self.count))
-        #     self.disconnect()
-        #     return False
+       # if time.time() - self.start_time > 60000:
+       #     print("Streaming Count is:", str(self.count))
+       #     self.disconnect()
+       #     return False
 
         if self.total_tweets_read % 10 == 0:
             print("Number of streamed tweets read is", self.total_tweets_read)
@@ -200,8 +205,8 @@ class TweetListener(tweepy.StreamingClient):
                 tmp["geo"]["suburb_SA4"] = suburb[4]
                 tmp["geo"]["suburb_code_SA4"] = suburb[5]
 
-                tmp["doc"]["GCC_NAME21"] = suburb[6]
-                tmp["doc"]["GCC_CODE21"] = suburb[7]
+                tmp["geo"]["GCC_NAME21"] = suburb[6]
+                tmp["geo"]["GCC_CODE21"] = suburb[7]
 
             elif "coordinates" in tmp["geo"].keys():
                 # Get the coordinates directly:
@@ -215,8 +220,8 @@ class TweetListener(tweepy.StreamingClient):
                 tmp["geo"]["suburb_SA4"] = suburb[4]
                 tmp["geo"]["suburb_code_SA4"] = suburb[5]
 
-                tmp["doc"]["GCC_NAME21"] = suburb[6]
-                tmp["doc"]["GCC_CODE21"] = suburb[7]
+                tmp["geo"]["GCC_NAME21"] = suburb[6]
+                tmp["geo"]["GCC_CODE21"] = suburb[7]
 
         if tmp["id"] not in self.tweet_id_lst:
             try:
@@ -254,10 +259,10 @@ class TweetListener(tweepy.StreamingClient):
         """
         print(status_code)
         log(status_code, True)
-
         # rate limit error
         if status_code == 420:
             return False
+        return False
 
     # def on_connection_error(self):
     #     self.disconnect()
@@ -296,9 +301,9 @@ def rule_regulation(client, rules):
 #### Working with shapefiles
 def get_suburb(tweet_coords):
 
-    # Important to check the format type of tweet_coords:
+    #Important to check the format type of tweet_coords:
     if type(tweet_coords) is dict:
-        tweet_coords = tweet_coords["coordinates"]
+        tweet_coords = tweet_coords["coordinates"] 
 
     # This will be used to check if the Point objects are in Australia or not.
 
@@ -326,6 +331,7 @@ def get_suburb(tweet_coords):
                 suburb[6] = gcc_name21[count]
                 suburb[7] = gcc_name21[count]
 
+
                 return suburb
 
         count += 1
@@ -338,7 +344,7 @@ def get_suburb(tweet_coords):
         "ZZZZZZZZZ",
         "ZZZZZZZZZ",
         "ZZZZZZZZZ",
-        "ZZZZZZZZZ",
+        "ZZZZZZZZZ"
     ]
 
 
@@ -350,30 +356,26 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     """
     Main non-streaming search function.
     """
+    client.start_time = time.time()
     twitter_stream_search = None
-    if "envir_test1" in couchdb_server:
+    if "new_tweets" in couchdb_server:
         print("Use existing database")
-        twitter_stream_search = couchdb_server["envir_test1"]
-        print("Existing database used: envir_test1")
+        twitter_stream_search = couchdb_server["new_tweets"]
+        print("Existing database used: new_tweets")
 
-    elif "envir_test1" not in couchdb_server:
+    elif "new_tweets" not in couchdb_server:
         print("Create new database")
-        twitter_stream_search = couchdb_server.create("envir_test1")
-        print("Database created: envir_test1")
+        twitter_stream_search = couchdb_server.create("new_tweets")
+        print("Database created: new_tweets")
 
     # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     if topic == "environment":
-        query = (
-            city_name
-            + " ("
-            + topic
-            + ' pollution OR ("carbon monoxide" OR "carbon dioxide") OR chemicals OR nature OR sustainable OR bio OR (green - ticks) OR plant)'
-        )
+        query = city_name + ' ("air quality" OR #ClimateEmergency OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR "\
+        "#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR #OnlyOneEarth OR #RenewableEnergy OR #Energy OR "\
+        "sustainability OR #Ecofriendly OR Earth OR recycling OR #AirPollution OR Carbon OR coal OR fuel OR emissions OR "climate change" OR nature OR "renewable energy")'
     elif topic == "transport":
-        query = (
-            city_name + " (" + topic + ' OR bus OR "public transport" OR train OR tram)'
-        )
+        query = city_name + ' ( ' + topic + ' OR bus OR "public transport" OR train OR tram)'
     elif topic != "transport" and topic != "environment":
         query = city_name
 
@@ -381,101 +383,39 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     max_results = 100
     counter = 0
     total_tweets_read = 0
+    user_ids = []
 
     try:
-        tst_paginator = tweepy.Paginator(
-            search_client.search_recent_tweets,
-            query,
-            max_results=max_results,
-            tweet_fields=tweet_fields,
-            user_fields=user_fields,
-            expansions=expansions,
-            media_fields=media_fields,
-            place_fields=place_fields,
-            poll_fields=poll_fields,
-        ).flatten(limit=1000)
-
-        print("As a check: ")
+        tst_paginator = tweepy.Paginator(search_client.search_recent_tweets, query, max_results=max_results, tweet_fields=tweet_fields, 
+            user_fields=user_fields, expansions=expansions, media_fields=media_fields, place_fields=place_fields, poll_fields=poll_fields).flatten(limit=100000)
 
         for tweet in tst_paginator:
+            
+            #check for time
+            if (time.time() - client.start_time) > 1800:
+                print("exceeded time")
+                raise Exception
 
             total_tweets_read += 1
 
-            tmp = dict(tweet)
-            if str(tmp["id"]) not in client.tweet_id_lst:
-                # print(tweet.__repr__())
-                tmp["day_of_week"] = tmp["created_at"].strftime("%A")
-                tmp["year"] = tmp["created_at"].strftime("%Y")
-                tmp["month"] = tmp["created_at"].strftime("%m")
-                tmp["day"] = tmp["created_at"].strftime("%d")
-                tmp["hour"] = tmp["created_at"].strftime("%H")
-                tmp["created_at"] = str(tmp["created_at"])
-                tmp["city_rule_key"] = city_name
-                tmp["topic_name"] = topic
-                if "geo" in tmp.keys() and tmp["geo"] != {}:
-                    print("Geo available")
-                    suburb = ["", "", "", "", "", "", "", ""]
-                    if (
-                        "place_id" in tmp["geo"]
-                        and "coordinates" not in tmp["geo"].keys()
-                    ):
-                        loc = tmp["geo"]["place_id"]
-                        location = client.api.geo_id(loc)
-                        tmp["geo"]["geo_location"] = {
-                            "id": location.id,
-                            "url": location.url,
-                            "place_type": location.place_type,
-                            "name": location.name,
-                            "full_name": location.full_name,
-                            "country_code": location.country_code,
-                            "contained_within": str(location.contained_within),
-                            "geometry": str(location.geometry),
-                            "polylines": str(location.polylines),
-                            "centroid": str(location.centroid),
-                            "bounding_box": str(location.bounding_box),
-                        }
-                        # Now obtain the suburb:
-                        # Using the centroid:
-                        suburb = get_suburb(location.centroid)
-                        tmp["geo"]["suburb"] = suburb[0]
-                        tmp["geo"]["suburb_code"] = suburb[1]
+            twt = dict(tweet)
+            if twt["author_id"] not in client.user_id:
+                client.user_id.append(twt["author_id"])
+                user_ids.append(twt["author_id"])
 
-                        tmp["geo"]["suburb_SA3"] = suburb[2]
-                        tmp["geo"]["suburb_code_SA3"] = suburb[3]
-
-                        tmp["geo"]["suburb_SA4"] = suburb[4]
-                        tmp["geo"]["suburb_code_SA4"] = suburb[5]
-
-                        tmp["geo"]["GCC_NAME21"] = suburb[6]
-                        tmp["geo"]["GCC_CODE21"] = suburb[7]
-
-                    elif (
-                        "coordinates" in tmp["geo"].keys()
-                        and len(tmp["geo"]["coordinates"]) > 0
-                    ):
-                        # Get the coordinates directly:
-                        suburb = get_suburb(tmp["geo"]["coordinates"])
-                        tmp["geo"]["suburb"] = suburb[0]
-                        tmp["geo"]["suburb_code"] = suburb[1]
-
-                        tmp["geo"]["suburb_SA3"] = suburb[2]
-                        tmp["geo"]["suburb_code_SA3"] = suburb[3]
-
-                        tmp["geo"]["suburb_SA4"] = suburb[4]
-                        tmp["geo"]["suburb_code_SA4"] = suburb[5]
-
-                        tmp["geo"]["GCC_NAME21"] = suburb[6]
-                        tmp["geo"]["GCC_CODE21"] = suburb[7]
-
+            if str(twt["id"]) not in client.tweet_id_lst:
+                
                 # duplicate update check.
                 # we use the tweet ID from twitter as the primary key for rows
                 # this prevents duplicates being written into the database
                 # however it will make couchdb throw an error.
 
+                adjust_tmp(twt, city_name, topic, twitter_stream_search, client)
+
                 try:
-                    tmp = attach_sentiment(tmp)
-                    twitter_stream_search[str(tmp["id"])] = tmp
-                    (client.tweet_id_lst).append(str(tmp["id"]))
+                    twt = attach_sentiment(twt)
+                    twitter_stream_search[str(twt["id"])] = twt
+                    (client.tweet_id_lst).append(str(twt["id"]))
                     counter += 1
                 except Exception as e:
                     log(e, args.verbose)
@@ -484,24 +424,107 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
             if total_tweets_read % 100 == 0:
                 print("total tweets read =", str(total_tweets_read))
 
-    except KeyboardInterrupt:
-        print("number of tweets read is", str(total_tweets_read))
-        log("terminating due to received event", True)
+        for id in user_ids:
+            print("id", str(id))
+            res = tweepy.Paginator(search_client.get_users_tweets, id=id, expansions=expansions, media_fields=media_fields, place_fields=place_fields,
+            poll_fields=poll_fields, tweet_fields=tweet_fields, user_fields=user_fields, max_results = 10).flatten(limit=10)
+
+            if (time.time() - client.start_time) > 1800:
+                print("exceeded time user_ids")
+                raise Exception
+
+            for tmp in res:
+                tmp = dict(tmp)
+                total_tweets_read += 1
+                adjust_tmp(tmp, city_name, topic, twitter_stream_search, client)
+
+                if total_tweets_read % 100 == 0:
+                    print("total tweets read =", str(total_tweets_read))
+                
+                if str(tmp["id"]) not in client.tweet_id_lst:
+                    attach_sentiment(tmp)
+                    twitter_stream_search[str(tmp["id"])] = tmp
+                    (client.tweet_id_lst).append(str(tmp["id"]))
+                    counter += 1
+
+
+    except tweepy.errors.TooManyRequests:
+        print("Too many requests")
         return [counter, total_tweets_read]
 
-    except KeyError:
-        print("number of tweets read is", str(total_tweets_read))
-        log("all (or some number of) Tweets are collected.")
-        return [counter, total_tweets_read]
+    #except tweepy.errors.HTTPException:
+    #    print("General tweepy exception")
+    #    return [counter, total_tweets_read]
 
-    except Exception or RuntimeError:
-        print("number of tweets read is", str(total_tweets_read))
-        print("Exception A")
+    except KeyboardInterrupt or Exception:
+        #except Exception or RuntimeError:
+        print("ExceptionL number of tweets read is", str(total_tweets_read))
         return [counter, total_tweets_read]
-
+    
     print("Reached the end")
     print("number of tweets read is", str(total_tweets_read))
     return [counter, total_tweets_read]
+
+def adjust_tmp(tmp, city_name, topic, twitter_stream_search, client):
+
+    tmp["day_of_week"] = tmp["created_at"].strftime("%A")
+    tmp["year"] = tmp["created_at"].strftime("%Y")
+    tmp["month"] = tmp["created_at"].strftime("%m")
+    tmp["day"] = tmp["created_at"].strftime("%d")
+    tmp["hour"] = tmp["created_at"].strftime("%H")
+    tmp["created_at"] = str(tmp["created_at"])
+    tmp["city_rule_key"] = city_name
+    tmp["topic_name"] = topic
+
+    if "geo" in tmp.keys() and tmp["geo"] != {}:
+        print("Geo available")
+        suburb = ['', '', '', '', '', '', '', '']
+        if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
+            loc = tmp["geo"]["place_id"]
+            location = client.api.geo_id(loc)
+            tmp["geo"]["geo_location"] = {
+                "id" : location.id,
+                "url" : location.url,
+                "place_type" : location.place_type,
+                "name" : location.name,
+                "full_name" : location.full_name,
+                "country_code" : location.country_code,
+                "contained_within" : str(location.contained_within),
+                "geometry" : str(location.geometry),
+                "polylines" : str(location.polylines),
+                "centroid" : str(location.centroid),
+                "bounding_box" : str(location.bounding_box)
+            }
+
+            #Now obtain the suburb:
+            #Using the centroid:
+            suburb = get_suburb(location.centroid)
+            tmp["geo"]["suburb"] = suburb[0]
+            tmp["geo"]["suburb_code"] = suburb[1]
+
+            tmp["geo"]["suburb_SA3"] = suburb[2]
+            tmp["geo"]["suburb_code_SA3"] = suburb[3]
+
+            tmp["geo"]["suburb_SA4"] = suburb[4]
+            tmp["geo"]["suburb_code_SA4"] = suburb[5]
+
+            tmp["geo"]["GCC_NAME21"] = suburb[6]
+            tmp["geo"]["GCC_CODE21"] = suburb[7]
+              
+        elif "coordinates" in tmp["geo"].keys() and len(tmp["geo"]["coordinates"]) > 0:
+            #Get the coordinates directly:
+            suburb = get_suburb(tmp["geo"]["coordinates"])
+            tmp["geo"]["suburb"] = suburb[0]
+            tmp["geo"]["suburb_code"] = suburb[1]
+
+            tmp["geo"]["suburb_SA3"] = suburb[2]
+            tmp["geo"]["suburb_code_SA3"] = suburb[3]
+
+            tmp["geo"]["suburb_SA4"] = suburb[4]
+            tmp["geo"]["suburb_code_SA4"] = suburb[5]
+
+            tmp["geo"]["GCC_NAME21"] = suburb[6]
+            tmp["geo"]["GCC_CODE21"] = suburb[7]
 
 
 @app.errorhandler(400)
@@ -517,15 +540,15 @@ def not_found(error):
 ###
 
 
-def read_stream(client, start_time):
-    """
+def read_stream(client, start_time): 
+    '''
     -> (
         typing.Any
         | tuple[typing.Literal[False], typing.Any]
         | tuple[typing.Literal[False], Exception]
         | None
     ):
-    """
+    '''
     """
     todo
     """
@@ -559,12 +582,10 @@ def main_stream(client, city_name="melbourne", topic="environment"):
     """
     # First obtain the necessary authorization data
     if topic == "environment":
-        query = (
-            city_name
-            + " ("
-            + topic
-            + " OR nature OR sustainable OR bio OR plant OR green - biology)"
-        )
+        query = city_name + ' ("air quality" OR #ClimateEmergency OR plant OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR "\
+        "#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR nature OR sustainable OR #OnlyOneEarth OR #RenewableEnergy OR #Energy OR "\
+        "sustainability OR #Ecofriendly OR Earth OR recycling OR #AirPollution OR Carbon OR coal OR fuel OR emissions OR "climate change" OR nature OR "renewable energy")'
+
     elif topic == "transport":
         query = (
             city_name + " (" + topic + ' OR bus OR "public transport" OR train OR tram)'
@@ -589,10 +610,11 @@ def main_stream(client, city_name="melbourne", topic="environment"):
     return [client.tweet_id_lst, client.count, client.total_tweets_read]
 
 
-def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
+def do_work(twitter_id_lst, author_id_lst, twitter_credentials, args, couchdb_server, mode="stream"):
     """
     Does the main loop for the crawler.
     """
+
     streaming_no = 0
     search_no = 0
     total_tweets_read = 0
@@ -608,6 +630,8 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
     )
 
     client = TweetListener(
+        twitter_id_lst,
+        author_id_lst,
         couchdb_server,
         args.city,
         args.topic,
@@ -657,4 +681,5 @@ def do_work(twitter_credentials, args, couchdb_server, mode="stream"):
     print("Number of tweets read", str(total_tweets_read))
     print("Number of valid tweets obtained", str(total_tweets_obtained))
 
-    return "todo: result goes here! This might be an error which we can recover from, such as hitting API limits"
+    return [total_tweets_obtained, total_tweets_read, client.tweet_id_lst, client.user_id]
+    #return "todo: result goes here! This might be an error which we can recover from, such as hitting API limits"
