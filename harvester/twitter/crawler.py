@@ -296,9 +296,9 @@ def rule_regulation(client, rules):
 #### Working with shapefiles
 def get_suburb(tweet_coords):
 
-    #Important to check the format type of tweet_coords:
+    # Important to check the format type of tweet_coords:
     if type(tweet_coords) is dict:
-        tweet_coords = tweet_coords["coordinates"] 
+        tweet_coords = tweet_coords["coordinates"]
 
     # This will be used to check if the Point objects are in Australia or not.
 
@@ -326,7 +326,6 @@ def get_suburb(tweet_coords):
                 suburb[6] = gcc_name21[count]
                 suburb[7] = gcc_name21[count]
 
-
                 return suburb
 
         count += 1
@@ -339,7 +338,7 @@ def get_suburb(tweet_coords):
         "ZZZZZZZZZ",
         "ZZZZZZZZZ",
         "ZZZZZZZZZ",
-        "ZZZZZZZZZ"
+        "ZZZZZZZZZ",
     ]
 
 
@@ -365,9 +364,16 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     if topic == "environment":
-        query = city_name + ' (' + topic + ' pollution OR ("carbon monoxide" OR "carbon dioxide") OR chemicals OR nature OR sustainable OR bio OR (green - ticks) OR plant)'
+        query = (
+            city_name
+            + " ("
+            + topic
+            + ' pollution OR ("carbon monoxide" OR "carbon dioxide") OR chemicals OR nature OR sustainable OR bio OR (green - ticks) OR plant)'
+        )
     elif topic == "transport":
-        query = city_name + ' (' + topic + ' OR bus OR "public transport" OR train OR tram)'
+        query = (
+            city_name + " (" + topic + ' OR bus OR "public transport" OR train OR tram)'
+        )
     elif topic != "transport" and topic != "environment":
         query = city_name
 
@@ -377,9 +383,18 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     total_tweets_read = 0
 
     try:
-        tst_paginator = tweepy.Paginator(search_client.search_recent_tweets, query, max_results=max_results, tweet_fields=tweet_fields, 
-            user_fields=user_fields, expansions=expansions, media_fields=media_fields, place_fields=place_fields, poll_fields=poll_fields).flatten(limit=1000)
-        
+        tst_paginator = tweepy.Paginator(
+            search_client.search_recent_tweets,
+            query,
+            max_results=max_results,
+            tweet_fields=tweet_fields,
+            user_fields=user_fields,
+            expansions=expansions,
+            media_fields=media_fields,
+            place_fields=place_fields,
+            poll_fields=poll_fields,
+        ).flatten(limit=1000)
+
         print("As a check: ")
 
         for tweet in tst_paginator:
@@ -399,25 +414,28 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
                 tmp["topic_name"] = topic
                 if "geo" in tmp.keys() and tmp["geo"] != {}:
                     print("Geo available")
-                    suburb = ['', '', '', '', '', '', '', '']
-                    if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
+                    suburb = ["", "", "", "", "", "", "", ""]
+                    if (
+                        "place_id" in tmp["geo"]
+                        and "coordinates" not in tmp["geo"].keys()
+                    ):
                         loc = tmp["geo"]["place_id"]
                         location = client.api.geo_id(loc)
                         tmp["geo"]["geo_location"] = {
-                            "id" : location.id,
-                            "url" : location.url,
-                            "place_type" : location.place_type,
-                            "name" : location.name,
-                            "full_name" : location.full_name,
-                            "country_code" : location.country_code,
-                            "contained_within" : str(location.contained_within),
-                            "geometry" : str(location.geometry),
-                            "polylines" : str(location.polylines),
-                            "centroid" : str(location.centroid),
-                            "bounding_box" : str(location.bounding_box)
+                            "id": location.id,
+                            "url": location.url,
+                            "place_type": location.place_type,
+                            "name": location.name,
+                            "full_name": location.full_name,
+                            "country_code": location.country_code,
+                            "contained_within": str(location.contained_within),
+                            "geometry": str(location.geometry),
+                            "polylines": str(location.polylines),
+                            "centroid": str(location.centroid),
+                            "bounding_box": str(location.bounding_box),
                         }
-                        #Now obtain the suburb:
-                        #Using the centroid:
+                        # Now obtain the suburb:
+                        # Using the centroid:
                         suburb = get_suburb(location.centroid)
                         tmp["geo"]["suburb"] = suburb[0]
                         tmp["geo"]["suburb_code"] = suburb[1]
@@ -430,9 +448,12 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
 
                         tmp["geo"]["GCC_NAME21"] = suburb[6]
                         tmp["geo"]["GCC_CODE21"] = suburb[7]
-              
-                    elif "coordinates" in tmp["geo"].keys() and len(tmp["geo"]["coordinates"]) > 0:
-                        #Get the coordinates directly:
+
+                    elif (
+                        "coordinates" in tmp["geo"].keys()
+                        and len(tmp["geo"]["coordinates"]) > 0
+                    ):
+                        # Get the coordinates directly:
                         suburb = get_suburb(tmp["geo"]["coordinates"])
                         tmp["geo"]["suburb"] = suburb[0]
                         tmp["geo"]["suburb_code"] = suburb[1]
@@ -446,10 +467,10 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
                         tmp["geo"]["GCC_NAME21"] = suburb[6]
                         tmp["geo"]["GCC_CODE21"] = suburb[7]
 
-                 # duplicate update check.
-                 # we use the tweet ID from twitter as the primary key for rows
-                 # this prevents duplicates being written into the database
-                 # however it will make couchdb throw an error.
+                # duplicate update check.
+                # we use the tweet ID from twitter as the primary key for rows
+                # this prevents duplicates being written into the database
+                # however it will make couchdb throw an error.
 
                 try:
                     tmp = attach_sentiment(tmp)
@@ -464,7 +485,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
                 print("total tweets read =", str(total_tweets_read))
 
     except KeyboardInterrupt:
-        print("number of tweets read is", str(total_tweets_read)) 
+        print("number of tweets read is", str(total_tweets_read))
         log("terminating due to received event", True)
         return [counter, total_tweets_read]
 
@@ -477,7 +498,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
         print("number of tweets read is", str(total_tweets_read))
         print("Exception A")
         return [counter, total_tweets_read]
-    
+
     print("Reached the end")
     print("number of tweets read is", str(total_tweets_read))
     return [counter, total_tweets_read]
@@ -496,15 +517,15 @@ def not_found(error):
 ###
 
 
-def read_stream(client, start_time): 
-    '''
+def read_stream(client, start_time):
+    """
     -> (
         typing.Any
         | tuple[typing.Literal[False], typing.Any]
         | tuple[typing.Literal[False], Exception]
         | None
     ):
-    '''
+    """
     """
     todo
     """

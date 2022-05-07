@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     while True:
         doc = credentials_server["twitter_credentials"]
-        credentials_count = len(doc['val'])
+        credentials_count = len(doc["val"])
         log(
             f"There are {str(len(doc['val']))} credential keys in the database",
             args.verbose,
@@ -145,8 +145,10 @@ if __name__ == "__main__":
         # but it may lead to unnecessary cycling between credentials.
         time.sleep(randint(3, 20))
         if current_credential_index >= len(doc["val"]):
-            print("length is", str(len(doc["val"])))
-            print("Exit")
-            time.sleep(15*60)
+            log(
+                "sleeping for 15 minutes as we likely encountered a rate limiting error or similar",
+                args.debug,
+            )
+            time.sleep(15 * 60)
             # start again!
             current_credential_index = 0
