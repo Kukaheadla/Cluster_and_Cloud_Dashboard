@@ -176,17 +176,10 @@ class TweetListener(tweepy.StreamingClient):
         Event listener for Tweet events in the HTTP long poll.
         """
 
-<<<<<<< HEAD
-        # if time.time() - self.start_time > 60000:
-        #     print("Streaming Count is:", str(self.count))
-        #     self.disconnect()
-        #     return False
-=======
         #if time.time() - self.start_time > 60000:
         #    print("Streaming Count is:", str(self.count))
         #    self.disconnect()
         #    return False
->>>>>>> 1bf4b28222d1566371bf289fb9dbb00f4604db35
 
         if self.total_tweets_read % 10 == 0:
             print("Number of streamed tweets read is", self.total_tweets_read)
