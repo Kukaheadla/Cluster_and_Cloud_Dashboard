@@ -9,12 +9,10 @@ version: '3.8'
 
 services:
 {% for city in cities %}
-  {% for topic in topics %}
-    crawler-{{ city }}-{{ topic }}:
-      build: ./
-      command: python main.py --credentials-id {{ loop.index | string }} --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ city }} --topic {{ topic }} --mode stream --debug 
-      expose:
-        - 5000
-      restart: always
-    {% endfor %}
+  crawler-{{ city }}-{{ topic }}:
+    build: ./
+    command: python main.py --credentials-id {{ loop.index | string }} --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ city }} --mode stream --debug 
+    expose:
+      - 5000
+    restart: always
 {% endfor %}
