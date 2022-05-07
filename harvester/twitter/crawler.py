@@ -149,17 +149,17 @@ class TweetListener(tweepy.StreamingClient):
         self.topic_name = topic
         api = tweepy.API(auth)
         self.api = api
-        if "envir_test1" in self.couchdb_server:
+        if "new_tweets" in self.couchdb_server:
             print("Use existing database")
-            self.twitter_stream = self.couchdb_server["envir_test1"]
-            print("Existing database used: envir_test1")
+            self.twitter_stream = self.couchdb_server["new_tweets"]
+            print("Existing database used: new_tweets")
             for item in self.twitter_stream.view("_all_docs"):
                 self.tweet_id_lst.append(item["id"])
 
-        elif "envir_test1" not in self.couchdb_server:
+        elif "new_tweets" not in self.couchdb_server:
             print("Create new database")
-            self.twitter_stream = self.couchdb_server.create("envir_test1")
-            print("Database created: envir_test1")
+            self.twitter_stream = self.couchdb_server.create("new_tweets")
+            print("Database created: new_tweets")
 
     # Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
@@ -358,15 +358,15 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     """
     client.start_time = time.time()
     twitter_stream_search = None
-    if "envir_test1" in couchdb_server:
+    if "new_tweets" in couchdb_server:
         print("Use existing database")
-        twitter_stream_search = couchdb_server["envir_test1"]
-        print("Existing database used: envir_test1")
+        twitter_stream_search = couchdb_server["new_tweets"]
+        print("Existing database used: new_tweets")
 
-    elif "envir_test1" not in couchdb_server:
+    elif "new_tweets" not in couchdb_server:
         print("Create new database")
-        twitter_stream_search = couchdb_server.create("envir_test1")
-        print("Database created: envir_test1")
+        twitter_stream_search = couchdb_server.create("new_tweets")
+        print("Database created: new_tweets")
 
     # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
