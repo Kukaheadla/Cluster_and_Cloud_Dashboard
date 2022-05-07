@@ -85,9 +85,11 @@ if __name__ == "__main__":
     twitter_credentials = None
     current_credential_index = args.credentials_id
     result = None
+    credentials_count = 0
 
     while True:
         doc = credentials_server["twitter_credentials"]
+        credentials_count = len(doc['val'])
         log(
             f"There are {str(len(doc['val']))} credential keys in the database",
             args.verbose,
@@ -145,7 +147,6 @@ if __name__ == "__main__":
         if current_credential_index >= len(doc["val"]):
             print("length is", str(len(doc["val"])))
             print("Exit")
-            # we have reached the end of the array
-            # aspirationally this could continue to cycle in a more interesting way
-            # however this is unlikely to be implemented
-            sys.exit()
+            time.sleep(15*60)
+            # start again!
+            current_credential_index = 0
