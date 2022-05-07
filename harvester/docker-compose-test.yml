@@ -14,9 +14,3 @@ services:
     expose:
       - 5000
     restart: always
-  # crawler-0-sydney:
-  #   build: ./
-  #   command: python main.py --credentials-id 1 --couchdb-host 172.26.130.155:5984 --couchdb-username user --city sydney --mode stream --debug 
-  #   expose:
-  #     - 5000
-  #   restart: always

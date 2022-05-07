@@ -89,7 +89,7 @@ if __name__ == "__main__":
 
     twitter_id_lst = []
     author_id_lst = []
-    
+
     total_tweets = 0
     valid_tweets = 0
     try:
@@ -110,7 +110,8 @@ if __name__ == "__main__":
                 )
             except IndexError:
                 log(
-                    f"No credentials object found at index {str(args.credentials_id)}", True
+                    f"No credentials object found at index {str(args.credentials_id)}",
+                    True,
                 )
                 sys.exit()  # cannot do anything further, so quit.
             log(twitter_credentials, args.debug)
@@ -123,7 +124,12 @@ if __name__ == "__main__":
                 log("streaming", args.debug)
                 try:
                     result = do_work(
-                        twitter_id_lst, author_id_lst, twitter_credentials, args, couchdb_server, mode="stream", 
+                        twitter_id_lst,
+                        author_id_lst,
+                        twitter_credentials,
+                        args,
+                        couchdb_server,
+                        mode="stream",
                     )
                 except tweepy.errors.HTTPException:
                     # probably a disconnect for misc. reasons, we can deal with this.
@@ -131,12 +137,20 @@ if __name__ == "__main__":
                         1  # keep the index the same on the next retry
                     )
                 except Exception as e:
+                    log("line 140: exception occurred", True)
                     log(e, args.debug)
             elif args.mode.lower() == "search":
                 # do some searching
                 # this will also run until terminated or an API error etc.
                 log("searching", args.debug)
-                result = do_work(twitter_id_lst, author_id_lst, twitter_credentials, args, couchdb_server, mode="search")
+                result = do_work(
+                    twitter_id_lst,
+                    author_id_lst,
+                    twitter_credentials,
+                    args,
+                    couchdb_server,
+                    mode="search",
+                )
 
                 total_tweets += result[0]
                 valid_tweets += result[1]
