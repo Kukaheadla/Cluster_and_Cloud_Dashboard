@@ -158,16 +158,19 @@ class TweetListener(tweepy.StreamingClient):
         api = tweepy.API(auth)
         self.api = api
 
-        if "new_tweets" in self.couchdb_server:
+        if topic == None:
+            topic = "all"
+        database_name = f"new_tweets_{topic}"
+        if database_name in self.couchdb_server:
             print("Use existing database")
-            self.twitter_stream = self.couchdb_server["new_tweets"]
+            self.twitter_stream = self.couchdb_server[database_name]
             print("Existing database used: new_tweets")
-            for item in self.twitter_stream.view("_all_docs"):
-                self.tweet_id_lst.append(item["id"])
+            # for item in self.twitter_stream.view("_all_docs"):
+            #     self.tweet_id_lst.append(item["id"])
 
-        elif "new_tweets" not in self.couchdb_server:
+        elif database_name not in self.couchdb_server:
             print("Create new database")
-            self.twitter_stream = self.couchdb_server.create("new_tweets")
+            self.twitter_stream = self.couchdb_server.create(database_name)
             print("Database created: new_tweets")
 
     # Defining some variables:
@@ -365,14 +368,19 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     """
     client.start_time = time.time()
     twitter_stream_search = None
-    if "new_tweets" in couchdb_server:
+
+    if topic == None:
+        topic = "all"
+    database_name = f"new_tweets_{topic}"
+
+    if database_name in couchdb_server:
         print("Use existing database")
-        twitter_stream_search = couchdb_server["new_tweets"]
+        twitter_stream_search = couchdb_server[database_name]
         print("Existing database used: new_tweets")
 
-    elif "new_tweets" not in couchdb_server:
+    elif database_name not in couchdb_server:
         print("Create new database")
-        twitter_stream_search = couchdb_server.create("new_tweets")
+        twitter_stream_search = couchdb_server.create(database_name)
         print("Database created: new_tweets")
 
     # vars related to searching

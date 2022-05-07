@@ -4,7 +4,7 @@ services:
 
   crawler-0-melbourne:
     build: ./
-    command: python main.py --credentials-id 0 --couchdb-host 172.26.134.34:5984 --couchdb-username user --city melbourne --mode stream --debug 
+    command: python main.py --credentials-id 2 --couchdb-host 172.26.134.34:5984 --couchdb-username user --city melbourne --mode stream --debug 
     expose:
       - 5000
     restart: always
