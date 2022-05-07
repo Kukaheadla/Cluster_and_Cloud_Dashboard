@@ -149,6 +149,7 @@ class TweetListener(tweepy.StreamingClient):
         self.topic_name = topic
         api = tweepy.API(auth)
         self.api = api
+
         if "envir_test1" in self.couchdb_server:
             print("Use existing database")
             self.twitter_stream = self.couchdb_server["envir_test1"]
@@ -260,7 +261,7 @@ class TweetListener(tweepy.StreamingClient):
         print(status_code)
         log(status_code, True)
         # rate limit error
-        if status_code == 420 or status_code == 429:
+        if status_code == 420:
             return False
         return False
 
@@ -561,7 +562,7 @@ def read_stream(client, start_time):
             user_fields=user_fields,
             media_fields=media_fields,
             poll_fields=poll_fields,
-            threaded=True,
+            threaded=False,
         )
     except KeyboardInterrupt:
         log("stopping streaming due to keyboard interrupt", True)
