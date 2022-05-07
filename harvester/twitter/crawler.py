@@ -157,17 +157,18 @@ class TweetListener(tweepy.StreamingClient):
         self.topic_name = topic
         api = tweepy.API(auth)
         self.api = api
-        if "new_tweets" in self.couchdb_server:
+
+        if "envir_test1" in self.couchdb_server:
             print("Use existing database")
-            self.twitter_stream = self.couchdb_server["new_tweets"]
-            print("Existing database used: new_tweets")
+            self.twitter_stream = self.couchdb_server["envir_test1"]
+            print("Existing database used: envir_test1")
             for item in self.twitter_stream.view("_all_docs"):
                 self.tweet_id_lst.append(item["id"])
 
-        elif "new_tweets" not in self.couchdb_server:
+        elif "envir_test1" not in self.couchdb_server:
             print("Create new database")
-            self.twitter_stream = self.couchdb_server.create("new_tweets")
-            print("Database created: new_tweets")
+            self.twitter_stream = self.couchdb_server.create("envir_test1")
+            print("Database created: envir_test1")
 
     # Defining some variables:
     def on_tweet(self, tweet: tweepy.Tweet):
@@ -175,10 +176,17 @@ class TweetListener(tweepy.StreamingClient):
         Event listener for Tweet events in the HTTP long poll.
         """
 
+<<<<<<< HEAD
         # if time.time() - self.start_time > 60000:
         #     print("Streaming Count is:", str(self.count))
         #     self.disconnect()
         #     return False
+=======
+        #if time.time() - self.start_time > 60000:
+        #    print("Streaming Count is:", str(self.count))
+        #    self.disconnect()
+        #    return False
+>>>>>>> 1bf4b28222d1566371bf289fb9dbb00f4604db35
 
         if self.total_tweets_read % 10 == 0:
             print("Number of streamed tweets read is", self.total_tweets_read)
@@ -251,7 +259,7 @@ class TweetListener(tweepy.StreamingClient):
                 # this prevents duplicates being written into the database
                 # however it will make couchdb throw an error.
                 try:
-                    tmp = attach_sentiment(tmp)
+                    attach_sentiment(tmp)
                     self.twitter_stream[str(tmp["id"])] = tmp
                     self.tweet_id_lst.append(tmp["id"])
                     self.count += 1
@@ -270,6 +278,7 @@ class TweetListener(tweepy.StreamingClient):
         # rate limit error
         if status_code == 420:
             return False
+        return False
 
     # def on_connection_error(self):
     #     self.disconnect()
@@ -364,25 +373,22 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     """
     client.start_time = time.time()
     twitter_stream_search = None
-    if "new_tweets" in couchdb_server:
+    if "envir_test1" in couchdb_server:
         print("Use existing database")
-        twitter_stream_search = couchdb_server["new_tweets"]
-        print("Existing database used: new_tweets")
+        twitter_stream_search = couchdb_server["envir_test1"]
+        print("Existing database used: envir_test1")
 
-    elif "new_tweets" not in couchdb_server:
+    elif "envir_test1" not in couchdb_server:
         print("Create new database")
-        twitter_stream_search = couchdb_server.create("new_tweets")
-        print("Database created: new_tweets")
+        twitter_stream_search = couchdb_server.create("envir_test1")
+        print("Database created: envir_test1")
 
     # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
     if topic == "environment":
-        query = (
-            city_name
-            + ' ("air quality" OR #ClimateEmergency OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR "\
-        "#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR #OnlyOneEarth OR #RenewableEnergy OR #Energy OR "\
-        "sustainability OR #Ecofriendly OR Earth OR recycling OR #AirPollution OR Carbon OR coal OR fuel OR emissions OR "climate change" OR nature OR "renewable energy")'
-        )
+        query = city_name + ' ("air quality" OR #ClimateEmergency OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR ' + \
+        '#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR #OnlyOneEarth OR #RenewableEnergy OR #Energy OR ' + \
+        'sustainability OR #Ecofriendly OR Earth OR recycling OR #AirPollution OR Carbon OR coal OR fuel OR emissions OR "climate change" OR nature OR "renewable energy")'
     elif topic == "transport":
         query = (
             city_name
@@ -614,12 +620,9 @@ def main_stream(client, city_name="melbourne", topic="environment"):
     """
     # First obtain the necessary authorization data
     if topic == "environment":
-        query = (
-            city_name
-            + ' ("air quality" OR #ClimateEmergency OR plant OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR "\
-        "#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR nature OR sustainable OR #OnlyOneEarth OR #RenewableEnergy OR #Energy OR "\
-        "sustainability OR #Ecofriendly OR Earth OR recycling OR #AirPollution OR Carbon OR coal OR fuel OR emissions OR "climate change" OR nature OR "renewable energy")'
-        )
+        query = city_name + ' ("air quality" OR #ClimateEmergency OR plant OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR ' + \
+        '#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR nature OR sustainable OR #OnlyOneEarth OR #RenewableEnergy OR #Energy OR ' + \
+        'sustainability OR #Ecofriendly OR Earth OR recycling OR #AirPollution OR Carbon OR coal OR fuel OR emissions OR "climate change" OR nature OR "renewable energy")'
 
     elif topic == "transport":
         query = (
