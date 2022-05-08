@@ -1,4 +1,5 @@
 venv/
 __pycache__/
 *.env*
-SA2*
+/twitter/SA2*
+!/twitter/SA2_2021_AUST_GDA2020*
