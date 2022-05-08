@@ -23,7 +23,7 @@ version: '3.8'
 services:
     {% for i in range(iterationLength) %}
 
-  crawler-{{ city }}-{{ host_count }}-{{ i | string }}:
+  crawler-{{ cities[i] }}-{{ host_count }}-{{ i | string }}:
     build: ./
     command: python main.py --credentials-id 2 --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ cities[i] }} --mode stream --debug 
     expose:
