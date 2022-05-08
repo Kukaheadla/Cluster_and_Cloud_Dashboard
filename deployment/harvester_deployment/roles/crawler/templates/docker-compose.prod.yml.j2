@@ -4,15 +4,17 @@
 
 version: '3.8'
 
-{% set cities = ["melbourne", "sydney"] %}
+{% set cities = ["sydney"] %}
 {% set topics = ["environment", "transport"] %}
 
 services:
 {% for city in cities %}
   crawler-{{ city }}:
     build: ./
-    command: python main.py --credentials-id {{ loop.index | string }} --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ city }} --mode stream --debug 
+    command: python main.py --credentials-id 2 --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ city }} --mode stream --debug 
     expose:
       - 5000
     restart: always
 {% endfor %}
+
+# {{ loop.index | string }}
