@@ -7,14 +7,29 @@ version: '3.8'
 {% set cities = ["melbourne", "sydney"] %}
 {% set topics = ["environment", "transport"] %}
 
+
+
 {% set host_count = groups['Crawlers'] | length %}
 
+{% set citiesLength = cities | length %}
+{% set iterationLength = citiesLength // host_count %}
+
+## if there's one host, iterate for TWO from the equals condition
+## if there's two hosts, iterate for ONE from the equals condition
+
+{% for host in groups['Crawlers'] %}
+{% if inventory_hostname==host %}
+
 services:
-{% for city in cities %}
-  crawler-{{ city }}-{{ host_count }}:
+    {% for i in range(iterationLength) %}
+
+  crawler-{{ city }}-{{ host_count }}-{{ i | string }}:
     build: ./
-    command: python main.py --credentials-id 2 --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ city }} --mode stream --debug 
+    command: python main.py --credentials-id 2 --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ cities[i] }} --mode stream --debug 
     expose:
       - 5000
     restart: always
+    {% endfor %}
+
+{% endif %}
 {% endfor %}
