@@ -8,8 +8,8 @@ instance_flavor: uom.mse.2c9g
 volumes:
   - vol_name: crawler-vol-1-1
     vol_size: 20
-  - vol_name: crawler-vol-2-1
-    vol_size: 20
+  # - vol_name: crawler-vol-2-1
+  #   vol_size: 20
 
 # Security group
 security_groups:
@@ -31,6 +31,6 @@ security_groups:
 instances:
   - name: crawler-1
     volumes: ['crawler-vol-1-1']
-  - name: crawler-2
-    volumes: ['crawler-vol-2-1']
+  # - name: crawler-2
+  #   volumes: ['crawler-vol-2-1']
 
