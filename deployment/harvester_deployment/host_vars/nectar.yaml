@@ -30,3 +30,6 @@ security_groups:
 instances:
   - name: crawler-1
     volumes: ['crawler-vol-1-1']
+  - name: crawler-2
+    volumes: ['crawler-vol-2-1']
+
