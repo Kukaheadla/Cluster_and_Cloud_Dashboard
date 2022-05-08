@@ -21,7 +21,8 @@
     - ansible_user: ubuntu
     - ansible_ssh_private_key_file: ~/.ssh/demo.pem
     - ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
-    - HOST_COUNT: "{{ groups['Crawlers'] | length }}"
+    - CRAWLER_HOST_COUNT: "{{ groups['Crawlers'] | length }}"
+    - start: 1
   roles:
     - role: common
     - role: volumes

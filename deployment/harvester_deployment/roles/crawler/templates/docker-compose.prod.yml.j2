@@ -4,12 +4,14 @@
 
 version: '3.8'
 
-{% set cities = ["sydney"] %}
+{% set cities = ["melbourne", "sydney"] %}
 {% set topics = ["environment", "transport"] %}
+
+{% set host_count = groups['Crawlers'] | length %}
 
 services:
 {% for city in cities %}
-  crawler-{{ city }}:
+  crawler-{{ city }}-{{ host_count }}:
     build: ./
     command: python main.py --credentials-id 2 --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ city }} --mode stream --debug 
     expose:
