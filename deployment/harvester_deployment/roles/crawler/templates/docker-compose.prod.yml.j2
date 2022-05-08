@@ -25,7 +25,7 @@ services:
 
   crawler-{{ cities[i] }}-{{ host_count }}-{{ i | string }}:
     build: ./
-    command: python main.py --credentials-id 2 --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ cities[i] }} --mode stream --debug 
+    command: python main.py --credentials-id {{ i | string }} --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ cities[i] }} --mode stream --debug 
     expose:
       - 5000
     restart: always
