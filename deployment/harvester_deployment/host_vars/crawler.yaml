@@ -2,7 +2,7 @@
 volumes:
   - device: /dev/vdb
     mountpoint: /var/lib/docker
-  - device: /dev/vdc
-    mountpoint: /data
+  # - device: /dev/vdc
+  #   mountpoint: /data
 
 web_app_dir: web
