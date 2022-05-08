@@ -21,7 +21,7 @@ version: '3.8'
 {% if inventory_hostname==host %}
 
 services:
-    {% for i in range(loop.index - 1, iterationLength) %}
+    {% for i in range(loop.index - 1, loop.index + iterationLength) %}
 
   crawler-{{ cities[i] }}-{{ host_count }}-{{ i | string }}:
     build: ./
