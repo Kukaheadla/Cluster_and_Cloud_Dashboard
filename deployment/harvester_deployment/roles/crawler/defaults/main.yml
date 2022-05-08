@@ -5,3 +5,4 @@ mysql_dir: /data/mysql
 couchdb_server: 172.26.134.34:5984
 couchdb_user: user
 couchdb_password: password
+web_app_dir: web
