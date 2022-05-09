@@ -1,9 +1,7 @@
 """
 This file serves as the entry point to the crawler application.
-
 This file is essentially a dispatch point for various options relating to crawling Tweets.
 You can set various modes, and pass in particular relevant keys.
-
 Authors: Alex, David
 """
 
@@ -130,13 +128,15 @@ if __name__ == "__main__":
                 log("streaming", args.debug)
                 try:
                     result = do_work(
-                        twitter_id_lst, 
-                        author_id_lst, 
-                        twitter_credentials, 
-                        args, 
-                        couchdb_server, 
-                        mode="stream", 
-                    )
+                    twitter_id_lst, 
+                    author_id_lst, 
+                    twitter_credentials, 
+                    args, 
+                    couchdb_server, 
+                    current_credential_index, 
+                    usr_count, 
+                    mode="stream"
+                )
                     
                     total_tweets += result[0]
                     valid_tweets += result[1]
