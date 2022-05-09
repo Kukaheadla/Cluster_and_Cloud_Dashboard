@@ -58,4 +58,4 @@
       Content-Type: "application/json"
     body:
       action: "finish_cluster"
-  when: ansible_host == last_node
+  run_once: True

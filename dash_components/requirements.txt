@@ -1,0 +1,7 @@
+pandas==1.4.2
+shapely==1.8.2
+jupyter_dash
+couchdb==1.2
+jupyter_dash==0.4.2
+dash==2.1
+plotly==5.7
