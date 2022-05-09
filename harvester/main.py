@@ -48,7 +48,7 @@ if __name__ == "__main__":
     parser.add_argument("--mode", help="e.g. stream or search", type=str, required=True)
 
     parser.add_argument(
-        "--topic", help="e.g. environment or transport", type=str, required=False
+        "--topic", help="one of: environment, transport, health, housing", type=str, required=False
     )
 
     parser.add_argument(

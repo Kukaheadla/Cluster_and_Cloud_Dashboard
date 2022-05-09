@@ -12,10 +12,10 @@
 - run the harvester directly on a local machine like so: 
   
 ```bash    
-python main.py --credentials-id 0 --couchdb-host 172.26.134.34:5984 --couchdb-username user --city melbourne --mode stream --debug
+python main.py --credentials-id 0 --couchdb-host 172.26.134.34:5984 --couchdb-username user --city melbourne --topic transport --mode stream --debug
 ```
 
-- see help for CLI options:
+- see help for CLI options and available topics:
 
 ```bash
 python main.py --help
