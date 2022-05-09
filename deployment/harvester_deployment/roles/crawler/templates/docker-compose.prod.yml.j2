@@ -1,3 +1,5 @@
+#jinja2: lstrip_blocks: "True", trim_blocks: "True"
+
 ## Author: Alex topic
 ## This docker compose file deploys the cross product of cities and topics containers
 ## for two cities and two topics, that is four containers, on the single host.
@@ -31,4 +33,5 @@ services:
     {% endfor %}{% endfor %}
 
 {% endif %}
+
 {% endfor %}
