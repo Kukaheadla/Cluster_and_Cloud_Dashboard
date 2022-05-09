@@ -9,10 +9,10 @@
   - One way is to use `python -m pip install vaderSentiment --no-cache-dir`
   -  `python -m pip install contractions --no-cache-dir` respectively as I personally found it difficult to install using pip.
 
-- run the harvester like so: 
+- run the harvester directly on a local machine like so: 
   
 ```bash    
-python main.py --credentials-id 0 --couchdb-host 172.26.130.155:5984 --couchdb-username user --city melbourne --mode stream --debug
+python main.py --credentials-id 0 --couchdb-host 172.26.134.34:5984 --couchdb-username user --city melbourne --mode stream --debug
 ```
 
 - see help for CLI options:
@@ -20,6 +20,14 @@ python main.py --credentials-id 0 --couchdb-host 172.26.130.155:5984 --couchdb-u
 ```bash
 python main.py --help
 ```
+
+## Harvester Deployment
+
+Ansible files for deploying the Twitter Harvester are in `deployment/harvester_deployment`
+To run this, run the file `deployment/harvester_deployment/open_crawler.sh` as you would any other ansible playbook. You need to have the correct SSH keys set up and the correct openrc.sh file from the MRC.
+
+
+## Frontend Web Application
 
 *web_application/* contains frontend web app and server
 
