@@ -20,7 +20,8 @@ version: '3.8'
 {% for host in groups['Crawlers'] %}
 {% if inventory_hostname==host %}
 
-services:{% for i in range(loop.index - 1, loop.index0 + iterationLength) %}{% for topic in topics %}
+services:
+{% for i in range(loop.index - 1, loop.index0 + iterationLength) %}{% for topic in topics %}
   crawler-{{ cities[i] }}-{{ host_count }}-{{ i | string }}-{{ topic }}:
     build: ./
     command: python main.py --credentials-id {{ i | string }} --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ cities[i] }} {{ topic }} --mode stream --debug 
@@ -28,5 +29,6 @@ services:{% for i in range(loop.index - 1, loop.index0 + iterationLength) %}{% f
       - 5000
     restart: always
     {% endfor %}{% endfor %}
+
 {% endif %}
 {% endfor %}
