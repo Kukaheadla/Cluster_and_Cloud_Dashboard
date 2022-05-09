@@ -18,12 +18,14 @@ from collections import defaultdict
 username = "user"
 password = "password"
 
-couchserver = Server(f"{os.getenv('COUCHDB_DATABASE', 'http://admin:password@localhost:5984')}/")
+couchserver = Server(
+    f"{os.getenv('COUCHDB_DATABASE', 'http://admin:password@localhost:5984')}/"
+)
 for dbname in couchserver:
     # print(dbname)
     pass
 
-db = couchserver[os.getenv('COUCHDB_HISTORICAL_TWEETS_TABLE_NAME', 'test')]
+db = couchserver[os.getenv("COUCHDB_HISTORICAL_TWEETS_TABLE_NAME", "test")]
 
 # this is the destination /api/<route> for requests to the front-end api.
 api_bp = Blueprint("api", __name__)

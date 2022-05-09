@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+
+  crawler-0-melbourne:
+    build: ./
+    command: python main.py --credentials-id 2 --couchdb-host 172.26.134.34:5984 --couchdb-username user --city melbourne --mode stream --debug 
+    expose:
+      - 5000
+    restart: always
+  crawler-0-sydney:
+    build: ./
+    command: python main.py --credentials-id 1 --couchdb-host 172.26.134.34:5984 --couchdb-username user --city sydney --mode stream --debug 
+    expose:
+      - 5000
+    restart: always

@@ -17,6 +17,13 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
 
+
+- name: Copy files to remote
+  become: yes
+  copy:
+    src: "{{ playbook_dir }}/../../harvester/"
+    dest: "{{ web_app_dir }}/"
+    force: true
 # - name: Run docker compose
 #   become: yes
 #   community.docker.docker_compose:

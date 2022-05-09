@@ -1,14 +1,15 @@
 # Common vars
 availability_zone: melbourne-qh2-uom
 instance_image: 356ff1ed-5960-4ac2-96a1-0c0198e6a999
-instance_key_name: project-key
+instance_key_name: demo
 instance_flavor: uom.mse.2c9g
 
 # Volume
 volumes:
   - vol_name: crawler-vol-1-1
     vol_size: 20
-
+  # - vol_name: crawler-vol-2-1
+  #   vol_size: 20
 
 # Security group
 security_groups:
@@ -30,3 +31,6 @@ security_groups:
 instances:
   - name: crawler-1
     volumes: ['crawler-vol-1-1']
+  # - name: crawler-2
+  #   volumes: ['crawler-vol-2-1']
+
