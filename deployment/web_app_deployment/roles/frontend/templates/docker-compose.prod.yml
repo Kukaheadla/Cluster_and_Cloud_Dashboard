@@ -9,8 +9,8 @@ services:
     expose:
       - 5000
     environment:
-      - COUCHDB_DATABASE=http://user:password@172.26.130.155:5984
-      - COUCHDB_DATABASE_NAME=twitter_stream
+      - COUCHDB_DATABASE=http://user:password@172.26.134.34:5984
+      - COUCHDB_DATABASE_NAME=new_tweets
       - COUCHDB_USERNAME=user
       - COUCHDB_HISTORICAL_TWEETS_TABLE_NAME=historical_tweets
   nginx:
