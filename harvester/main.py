@@ -15,10 +15,12 @@ import time
 import tweepy
 from tweepy import OAuthHandler
 
+
 def add_list(author_id_lst, result):
     for item in result:
         if item not in author_id_lst:
             author_id_lst.append(item)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("main")
@@ -92,7 +94,7 @@ if __name__ == "__main__":
 
     twitter_id_lst = []
     author_id_lst = []
-    
+
     total_tweets = 0
     usr_count = 0
     valid_tweets = 0
@@ -115,7 +117,7 @@ if __name__ == "__main__":
             except IndexError:
                 log(
                     f"No credentials object found at index {str(args.credentials_id)}",
-                    True
+                    True,
                 )
                 sys.exit()  # cannot do anything further, so quit.
             log(twitter_credentials, args.debug)
@@ -128,16 +130,16 @@ if __name__ == "__main__":
                 log("streaming", args.debug)
                 try:
                     result = do_work(
-                    twitter_id_lst, 
-                    author_id_lst, 
-                    twitter_credentials, 
-                    args, 
-                    couchdb_server, 
-                    current_credential_index, 
-                    usr_count, 
-                    mode="stream"
-                )
-                    
+                        twitter_id_lst,
+                        author_id_lst,
+                        twitter_credentials,
+                        args,
+                        couchdb_server,
+                        current_credential_index,
+                        usr_count,
+                        mode="stream",
+                    )
+
                     total_tweets += result[0]
                     valid_tweets += result[1]
 
@@ -157,14 +159,14 @@ if __name__ == "__main__":
                 # this will also run until terminated or an API error etc.
                 log("searching", args.debug)
                 result = do_work(
-                    twitter_id_lst, 
-                    author_id_lst, 
-                    twitter_credentials, 
-                    args, 
-                    couchdb_server, 
-                    current_credential_index, 
-                    usr_count, 
-                    mode="search"
+                    twitter_id_lst,
+                    author_id_lst,
+                    twitter_credentials,
+                    args,
+                    couchdb_server,
+                    current_credential_index,
+                    usr_count,
+                    mode="search",
                 )
 
                 total_tweets += result[0]
