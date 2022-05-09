@@ -162,8 +162,9 @@ class TweetListener(tweepy.StreamingClient):
         self.api = api
         
         if topic == None:
-            topic = "all"
-        database_name = f"new_tweets_{topic}"
+            database_name = "new_tweets_all"
+        else:
+            database_name = "new_tweets"
         
         if database_name in self.couchdb_server:
             print("Use existing database")
@@ -276,7 +277,6 @@ class TweetListener(tweepy.StreamingClient):
         # rate limit error
         if status_code == 420:
             return False
-        return False
 
     # def on_connection_error(self):
     #     self.disconnect()
@@ -374,9 +374,9 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     twitter_stream_search = None
 
     if topic == None:
-        topic = "all"
-        
-    database_name = f"new_tweets_{topic}"
+        database_name = "new_tweets_all"
+    else:
+        database_name = "new_tweets"
         
     if database_name in couchdb_server:
         print("Use existing database")
