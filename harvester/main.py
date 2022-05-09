@@ -1,9 +1,7 @@
 """
 This file serves as the entry point to the crawler application.
-
 This file is essentially a dispatch point for various options relating to crawling Tweets.
 You can set various modes, and pass in particular relevant keys.
-
 Authors: Alex, David
 """
 
@@ -116,7 +114,8 @@ if __name__ == "__main__":
                 )
             except IndexError:
                 log(
-                    f"No credentials object found at index {str(args.credentials_id)}", True
+                    f"No credentials object found at index {str(args.credentials_id)}",
+                    True
                 )
                 sys.exit()  # cannot do anything further, so quit.
             log(twitter_credentials, args.debug)
@@ -129,8 +128,15 @@ if __name__ == "__main__":
                 log("streaming", args.debug)
                 try:
                     result = do_work(
-                        twitter_id_lst, author_id_lst, twitter_credentials, args, couchdb_server, mode="stream", 
-                    )
+                    twitter_id_lst, 
+                    author_id_lst, 
+                    twitter_credentials, 
+                    args, 
+                    couchdb_server, 
+                    current_credential_index, 
+                    usr_count, 
+                    mode="stream"
+                )
                     
                     total_tweets += result[0]
                     valid_tweets += result[1]
@@ -144,12 +150,22 @@ if __name__ == "__main__":
                         1  # keep the index the same on the next retry
                     )
                 except Exception as e:
+                    log("line 140: exception occurred", True)
                     log(str(e), args.debug)
             elif args.mode.lower() == "search":
                 # do some searching
                 # this will also run until terminated or an API error etc.
                 log("searching", args.debug)
-                result = do_work(twitter_id_lst, author_id_lst, twitter_credentials, args, couchdb_server, current_credential_index, usr_count, mode="search")
+                result = do_work(
+                    twitter_id_lst, 
+                    author_id_lst, 
+                    twitter_credentials, 
+                    args, 
+                    couchdb_server, 
+                    current_credential_index, 
+                    usr_count, 
+                    mode="search"
+                )
 
                 total_tweets += result[0]
                 valid_tweets += result[1]
@@ -158,18 +174,6 @@ if __name__ == "__main__":
                 author_id_lst.extend(result[3])
 
                 usr_count = result[4]
-
-                #log("streaming", args.debug)
-                #try:
-                #    result = do_work(
-                #        twitter_id_lst, author_id_lst, twitter_credentials, args, couchdb_server, current_credential_index, len(doc["val"]), mode="stream")
-                #except tweepy.errors.HTTPException:
-                #    # probably a disconnect for misc. reasons, we can deal with this.
-                #    current_credential_index -= (
-                #        1  # keep the index the same on the next retry
-                #    )
-                #except Exception as e:
-                #    log(str(e), args.debug)
 
             # the idea here is that if a rate limit error was returned, we can continue to cycle through credentials
             # until we find some credentials that let us continue
