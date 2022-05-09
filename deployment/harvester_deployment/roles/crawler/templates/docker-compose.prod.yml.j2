@@ -22,7 +22,7 @@ version: '3.8'
 
 services:
 {% for i in range(loop.index - 1, loop.index0 + iterationLength) %}{% for topic in topics %}
-  crawler-{{ cities[i] }}-{{ host_count }}-{{ i | string }}-{{ topic }}:
+  crawler-{{ cities[i] }}-{{ host_count }}-{{ i | string }}-{{ topic.split(' ')[1] }}:
     build: ./
     command: python main.py --credentials-id {{ i | string }} --couchdb-host {{ couchdb_server }} --couchdb-username {{ couchdb_user }} --city {{ cities[i] }} {{ topic }} --mode stream --debug 
     expose:
