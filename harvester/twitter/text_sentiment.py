@@ -7,12 +7,18 @@ import json, re, contractions
 
 
 def attach_sentiment(tweet_object):
+    
     analyzer = SentimentIntensityAnalyzer()
     sentence = tweet_object["text"]
     # Remove url from string
     sentence = re.sub(r"http\S+", "", sentence).strip()
     # fix contractions
-    sentence = contractions.fix(sentence, slang=True)
+    try:
+        prior = sentence
+        sentence = contractions.fix(sentence, slang=True)
+    except IndexError:
+        sentence = prior
+
     # remove punctuation from string
     sentence = re.sub(r"[^\w\s]", "", sentence).strip()
     # remove extra whitespace
@@ -50,3 +56,4 @@ def attach_sentiment(tweet_object):
 
     tweet_object.update({"sentiments": sentiment_dict})
     return tweet_object
+
