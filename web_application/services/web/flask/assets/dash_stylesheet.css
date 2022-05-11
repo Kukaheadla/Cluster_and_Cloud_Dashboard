@@ -1,0 +1,54 @@
+.rc-slider-dot-active, .rc-slider-handle {
+    border-color: #FC6A03 !important;
+}
+
+.rc-slider-track {
+    background-color: #FC6A03 !important
+}
+
+.rc-slider-rail {
+    background-color: #1d2731 !important
+}
+
+body {
+    background-color: #1e1e1e !important;
+    margin: 1.5em !important;
+}
+
+
+
+/* Dropdown */
+.Select-value {
+    cursor: pointer;
+}
+
+.Select-control {
+    color: #252e3f !important;
+}
+
+.Select {
+    color: #FFFFFF !important;
+}
+
+.Select-menu-outer {
+    background-color: #252e3f !important;
+    border: 1px solid #252e3f !important;
+}
+
+.Select div {
+    background-color: #252e3f !important;
+}
+
+.Select-menu-outer div:hover {
+    background-color: rgba(255, 255, 255, 0.01) !important;
+    cursor: pointer;
+}
+
+.Select-value-label {
+    color: #FFFFFF !important;
+}
+
+.Select--single > .Select-control .Select-value, .Select-placeholder {
+    border: 1px solid #FFFFFF !important;
+    border-radius: 4px !important;
+}

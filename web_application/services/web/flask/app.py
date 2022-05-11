@@ -10,7 +10,9 @@ Note well: this is not the file to run with flask, you want to run wsgi.py.
 from os import getenv
 from flask import Flask, url_for, render_template, redirect
 from client_api import api_bp
-from dashboard import init_dashboard
+# from dashboard import init_dashboard
+
+from dash_p import init_dashboard
 
 
 def init_app():

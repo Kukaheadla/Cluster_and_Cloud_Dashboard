@@ -8,5 +8,8 @@ services:
       - ./services/web/:/usr/src/app/
     ports:
       - 5000:5000
-    env_file:
-      - ./.env.dev
+    environment:
+      - COUCHDB_DATABASE=http://user:password@172.26.134.34:5984
+      - COUCHDB_DATABASE_NAME=new_tweets
+      - COUCHDB_USERNAME=user
+      - COUCHDB_HISTORICAL_TWEETS_TABLE_NAME=historical_tweets
