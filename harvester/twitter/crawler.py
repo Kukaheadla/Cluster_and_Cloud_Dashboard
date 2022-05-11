@@ -133,7 +133,7 @@ class TweetListener(tweepy.StreamingClient):
     total_tweets_read = 0
     tweet_id_lst = []
     start_time = time.time()
-    topic_name = "environment"
+    topic_name="environment"
 
     def __init__(
         self,
@@ -182,7 +182,7 @@ class TweetListener(tweepy.StreamingClient):
         Event listener for Tweet events in the HTTP long poll.
         """
 
-        # if time.time() - self.start_time > 60000:
+        #if time.time() - self.start_time > 60000:
         #    print("Streaming Count is:", str(self.count))
         #    self.disconnect()
         #    return False
@@ -387,63 +387,53 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
         print("Create new database")
         twitter_stream_search = couchdb_server.create(database_name)
         print("Database created: new_tweets")
-
     # vars related to searching
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
 
     if topic == "environment" and city_name == "melbourne":
-        query = (
-            '(melbourne OR #melbourne OR Victoria OR VIC) ("air quality" OR @SustainVic OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR '
-            + "#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR #RenewableEnergy OR #Energy OR "
-            + '@climatecouncil OR #Ecofriendly OR recycling OR #AirPollution OR Carbon OR coal OR @FoEAustralia OR emissions OR "climate change" OR nature OR "renewable energy" OR '
-            + "@EnviroVic OR #netzero OR #greenpeaceap OR @GreenpeaceAP)"
-        )
-
+        query = '(melbourne OR #melbourne OR Victoria OR VIC) ("air quality" OR @SustainVic OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR ' + \
+        '#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR #RenewableEnergy OR #Energy OR ' + \
+        '@climatecouncil OR #Ecofriendly OR recycling OR #AirPollution OR Carbon OR coal OR @FoEAustralia OR emissions OR "climate change" OR nature OR "renewable energy" OR '+\
+        '@EnviroVic OR #netzero OR @ OR @GreenpeaceAP)'
+    
     elif topic == "environment" and city_name == "sydney":
-        query = (
-            '(#sydney OR #NSW OR sydney OR "New South Wales" OR "NSW") ("air quality" OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR '
-            + "#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR #RenewableEnergy OR #Energy OR "
-            + '@climatecouncil OR #Ecofriendly OR recycling OR #AirPollution OR Carbon OR coal OR @FoEAustralia OR emissions OR "climate change" OR nature OR "renewable energy" '
-            + "OR #netzero OR #greenpeaceap OR @GreenpeaceAP)"
-        )
-
+        query = '(#sydney OR #NSW OR sydney OR "New South Wales" OR "NSW") ("air quality" OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR ' + \
+        '#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR #RenewableEnergy OR #Energy OR ' + \
+        '@climatecouncil OR #Ecofriendly OR recycling OR #AirPollution OR Carbon OR coal OR @FoEAustralia OR emissions OR "climate change" OR nature OR "renewable energy" '+\
+        'OR #netzero OR #greenpeaceap OR @GreenpeaceAP)'
+    
     elif topic == "housing":
         if city_name == "melbourne":
-            query = "(melbourne OR #melbourne OR Victoria OR VIC) (housing OR #housing OR “house prices” OR “house price bubble” OR #housingmarket OR “house price”)"
+            query = '(melbourne OR #melbourne OR Victoria OR VIC OR #Geelong) (housing OR #housing OR “house prices” OR “house price bubble” OR #housingmarket OR “house price”)'
         elif city_name == "sydney":
-            query = '(sydney OR #sydney OR "New South Wales" OR NSW) (housing OR #housing OR “house prices” OR “house price bubble” OR #housingmarket OR “house price”)'
+            query = '(sydney OR #sydney OR "New South Wales" OR NSW OR #NewSouthWales) (housing OR #housing OR “house prices” OR “house price bubble” OR #housingmarket OR “house price”)'
 
     elif topic == "health":
         if city_name == "melbourne":
-            query = "(melbourne OR #melbourne OR Victoria OR VIC) (vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR Pfizer OR #Pfizer OR health OR #Covid OR Covid OR Covid19 OR #CovidVaccine OR Omicron OR #COVID19Vic OR @covid19nsw OR #covid19aus)"
+            query = '(australia OR #australia OR melbourne OR #melbourne OR Victoria OR #Victoria OR VIC OR #VIC OR @healthgovau OR #melbournecbd OR @VicGovDH) (#lockdown OR #COVIDIOTS OR #antivaxxers OR #vaccines OR #MaskUp OR #WearAMask OR #CovidIsNotOver OR vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR Pfizer OR #Pfizer OR health OR #Covid OR Covid OR #COVID19 OR Covid19 OR #CovidVaccine OR Omicron OR #COVID19Vic OR #covid19aus)'
+            #query = '(australia OR #australia OR melbourne OR #melbourne OR Victoria OR #Victoria OR VIC OR #VIC OR @healthgovau OR #melbournecbd) (#lockdown OR #COVIDIOTS OR #antivaxxers OR #vaccines OR #MaskUp OR #WearAMask OR #CovidIsNotOver OR vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR Pfizer OR #Pfizer OR health OR #Covid OR Covid OR #COVID19 OR Covid19 OR #CovidVaccine OR Omicron OR #COVID19Vic OR #covid19aus)'
         elif city_name == "sydney":
-            query = '(sydney OR #sydney OR "New South Wales" OR NSW) (vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR Pfizer OR #Pfizer OR health OR #Covid OR Covid OR Covid19 OR #CovidVaccine OR Omicron OR #COVID19Vic OR @covid19nsw OR #covid19aus)'
+            query = '(sydney OR #sydney OR "New South Wales" OR NSW OR #NSW OR @healthgovau OR @NSWHealth OR @SVHSydney OR @WestSydHealth OR @SEastSydHealth OR @eHealthNSW) ("COVID-19" OR #lockdown OR #antivaxxers OR #COVIDIOTS OR #vaccines OR #MaskUp OR #WearAMask OR #CovidIsNotOver OR vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR Pfizer OR #Pfizer OR health OR #Covid OR #COVID19 OR Covid OR Covid19 OR #CovidVaccine OR Omicron OR @covid19nsw OR #covid19aus OR #COVID19nsw)'
 
     elif topic == "transport":
         if city_name == "melbourne":
             query = (
-                "(melbourne OR #melbourne OR Victoria OR VIC)"
-                + " ("
-                + '"public transport" OR bike OR Uber OR @Uber OR #metro OR car OR #Train'
-                + " OR #Railway OR cars OR transport OR #publictransport OR bus OR"
-                + " #transport OR train OR tram OR #SydneyTransport OR #SydneyMetro OR #Transit OR "
-                + " #SydneyTrains OR #SydneyLightRail)"
+                '(melbourne OR #melbourne OR Victoria OR VIC OR @VicTraffic OR @VicRoads OR @yarratrams OR @metrotrains OR @ptv_official OR @VicGovDoT OR @VLine OR @VicTrack_Vic)'
+                + ' ('
+                + '"public transport" OR #ptv OR #ptvtrain OR #melbournemetro OR bike OR Uber OR @Uber OR #metro OR car OR #Train'
+                + ' OR #Railway OR cars OR transport OR #taxi OR #publictransport OR bus OR'
+                + ' #transport OR train OR tram OR #Transit)'
             )
         elif city_name == "sydney":
             query = (
                 '(sydney OR #sydney OR "New South Wales" OR NSW)'
-                + " ("
+                + ' ('
                 + '"public transport" OR bike OR Uber OR @Uber OR #metro OR car OR #Train'
-                + " OR #Railway OR cars OR transport OR #publictransport OR bus OR"
-                + " #transport OR train OR tram OR #SydneyTransport OR #SydneyMetro OR #Transit OR "
-                + " #SydneyTrains OR #SydneyLightRail)"
+                + ' OR #Railway OR cars OR transport OR #publictransport OR bus OR'
+                + ' #transport OR train OR tram OR #SydneyTransport OR #SydneyMetro OR #Transit OR '
+                + ' #SydneyTrains OR #SydneyLightRail)'
             )
-    elif (
-        topic != "transport"
-        and topic != "environment"
-        and topic != "health"
-        and topic != "housing"
-    ):
+    elif topic != "transport" and topic != "environment" and topic != "health" and topic != "housing":
         query = city_name
 
     print("The query is", query)
@@ -466,79 +456,87 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
             poll_fields=poll_fields,
         ).flatten(limit=100000)
 
-        id_last = ""
+        id_last = ''
+        geo_tweets = 0
 
         for tweet in tst_paginator:
 
             # check for time
-            # if (time.time() - client.start_time) > 1800:
+            #if (time.time() - client.start_time) > 1800:
             #    print("exceeded time")
             #    raise Exception
+            #if total_tweets_read < 20:
+                #print("_id", str(tweet["_id"]))
+                #print("id", str(tweet["id"]))
+        
 
             total_tweets_read += 1
 
             twt = dict(tweet)
-            if twt["author_id"] not in client.user_id and "geo" in twt.keys():
+            if (twt["author_id"] not in client.user_id) and ("geo" in twt.keys()):
+                print(twt["geo"])
                 client.user_id.append(str(twt["author_id"]))
-                # user_ids.append(str(twt["author_id"]))
-            elif twt["author_id"] not in user_ids and "geo" not in twt.keys():
-                # client.user_id.append(str(twt["author_id"]))
+                geo_tweets += 1
+                #user_ids.append(str(twt["author_id"]))
+            elif (twt["author_id"] not in user_ids) and ("geo" not in twt.keys()):
+                #client.user_id.append(str(twt["author_id"]))
                 user_ids.append(str(twt["author_id"]))
 
-            elif twt["author_id"] in client.user_id or twt["author_id"] in user_ids:
+            elif (twt["author_id"] in client.user_id) or (twt["author_id"] in user_ids):
                 continue
 
             if str(twt["id"]) not in client.tweet_id_lst:
 
+                #print("new tweet")
                 # duplicate update check.
                 # we use the tweet ID from twitter as the primary key for rows
                 # this prevents duplicates being written into the database
                 # however it will make couchdb throw an error.
 
-                # Now check for likes:
+                #Now check for likes:
                 if twt["public_metrics"]["like_count"] > 0 and count_usr_ids < 60:
-                    liking_users = search_client.get_liking_users(
-                        twt["id"], max_results=5
-                    )
-                    print("liking users:")
-                    print(liking_users)
+                    liking_users = search_client.get_liking_users(twt["id"], max_results=5)
+                    #print("liking users:")
+                    #print(liking_users)
                     count_usr_ids += 1
                     if liking_users.data != None:
                         for item in liking_users.data:
-
-                            if item["id"] not in user_ids and "geo" not in twt.keys():
-                                # user_ids.append(str(item["id"]))
+                            if (item["id"] not in user_ids) and ("geo" not in twt.keys()):
+                                #user_ids.append(str(item["id"]))
                                 user_ids.append(str(item["id"]))
-                                # client.user_id.append(str(item["id"]))
-
-                            elif (
-                                item["id"] not in client.user_id and "geo" in twt.keys()
-                            ):
-                                # user_ids.append(str(item["id"]))
+                                #client.user_id.append(str(item["id"]))
+                            
+                            elif (item["id"] not in user_ids) and ("geo" in twt.keys()): 
+                                #user_ids.append(str(item["id"]))
                                 client.user_id.append(str(item["id"]))
 
                 adjust_tmp(twt, city_name, topic, twitter_stream_search, client)
 
                 try:
+                    #print("attach")
                     twt = attach_sentiment(twt)
+                    #print(twt)
                     twitter_stream_search[str(twt["id"])] = twt
                     (client.tweet_id_lst).append(str(twt["id"]))
                     counter += 1
                 except Exception as e:
+                    #print("Exception")
                     log(e, args.verbose)
                     pass
 
             if total_tweets_read % 100 == 0:
                 print("total tweets read =", str(total_tweets_read))
-
-        # Add the user ids with geo to the front:
+        print("geo tweets =", str(geo_tweets))
+        #Add the user ids with geo to the front:
         client.user_id = client.user_id + user_ids
         client.user_id = list(set(client.user_id))
         print("length is", len(client.user_id))
-
+        
         count_ids = client.usr_count
 
         print("Now go through the user_ids:")
+        #for id_val in client.user_id:
+        #while count_ids < len(client.user_id):
 
         for id_val in client.user_id:
 
@@ -554,9 +552,9 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
                 tweet_fields=tweet_fields,
                 user_fields=user_fields,
                 max_results=10,
-            ).flatten(limit=200)
+            ).flatten(limit=100)
 
-            # if (time.time() - client.start_time) > 1800:
+            #if (time.time() - client.start_time) > 1800:
             #    print("exceeded time user_ids")
             #    raise Exception
             location = None
@@ -571,38 +569,44 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
                 tmp["month"] = tmp["created_at"].strftime("%m")
                 tmp["day"] = tmp["created_at"].strftime("%d")
                 tmp["hour"] = tmp["created_at"].strftime("%H")
-
+        
                 tmp["created_at"] = str(tmp["created_at"])
                 tmp["city_rule_key"] = city_name
                 tmp["topic_name"] = topic
 
-                if count == 0:
+                if count <= 30:
                     location = adjust_usr_tmp(tmp, client, count, location)
-                elif count > 0:
-                    adjust_usr_tmp(tmp, client, count, location)
+                elif count > 30:
+                    #approaching the rate limit
+                    break
+                    #adjust_usr_tmp(tmp, client, count, location)
 
                 if total_tweets_read % 100 == 0:
                     print("total tweets read =", str(total_tweets_read))
 
                 if str(tmp["id"]) not in client.tweet_id_lst:
-                    attach_sentiment(tmp)
-                    twitter_stream_search[str(tmp["id"])] = tmp
-                    (client.tweet_id_lst).append(str(tmp["id"]))
-                    counter += 1
+                    try: #or "geo" in tmp.keys():
+                        attach_sentiment(tmp)
+                        twitter_stream_search[str(tmp["id"])] = tmp
+                        (client.tweet_id_lst).append(str(tmp["id"]))
+                        counter += 1
+                    except Exception as e:
+                        log(e, args.verbose)
+                        pass
 
                 if "geo" in tmp.keys() and tmp["geo"] != {}:
                     count += 1
-
+            
             count_ids += 1
             client.usr_count += 1
-            # client.user_id.remove(id)
+            #client.user_id.remove(id)
 
-        # client.user_id = client.user_id[count_ids:]
+        #client.user_id = client.user_id[count_ids:]
 
     except tweepy.errors.TooManyRequests:
-        # client.user_id = client.user_id[count_ids:]
+        #client.user_id = client.user_id[count_ids:]
 
-        # client.user_id.remove(id_last)
+        #client.user_id.remove(id_last)
         print("Too many requests")
         client.usr_count += 1
         return [counter, total_tweets_read]
@@ -613,8 +617,8 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
 
     except KeyboardInterrupt or Exception:
         # except Exception or RuntimeError:
-        # client.user_id = client.user_id[count_ids:]
-        # print("len is now", str(len(client.user_id)))
+        #client.user_id = client.user_id[count_ids:]
+        #print("len is now", str(len(client.user_id)))
         client.usr_count += 1
         print("Exception number of tweets read is", str(total_tweets_read))
         return [counter, total_tweets_read]
@@ -626,6 +630,9 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
 
 def adjust_tmp(tmp, city_name, topic, twitter_stream_search, client):
 
+    #print("In function")
+    #print(tmp["geo"])
+
     tmp["day_of_week"] = tmp["created_at"].strftime("%A")
     tmp["year"] = tmp["created_at"].strftime("%Y")
     tmp["month"] = tmp["created_at"].strftime("%m")
@@ -635,7 +642,7 @@ def adjust_tmp(tmp, city_name, topic, twitter_stream_search, client):
     tmp["city_rule_key"] = city_name
     tmp["topic_name"] = topic
 
-    if "geo" in tmp.keys() and tmp["geo"] != {}:
+    if "geo" in tmp.keys() and len(tmp["geo"].keys()) != 0:
         print("Geo available")
         suburb = ["", "", "", "", "", "", "", ""]
         if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
@@ -689,19 +696,20 @@ def adjust_tmp(tmp, city_name, topic, twitter_stream_search, client):
 def adjust_usr_tmp(tmp, client, count, usr):
 
     location = None
-
-    if "geo" in tmp.keys() and tmp["geo"] != {}:
+    #print("In function")
+    #print(tmp["geo"])
+    if "geo" in tmp.keys() and len(tmp["geo"].keys()) != 0:
         print("Geo available")
         suburb = ["", "", "", "", "", "", "", ""]
         if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
             loc = tmp["geo"]["place_id"]
-            if count == 0:
+            if count <= 30:
                 location = client.api.geo_id(loc)
                 print("Initialised")
                 print(location)
-            elif count > 0:
+            elif count > 30:
                 print("obtained before")
-                location = usr
+                location=usr
                 print(location)
 
             tmp["geo"]["geo_location"] = {
@@ -749,6 +757,7 @@ def adjust_usr_tmp(tmp, client, count, usr):
             tmp["geo"]["GCC_CODE21"] = suburb[7]
 
     return location
+
 
 
 @app.errorhandler(400)
@@ -806,58 +815,51 @@ def main_stream(client, city_name="melbourne", topic="environment"):
     """
     # First obtain the necessary authorization data
     if topic == "environment" and city_name == "melbourne":
-        query = (
-            '(melbourne OR #melbourne OR Victoria OR VIC) ("air quality" OR @SustainVic OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR '
-            + "#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR #RenewableEnergy OR #Energy OR "
-            + '@climatecouncil OR #Ecofriendly OR recycling OR #AirPollution OR Carbon OR coal OR @FoEAustralia OR emissions OR "climate change" OR nature OR "renewable energy" OR '
-            + "@EnviroVic OR #netzero OR #greenpeaceap OR @GreenpeaceAP)"
-        )
-
+        query = '(melbourne OR #melbourne OR Victoria OR VIC) ("air quality" OR @SustainVic OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR ' + \
+        '#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR #RenewableEnergy OR #Energy OR ' + \
+        '@climatecouncil OR #Ecofriendly OR recycling OR #AirPollution OR Carbon OR coal OR @FoEAustralia OR emissions OR "climate change" OR nature OR "renewable energy" OR '+\
+        '@EnviroVic OR #netzero OR #greenpeaceap OR @GreenpeaceAP)'
+    
     elif topic == "environment" and city_name == "sydney":
-        query = (
-            '(#sydney OR #NSW OR sydney OR "New South Wales" OR "NSW") ("air quality" OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR '
-            + "#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR #RenewableEnergy OR #Energy OR "
-            + '@climatecouncil OR #Ecofriendly OR recycling OR #AirPollution OR Carbon OR coal OR @FoEAustralia OR emissions OR "climate change" OR nature OR "renewable energy" '
-            + "OR #netzero OR #greenpeaceap OR @GreenpeaceAP)"
-        )
-
+        query = '(#sydney OR #NSW OR sydney OR "New South Wales" OR "NSW") ("air quality" OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR ' + \
+        '#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR #RenewableEnergy OR #Energy OR ' + \
+        '@climatecouncil OR #Ecofriendly OR recycling OR #AirPollution OR Carbon OR coal OR @FoEAustralia OR emissions OR "climate change" OR nature OR "renewable energy" '+\
+        'OR #netzero OR #greenpeaceap OR @GreenpeaceAP)'
+    
     elif topic == "housing":
         if city_name == "melbourne":
-            query = "(melbourne OR #melbourne OR Victoria OR VIC) (housing OR #housing OR “house prices” OR “house price bubble” OR #housingmarket OR “house price”)"
+            query = '(melbourne OR #melbourne OR Victoria OR VIC) (housing OR #housing OR “house prices” OR “house price bubble” OR #housingmarket OR “house price”)'
         elif city_name == "sydney":
-            query = '(sydney OR #sydney OR "New South Wales" OR NSW) (housing OR #housing OR “house prices” OR “house price bubble” OR #housingmarket OR “house price”)'
+            query = '(sydney OR #australia OR #sydney OR "New South Wales" OR NSW) (housing OR #housing OR “house prices” OR “house price bubble” OR #housingmarket OR “house price”)'
 
     elif topic == "health":
         if city_name == "melbourne":
-            query = "(melbourne OR #melbourne OR Victoria OR VIC) (vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR Pfizer OR #Pfizer OR health OR #Covid OR Covid OR Covid19 OR #CovidVaccine OR Omicron OR #COVID19Vic OR @covid19nsw OR #covid19aus)"
+            query = '(melbourne OR #melbourne OR Victoria OR #Victoria OR #VIC OR VIC OR #melbournecbd OR #eastmelbourne OR @DanielAndrewsMP) (vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR' +\
+                    ' Pfizer OR #Pfizer OR health OR #Covid OR Covid OR Covid19 OR #CovidVaccine OR Omicron OR @VicGovDH OR #COVID19Vic OR @covid19nsw OR #covid19aus OR' +\
+                    ' @healthgovau OR #quarantine)'
         elif city_name == "sydney":
-            query = '(sydney OR #sydney OR "New South Wales" OR NSW) (vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR Pfizer OR #Pfizer OR health OR #Covid OR Covid OR Covid19 OR #CovidVaccine OR Omicron OR #COVID19Vic OR @covid19nsw OR #covid19aus)'
+            query = '(sydney OR #sydney OR "New South Wales" OR #NSW OR #NewSouthWales OR NSW) (vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR Pfizer OR #Pfizer OR health OR #Covid OR Covid OR Covid19 OR #CovidVaccine OR Omicron OR #COVID19Vic OR @covid19nsw OR #covid19aus)'
 
     elif topic == "transport":
         if city_name == "melbourne":
             query = (
-                "(melbourne OR #melbourne OR Victoria OR VIC)"
-                + " ("
+                '(melbourne OR #melbourne OR Victoria OR VIC)'
+                + ' ('
                 + '"public transport" OR bike OR Uber OR @Uber OR #metro OR car OR #Train'
-                + " OR #Railway OR cars OR transport OR #publictransport OR bus OR"
-                + " #transport OR train OR tram OR #SydneyTransport OR #SydneyMetro OR #Transit OR "
-                + " #SydneyTrains OR #SydneyLightRail)"
+                + ' OR #Railway OR cars OR transport OR #publictransport OR bus OR'
+                + ' #transport OR train OR tram OR #SydneyTransport OR #SydneyMetro OR #Transit OR '
+                + ' #SydneyTrains OR #SydneyLightRail)'
             )
         elif city_name == "sydney":
             query = (
                 '(sydney OR #sydney OR "New South Wales" OR NSW)'
-                + " ("
+                + ' ('
                 + '"public transport" OR bike OR Uber OR @Uber OR #metro OR car OR #Train'
-                + " OR #Railway OR cars OR transport OR #publictransport OR bus OR"
-                + " #transport OR train OR tram OR #SydneyTransport OR #SydneyMetro OR #Transit OR "
-                + " #SydneyTrains OR #SydneyLightRail)"
+                + ' OR #Railway OR cars OR transport OR #publictransport OR bus OR'
+                + ' #transport OR train OR tram OR #SydneyTransport OR #SydneyMetro OR #Transit OR '
+                + ' #SydneyTrains OR #SydneyLightRail)'
             )
-    elif (
-        topic != "transport"
-        and topic != "environment"
-        and topic != "health"
-        and topic != "housing"
-    ):
+    elif topic != "transport" and topic != "environment" and topic != "health" and topic != "housing":
         query = city_name
 
     print("The query is:", query)
@@ -965,6 +967,6 @@ def do_work(
         total_tweets_read,
         client.tweet_id_lst,
         client.user_id,
-        client.usr_count,
+        client.usr_count
     ]
     # return "todo: result goes here! This might be an error which we can recover from, such as hitting API limits"
