@@ -31,8 +31,8 @@ To run this, run the file `deployment/harvester_deployment/open_crawler.sh` as y
 
 *web_application/* contains frontend web app and server
 
-- view on: `http://172.26.128.166/dashapp/`
+- view on: `http://45.113.234.122/dashapp/`
 
-- query the REST API on: `http://172.26.128.166/api`
+- query the REST API on: ` http://45.113.234.122/api`
     - `/api/tweet?id=<tweet_id>`
         - returns a Tweet with the provided ID

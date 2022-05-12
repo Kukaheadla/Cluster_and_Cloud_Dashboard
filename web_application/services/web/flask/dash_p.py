@@ -448,6 +448,7 @@ def init_dashboard(server):
         return container, fig
         # return fig
     return application.server
+
         
     # app.run_server(mode="external", debug=True)
 
