@@ -460,7 +460,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
         for tweet in tst_paginator:
 
             total_tweets_read += 1
-            
+
             twt = dict(tweet)
             if (twt["author_id"] not in client.user_id) and ("geo" in twt.keys()):
                 print(twt["geo"])
@@ -603,7 +603,15 @@ def adjust_tmp(tmp, city_name, topic, twitter_stream_search, client):
         suburb = ["", "", "", "", "", "", "", ""]
         if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
             loc = tmp["geo"]["place_id"]
-            location = client.api.geo_id(loc)
+            try:
+                location = client.api.geo_id(loc)
+
+            except tweepy.errors.TooManyRequests:
+                print("Too many requests: stopping for 15 mins")
+                time.sleep(15 * 60)
+                print("Trying again")
+                location = client.api.geo_id(loc)
+
             tmp["geo"]["geo_location"] = {
                 "id": location.id,
                 "url": location.url,
@@ -657,7 +665,17 @@ def adjust_usr_tmp(tmp, client, count, usr):
         suburb = ["", "", "", "", "", "", "", ""]
         if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
             loc = tmp["geo"]["place_id"]
-            location = client.api.geo_id(loc)
+            
+            try:
+                location = client.api.geo_id(loc)
+
+            except tweepy.errors.TooManyRequests:
+                print("Too many requests: stopping for 15 mins")
+                time.sleep(15 * 60)
+                print("Trying again")
+                location = client.api.geo_id(loc)
+
+            #location = client.api.geo_id(loc)
             print("Initialised")
             print(location)
 
