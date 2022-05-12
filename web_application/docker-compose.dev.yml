@@ -3,9 +3,9 @@ version: '3.8'
 services:
   web:
     build: ./services/web/flask
-    command: python flask/wsgi.py
+    command: python wsgi.py
     volumes:
-      - ./services/web/:/usr/src/app/
+      - ./services/web/flask:/usr/src/app/
     ports:
       - 5000:5000
     environment:

@@ -21,4 +21,4 @@ application = init_app()
 
 # if run directly
 if __name__ == "__main__":
-    application.run_server(host="0.0.0.0", port=getenv("port", 5000), debug=True)
+    application.run(host="0.0.0.0", port=getenv("port", 5000), debug=True)
