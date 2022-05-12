@@ -391,10 +391,10 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     search_client = tweepy.Client(bearer_token, wait_on_rate_limit=True)
 
     if topic == "environment" and city_name == "melbourne":
-        query = '(melbourne OR #melbourne OR Victoria OR VIC) ("air quality" OR @SustainVic OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR ' + \
+        query = '(melbourne OR #melbourne OR Victoria OR VIC OR #VIC OR #Victoria OR @DELWP_Vic OR @SustainVic OR @EnviroVic OR @FoEAustralia OR @climatecouncil OR @GreenpeaceAP) ("air quality" OR pollution OR #Environment OR #Green OR #Solar OR renewable OR ' + \
         '#ClimateCrisis OR #Earth OR #climatechange OR #ClimateAction OR #plasticpollution OR climate OR #nature OR #RenewableEnergy OR #Energy OR ' + \
-        '@climatecouncil OR #Ecofriendly OR recycling OR #AirPollution OR Carbon OR coal OR @FoEAustralia OR emissions OR "climate change" OR nature OR "renewable energy" OR '+\
-        '@EnviroVic OR #netzero OR @ OR @GreenpeaceAP)'
+        '#Ecofriendly OR recycling OR #AirPollution OR Carbon OR coal OR emissions OR "climate change" OR "renewable energy" OR '+\
+        '#netzero)'
     
     elif topic == "environment" and city_name == "sydney":
         query = '(#sydney OR #NSW OR sydney OR "New South Wales" OR "NSW") ("air quality" OR pollution OR #Environment OR #savetheplanet OR #Green OR #Solar OR renewable OR ' + \
@@ -410,7 +410,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
 
     elif topic == "health":
         if city_name == "melbourne":
-            query = '(australia OR #australia OR melbourne OR #melbourne OR Victoria OR #Victoria OR VIC OR #VIC OR @healthgovau OR #melbournecbd OR @VicGovDH) (#lockdown OR #COVIDIOTS OR #antivaxxers OR #vaccines OR #MaskUp OR #WearAMask OR #CovidIsNotOver OR vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR Pfizer OR #Pfizer OR health OR #Covid OR Covid OR #COVID19 OR Covid19 OR #CovidVaccine OR Omicron OR #COVID19Vic OR #covid19aus)'
+            query = '(australia OR #australia OR melbourne OR #melbourne OR Victoria OR #Victoria OR VIC OR #VIC OR @healthgovau OR #melbournecbd OR @VicGovDH OR @VictorianCHO) (#lockdown OR #COVIDIOTS OR #antivaxxers OR #vaccines OR #MaskUp OR #WearAMask OR #CovidIsNotOver OR vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR Pfizer OR #Pfizer OR health OR #Covid OR Covid OR #COVID19 OR Covid19 OR #CovidVaccine OR Omicron OR #COVID19Vic OR #covid19aus)'
             #query = '(australia OR #australia OR melbourne OR #melbourne OR Victoria OR #Victoria OR VIC OR #VIC OR @healthgovau OR #melbournecbd) (#lockdown OR #COVIDIOTS OR #antivaxxers OR #vaccines OR #MaskUp OR #WearAMask OR #CovidIsNotOver OR vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR Pfizer OR #Pfizer OR health OR #Covid OR Covid OR #COVID19 OR Covid19 OR #CovidVaccine OR Omicron OR #COVID19Vic OR #covid19aus)'
         elif city_name == "sydney":
             query = '(sydney OR #sydney OR "New South Wales" OR NSW OR #NSW OR @healthgovau OR @NSWHealth OR @SVHSydney OR @WestSydHealth OR @SEastSydHealth OR @eHealthNSW) ("COVID-19" OR #lockdown OR #antivaxxers OR #COVIDIOTS OR #vaccines OR #MaskUp OR #WearAMask OR #CovidIsNotOver OR vaccine OR coronavirus OR #vaccination OR #vaccine OR #Covid19 OR AstraZeneca OR #AstraZeneca OR Pfizer OR #Pfizer OR health OR #Covid OR #COVID19 OR Covid OR Covid19 OR #CovidVaccine OR Omicron OR @covid19nsw OR #covid19aus OR #COVID19nsw)'
@@ -442,7 +442,6 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     total_tweets_read = 0
     user_ids = []
     count_usr_ids = 0
-
     try:
         tst_paginator = tweepy.Paginator(
             search_client.search_recent_tweets,
@@ -456,28 +455,17 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
             poll_fields=poll_fields,
         ).flatten(limit=100000)
 
-        id_last = ''
         geo_tweets = 0
 
         for tweet in tst_paginator:
 
-            # check for time
-            #if (time.time() - client.start_time) > 1800:
-            #    print("exceeded time")
-            #    raise Exception
-            #if total_tweets_read < 20:
-                #print("_id", str(tweet["_id"]))
-                #print("id", str(tweet["id"]))
-        
-
             total_tweets_read += 1
-
+            
             twt = dict(tweet)
             if (twt["author_id"] not in client.user_id) and ("geo" in twt.keys()):
                 print(twt["geo"])
                 client.user_id.append(str(twt["author_id"]))
                 geo_tweets += 1
-                #user_ids.append(str(twt["author_id"]))
             elif (twt["author_id"] not in user_ids) and ("geo" not in twt.keys()):
                 #client.user_id.append(str(twt["author_id"]))
                 user_ids.append(str(twt["author_id"]))
@@ -487,7 +475,6 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
 
             if str(twt["id"]) not in client.tweet_id_lst:
 
-                #print("new tweet")
                 # duplicate update check.
                 # we use the tweet ID from twitter as the primary key for rows
                 # this prevents duplicates being written into the database
@@ -496,36 +483,29 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
                 #Now check for likes:
                 if twt["public_metrics"]["like_count"] > 0 and count_usr_ids < 60:
                     liking_users = search_client.get_liking_users(twt["id"], max_results=5)
-                    #print("liking users:")
-                    #print(liking_users)
                     count_usr_ids += 1
                     if liking_users.data != None:
                         for item in liking_users.data:
                             if (item["id"] not in user_ids) and ("geo" not in twt.keys()):
-                                #user_ids.append(str(item["id"]))
                                 user_ids.append(str(item["id"]))
-                                #client.user_id.append(str(item["id"]))
                             
-                            elif (item["id"] not in user_ids) and ("geo" in twt.keys()): 
-                                #user_ids.append(str(item["id"]))
+                            elif (item["id"] not in client.user_id) and ("geo" in twt.keys()): 
                                 client.user_id.append(str(item["id"]))
 
                 adjust_tmp(twt, city_name, topic, twitter_stream_search, client)
 
                 try:
-                    #print("attach")
                     twt = attach_sentiment(twt)
-                    #print(twt)
                     twitter_stream_search[str(twt["id"])] = twt
                     (client.tweet_id_lst).append(str(twt["id"]))
                     counter += 1
                 except Exception as e:
-                    #print("Exception")
                     log(e, args.verbose)
                     pass
 
             if total_tweets_read % 100 == 0:
                 print("total tweets read =", str(total_tweets_read))
+
         print("geo tweets =", str(geo_tweets))
         #Add the user ids with geo to the front:
         client.user_id = client.user_id + user_ids
@@ -535,8 +515,6 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
         count_ids = client.usr_count
 
         print("Now go through the user_ids:")
-        #for id_val in client.user_id:
-        #while count_ids < len(client.user_id):
 
         for id_val in client.user_id:
 
@@ -552,11 +530,8 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
                 tweet_fields=tweet_fields,
                 user_fields=user_fields,
                 max_results=10,
-            ).flatten(limit=100)
+            ).flatten(limit=200)
 
-            #if (time.time() - client.start_time) > 1800:
-            #    print("exceeded time user_ids")
-            #    raise Exception
             location = None
             count = 0
 
@@ -574,12 +549,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
                 tmp["city_rule_key"] = city_name
                 tmp["topic_name"] = topic
 
-                if count <= 30:
-                    location = adjust_usr_tmp(tmp, client, count, location)
-                elif count > 30:
-                    #approaching the rate limit
-                    break
-                    #adjust_usr_tmp(tmp, client, count, location)
+                location = adjust_usr_tmp(tmp, client, count, location)
 
                 if total_tweets_read % 100 == 0:
                     print("total tweets read =", str(total_tweets_read))
@@ -599,26 +569,15 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
             
             count_ids += 1
             client.usr_count += 1
-            #client.user_id.remove(id)
-
-        #client.user_id = client.user_id[count_ids:]
 
     except tweepy.errors.TooManyRequests:
-        #client.user_id = client.user_id[count_ids:]
 
-        #client.user_id.remove(id_last)
         print("Too many requests")
         client.usr_count += 1
         return [counter, total_tweets_read]
 
-    # except tweepy.errors.HTTPException:
-    #    print("General tweepy exception")
-    #    return [counter, total_tweets_read]
-
     except KeyboardInterrupt or Exception:
-        # except Exception or RuntimeError:
-        #client.user_id = client.user_id[count_ids:]
-        #print("len is now", str(len(client.user_id)))
+
         client.usr_count += 1
         print("Exception number of tweets read is", str(total_tweets_read))
         return [counter, total_tweets_read]
@@ -629,9 +588,6 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
 
 
 def adjust_tmp(tmp, city_name, topic, twitter_stream_search, client):
-
-    #print("In function")
-    #print(tmp["geo"])
 
     tmp["day_of_week"] = tmp["created_at"].strftime("%A")
     tmp["year"] = tmp["created_at"].strftime("%Y")
@@ -696,21 +652,14 @@ def adjust_tmp(tmp, city_name, topic, twitter_stream_search, client):
 def adjust_usr_tmp(tmp, client, count, usr):
 
     location = None
-    #print("In function")
-    #print(tmp["geo"])
     if "geo" in tmp.keys() and len(tmp["geo"].keys()) != 0:
         print("Geo available")
         suburb = ["", "", "", "", "", "", "", ""]
         if "place_id" in tmp["geo"] and "coordinates" not in tmp["geo"].keys():
             loc = tmp["geo"]["place_id"]
-            if count <= 30:
-                location = client.api.geo_id(loc)
-                print("Initialised")
-                print(location)
-            elif count > 30:
-                print("obtained before")
-                location=usr
-                print(location)
+            location = client.api.geo_id(loc)
+            print("Initialised")
+            print(location)
 
             tmp["geo"]["geo_location"] = {
                 "id": location.id,
