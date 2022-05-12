@@ -7,6 +7,10 @@ To run for development:
 export FLASK_APP=wsgi.py
 export FLASK_ENV=development
 python -m flask run
+
+OR
+
+docker-compose -f ./docker-compose.dev.yml up -d --build
 """
 
 from os import getenv

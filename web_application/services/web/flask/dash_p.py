@@ -40,7 +40,7 @@ def init_dashboard(server):
         external_stylesheets=[
             "https://codepen.io/chriddyp/pen/bWLwgP.css",
             "/static/style.css",
-            "/assets/dash_stylesheet.css"
+            "/static/dash_stylesheet.css"
         ],
     )
 
