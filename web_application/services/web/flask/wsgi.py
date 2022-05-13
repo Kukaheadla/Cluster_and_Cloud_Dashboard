@@ -20,9 +20,6 @@ from app import init_app
 # # retrieve our application object, but do not run it.
 application = init_app()
 
-# from dash_p import application
-
-
 # if run directly
 if __name__ == "__main__":
     application.run(host="0.0.0.0", port=getenv("port", 5000), debug=True)
