@@ -1,3 +1,6 @@
+# this docker compose file is ONLY used for development, and mounts a volume so that the Flask debug server
+# can reload on file changes.
+
 version: '3.8'
 
 services:
