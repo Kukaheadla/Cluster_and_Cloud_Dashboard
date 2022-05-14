@@ -24,10 +24,6 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import json, re, contractions
 
 shapefile = gpd.read_file("SA2_2021_AUST_SHP_GDA2020/SA2_2021_AUST_GDA2020.shp")
-# melb_polygon = Polygon([(144.4, -37.52), (144.40, -38.42), (145.58, -38.42), (145.58, -37.52) ]) # Melbourne rectangle
-# sydney_polygon = Polygon([(150.50, -33.51), (150.50, -34.16), (151.35, -34.16), (151.35, -33.51)]) # Sydney rectangle
-
-# shapefile = shapefile[shapefile.geometry.intersects(melb_polygon)]
 shapefile = shapefile.loc[shapefile["STE_NAME21"].isin(["Victoria"])]
 
 sa2_name21 = list(shapefile.SA2_NAME21)
@@ -120,8 +116,7 @@ def attach_sentiment(tweet_object):
 username = "user"
 password = "password"
 
-couchserver = Server("http://user:password@172.26.130.155:5984")
-# couchserver = Server("http://user:pass@localhost:5984")
+couchserver = Server("http://user:password@172.26.134.34:5984")
 # for dbname in couchserver:
 #    print(dbname)
 #    pass
@@ -189,6 +184,17 @@ for item in db.view("_design/GeoInfo/_view/TweetsWithGeoInfo"):
 
     print(item["id"], str(count_tweet))
 
+    #print(tmp)
+    created_at = tmp["doc"]["created_at"].split(" ")
+
+    day_week = {"Mon" : "Monday", "Tue": "Tuesday", "Wed" : "Wednesday", "Thu" : "Thursday", "Fri" : "Friday", "Sat" : "Saturday", "Sun" : "Sunday"}
+
+    tmp["doc"]["day_of_week"] = day_week[created_at[0]]
+    tmp["doc"]["year"] = created_at[-1]
+    tmp["doc"]["month"] = created_at[1]
+    tmp["doc"]["day"] = created_at[2]
+    tmp["doc"]["hour"] = (created_at[3].split(":"))[0]
+    
     res = get_suburb(tmp["doc"]["geo"]["coordinates"])
 
     tmp["doc"]["suburb"] = res[0]
