@@ -29,12 +29,13 @@ from dash.dependencies import Input, Output
 import couchdb
 
 from datetime import datetime
+from collections import defaultdict
 
 
 def init_dashboard(server):
 
 
-    application = Dash(
+    app = Dash(
         server=server,
         routes_pathname_prefix="/dashapp/",
         external_stylesheets=[
@@ -57,7 +58,8 @@ def init_dashboard(server):
 
     # %%
     db = server['new_tweets']
-    envir_df = server['envir_test1']
+    # envir_df = server['envir_test1']
+    historical_tweet_db = server['historical_tweets']
 
     # %%
     # envir_db.view('area_week/area_week_topic')
@@ -99,6 +101,21 @@ def init_dashboard(server):
 
     # print("topic_df Shape:", sentiment_df.shape)
     # sentiment_df.head()
+
+    # %%
+    # hist_sentiment_agg = historical_tweet_db.view('area_week/area_week_avg_compound', group_level=2, include_doc=True)
+    # hist_sentiment_df = pd.DataFrame([row.key+row.value for row in hist_sentiment_agg], 
+    #                             columns=['time', 'area', 'sentiment', 'count'])
+
+    # # Remove NaN value
+    # hist_sentiment_df['week'] = hist_sentiment_df.apply(lambda x: x['time'].split('-')[0], axis=1)
+    # hist_sentiment_df = hist_sentiment_df[hist_sentiment_df['week'] != 'wNaN']
+
+    # hist_sentiment_df = hist_sentiment_df.apply(lambda row: datetime.strptime(row['time']+'-1', 'w%W-%Y-%w'), axis=1)
+
+    # # Filter out null areas
+    # hist_sentiment_df = hist_sentiment_df[hist_sentiment_df['area'] != 'zzzzzzzzz']
+    # hist_sentiment_df.head()
 
     # %%
     sa2_gdf = gpd.read_file("./SA2_2021_AUST_SHP_GDA94")
@@ -309,6 +326,21 @@ def init_dashboard(server):
     #                 font_color='#FFFFFF')
     # fig.show()
 
+    # %% [markdown]
+    # ## Dash app Logics Code
+
+    # %%
+    df_prerendered_dict = defaultdict(dict)
+    for topic_itr in topic_df.topic.unique():
+        for year_itr in range(min(topic_df.time).year, max(topic_df.time).year+1):
+            prerednered_dff = topic_df.copy()
+            prerednered_gdff = prerednered_dff[prerednered_dff['time'].dt.year == year_itr]
+            prerednered_gdff = prerednered_gdff[prerednered_gdff['topic'] == topic_itr.lower()]
+            prerednered_gdff.set_index('area', inplace=True)
+            prerednered_gdff.index = prerednered_gdff.index.str.capitalize()
+
+            df_prerendered_dict[topic_itr][str(year_itr)] = prerednered_gdff        
+
     # %%
     drop_down_lst = list(map(lambda x: x.capitalize(), topic_df.topic.unique()))
     left_container = html.Div(
@@ -348,7 +380,12 @@ def init_dashboard(server):
                                     'color':'#FDA172', 
                                     'padding':'10px',
                                     'display': 'none'
-                                },)
+                                },),
+                        # dcc.Loading(
+                        #     id="loading-1",
+                        #     type="default",
+                        #     children=html.Div(id="choropleth-mapbox")
+                        # ),
                     ], style={'display': 'inline-block', 'width':'49%', 'vertical-align':'top'})
 
     # %%
@@ -357,19 +394,22 @@ def init_dashboard(server):
     ], style={'display': 'inline-block', 
             'width': '49%', 
             'margin': '0px 0px 0px 10px', 
-            'padding': '10px 10px 20px 18.5px',
+            'padding': '0.2em 0em 0.5em 1.1em',
             'verticle-align':'top', 
             'text-align': 'center', 
             'background-color':'#282828'})
+
+    # %%
+    # JupyterDash._terminate_server_for_port('127.0.0.1', 8050)
 
     # %%
     # For Jupyter notebook uncomment the following line
     # app = JupyterDash(__name__)
 
     # For flask app uncomment the following line
-    # application = Dash(__name__)
+    # app = Dash(__name__)
 
-    application.layout = html.Div([
+    app.layout = html.Div([
         html.H1('Sentiment Transportation on Dashboard', 
                                 style={'text_align': 'center', 
                                     'color':'#FDA172', 
@@ -395,7 +435,7 @@ def init_dashboard(server):
         dcc.Graph(id='tweet-sentiment-overtime', figure=lin_fig, style={'background-color':'#282828'}),
     ])
 
-    @application.callback(
+    @app.callback(
         [
         Output(component_id='output-container', component_property='children'),
         Output(component_id='choropleth-mapbox', component_property='figure')
@@ -406,11 +446,12 @@ def init_dashboard(server):
     def update_graph(year, topic):
         container = "The year selected was: {}".format(year)
         
-        dff = topic_df.copy()
-        gdff = dff[dff['time'].dt.year == year]
-        gdff = gdff[gdff['topic'] == topic.lower()]
-        gdff.set_index('area', inplace=True)
-        gdff.index = gdff.index.str.capitalize()
+        # dff = topic_df.copy()
+        # gdff = dff[dff['time'].dt.year == year]
+        # gdff = gdff[gdff['topic'] == topic.lower()]
+        # gdff.set_index('area', inplace=True)
+        # gdff.index = gdff.index.str.capitalize()
+        gdff = df_prerendered_dict[topic.lower()][str(year)]
 
         ##### -- Uncomment below for plotly express, altough it renders slow
         # fig = px.choropleth_mapbox(gdff, 
@@ -440,14 +481,14 @@ def init_dashboard(server):
         fig.update_layout(mapbox_style="dark", 
                         mapbox_accesstoken=MAPBOX_ACCESS_TOKEN,
                         mapbox_center = {"lat": -37.8136, "lon": 144.9631},
-                        mapbox_zoom=3)
+                        mapbox_zoom=5)
         fig.update_layout(margin={"r":0,"t":0,"l":0,"b":0}, 
                         paper_bgcolor='rgba(0,0,0,0)', 
                         plot_bgcolor='rgba(0,0,0,0)',
                         font_color='#FFFFFF')
         return container, fig
         # return fig
-    return application.server
+    return app.server
 
         
     # app.run_server(mode="external", debug=True)
