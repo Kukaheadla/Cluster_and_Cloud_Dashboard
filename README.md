@@ -32,7 +32,7 @@ python main.py --help
 
 *web_application/* contains frontend web app and server
 
-- view on: `http://45.113.234.122/dashapp/`
+- view on: [Click Here](http://45.113.234.122/dashapp/) or go to `http://45.113.234.122/dashapp/`
 
 - query the REST API on: ` http://45.113.234.122/api`
     - `/api/tweet?id=<tweet_id>`
