@@ -1,5 +1,10 @@
 # Group 29
 
+Alexander Troup (640478), 
+David Liu (893542), 
+Kevin Y. Yang (815565), 
+Xuan Hung Ho (1276655)
+
 ## Harvester Deployment
 
 Ansible files for deploying the Twitter Harvester are in [deployment/harvester_deployment](https://github.com/DavidL124/Cluster_and_Cloud_Assign2/tree/main/deployment/harvester_deployment)
