@@ -14,7 +14,7 @@
 --- 
 ## Directory Navigations
 
-`additional_references`: consist of Jupyter notebooks that are used in the AURIN comparative analysis and Plotly Dash charts which are experimented for Web front-end.
+`additional_references/`: consist of Jupyter notebooks that are used in the AURIN comparative analysis and Plotly Dash charts which are experimented for Web front-end.
 
 `couchdb/` consist of all of the MapReduce Algorithms to produce CouchDB views.
 
