@@ -3,6 +3,7 @@
 Ansible files for deploying the Twitter Harvester are in `deployment/harvester_deployment`
 To run this, run the file `deployment/harvester_deployment/open_crawler.sh` as you would any other ansible playbook. You need to have the correct SSH keys set up and the correct openrc.sh file from the MRC.
 
+The SSH key in crawler.yml is called demo.pem but you can replace this if setting up a new instance etc.
 
 # Cluster and Cloud Computing - Assignment 2
 

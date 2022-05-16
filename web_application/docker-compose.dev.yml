@@ -1,6 +1,8 @@
 # this docker compose file is ONLY used for development, and mounts a volume so that the Flask debug server
 # can reload on file changes.
 
+# the actual Ansible deployment uses the file contained in: Cluster_and_Cloud_Assign2\deployment\web_app_deployment\roles\frontend\templates\docker-compose.prod.yml
+
 version: '3.8'
 
 services:

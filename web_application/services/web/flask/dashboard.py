@@ -1,3 +1,11 @@
+"""
+This file contains the main rendering functions for the Dashboard.
+
+Created by: Kevin Yang, Alex T
+
+note: this was imported from a Jupyter notebook but required some modifications.
+"""
+
 # %% [markdown]
 # ### Exploratory Data Analysis
 # ensure `SA2_2021_AUST_SHP_GDA94` and `requirements.txt` are to the same directory as this Jupyter notebook file 
