@@ -1,5 +1,7 @@
 # Cluster and Cloud Computing - Assignment 2, Group 29
 
+The group consist of the following members:
+
 - Alexander Troup (640478), atroup@student.unimelb.edu.au
 
 - David Liu (893542), tianjianl@student.unimelb.edu.au
