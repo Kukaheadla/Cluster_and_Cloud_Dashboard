@@ -1,14 +1,9 @@
-# %% [markdown]
-# ### Exploratory Data Analysis
-# ensure `SA2_2021_AUST_SHP_GDA94` and `requirements.txt` are to the same directory as this Jupyter notebook file 
-# 
-# for linux command, run this beforehand:
-# ```
-# sudo apt-get install gdal-bin
-# sudo apt-get install libgdal-dev
-# 
-# sudo apt install python-geopandas
-# ```
+"""
+Author: Kevin Y. Yang
+
+This jupyter noteboook consist of the dash components that intakes real-time twitter data from `new_tweets` couchDB database. 
+These components are also copied into a Flask app and hosted in a web server.
+"""
 
 # %%
 #!pip install -r ./requirements.txt

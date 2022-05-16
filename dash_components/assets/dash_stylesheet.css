@@ -1,3 +1,9 @@
+/* 
+Author: Kevin Y. Yang
+CSS stylesheet used for powering the Plotly dashboard components.
+*/
+
+
 .rc-slider-dot-active, .rc-slider-handle {
     border-color: #FC6A03 !important;
 }
