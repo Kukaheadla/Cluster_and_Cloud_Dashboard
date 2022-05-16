@@ -1,6 +1,6 @@
 # Cluster and Cloud Computing - Assignment 2, Group 29
 
-The group consist of the following members:
+The group consists of the following members:
 
 - Alexander Troup (640478), atroup@student.unimelb.edu.au
 
