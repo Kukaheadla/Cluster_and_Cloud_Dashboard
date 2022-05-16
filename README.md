@@ -1,9 +1,9 @@
 ## Harvester Deployment
 
-Ansible files for deploying the Twitter Harvester are in `deployment/harvester_deployment`
-To run this, run the file `deployment/harvester_deployment/open_crawler.sh` as you would any other ansible playbook. You need to have the correct SSH keys set up and the correct openrc.sh file from the MRC.
+Ansible files for deploying the Twitter Harvester are in [deployment/harvester_deployment](https://github.com/DavidL124/Cluster_and_Cloud_Assign2/tree/main/deployment/harvester_deployment)
+To run this, run the file [deployment/harvester_deployment/open_crawler.sh](https://github.com/DavidL124/Cluster_and_Cloud_Assign2/blob/main/deployment/harvester_deployment/open_crawler.sh) as you would any other ansible playbook. You need to have the correct SSH keys set up and the correct openrc.sh file from the MRC.
 
-The SSH key in crawler.yml is called demo.pem but you can replace this if setting up a new instance etc.
+The [SSH key in crawler.yml](https://github.com/DavidL124/Cluster_and_Cloud_Assign2/blob/main/deployment/harvester_deployment/crawler.yaml#L22) is called demo.pem but you can replace this if setting up a new instance etc.
 
 # Cluster and Cloud Computing - Assignment 2
 
