@@ -445,7 +445,7 @@ def main_search(id_lst, bearer_token, client, couchdb_server, city_name, topic, 
     try:
         tst_paginator = tweepy.Paginator(
             search_client.search_recent_tweets,
-            query,
+            query=query,
             max_results=max_results,
             tweet_fields=tweet_fields,
             user_fields=user_fields,

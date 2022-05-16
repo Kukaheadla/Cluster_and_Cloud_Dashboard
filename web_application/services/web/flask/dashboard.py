@@ -1,9 +1,22 @@
 """
-Author: Kevin Y. Yang
+This file contains the main rendering functions for the Dashboard.
 
-This jupyter noteboook consist of the dash components that intakes real-time twitter data from `new_tweets` couchDB database. 
-These components are also copied into a Flask app and hosted in a web server.
+Created by: Kevin Yang, Alex T
+
+note: this was imported from a Jupyter notebook but required some modifications.
 """
+
+# %% [markdown]
+# ### Exploratory Data Analysis
+# ensure `SA2_2021_AUST_SHP_GDA94` and `requirements.txt` are to the same directory as this Jupyter notebook file 
+# 
+# for linux command, run this beforehand:
+# ```
+# sudo apt-get install gdal-bin
+# sudo apt-get install libgdal-dev
+# 
+# sudo apt install python-geopandas
+# ```
 
 # %%
 #!pip install -r ./requirements.txt
@@ -96,21 +109,6 @@ def init_dashboard(server):
 
     # print("topic_df Shape:", sentiment_df.shape)
     # sentiment_df.head()
-
-    # %%
-    # hist_sentiment_agg = historical_tweet_db.view('area_week/area_week_avg_compound', group_level=2, include_doc=True)
-    # hist_sentiment_df = pd.DataFrame([row.key+row.value for row in hist_sentiment_agg], 
-    #                             columns=['time', 'area', 'sentiment', 'count'])
-
-    # # Remove NaN value
-    # hist_sentiment_df['week'] = hist_sentiment_df.apply(lambda x: x['time'].split('-')[0], axis=1)
-    # hist_sentiment_df = hist_sentiment_df[hist_sentiment_df['week'] != 'wNaN']
-
-    # hist_sentiment_df = hist_sentiment_df.apply(lambda row: datetime.strptime(row['time']+'-1', 'w%W-%Y-%w'), axis=1)
-
-    # # Filter out null areas
-    # hist_sentiment_df = hist_sentiment_df[hist_sentiment_df['area'] != 'zzzzzzzzz']
-    # hist_sentiment_df.head()
 
     # %%
     sa2_gdf = gpd.read_file("./SA2_2021_AUST_SHP_GDA94")
@@ -322,6 +320,44 @@ def init_dashboard(server):
     # fig.show()
 
     # %% [markdown]
+    # ### Historical Tweets components 
+
+    # %%
+    hist_sentiment_df = pd.read_pickle('hist_sentiment_df.pkl')
+    hist_sentiment_df = hist_sentiment_df.groupby([hist_sentiment_df.area]).mean().reset_index()
+    hist_sentiment_df.head()
+
+    # %%
+    sa2_gdf_sent = sa2_gdf.copy()
+    hist_sentiment_geo_df = hist_sentiment_df.merge(sa2_gdf_sent, left_on='area', right_on='SA2_NAME21', how='left')
+    hist_sentiment_gdf = gpd.GeoDataFrame(hist_sentiment_geo_df, crs="EPSG:4283", geometry=hist_sentiment_geo_df.geometry)
+
+    # %%
+    hist_gdff = hist_sentiment_gdf.copy()
+    hist_gdff.set_index('area', inplace=True)
+    hist_gdff.index = hist_gdff.index.str.capitalize()
+    hist_gdff.head()
+
+    # %%
+    hist_gdf_fig = px.choropleth_mapbox(hist_gdff, 
+                        geojson=hist_gdff.geometry,
+                        color=hist_gdff.sentiment,
+                        locations=hist_gdff.index,
+                        zoom=7.5,
+                        center = {"lat": -37.8136, "lon": 144.9631},
+                        mapbox_style="carto-positron",
+                        color_continuous_scale="oranges",
+                        title="Historical Sentiment by SA2 Area in Melbourne"
+                        )
+    hist_gdf_fig.update_traces(marker_line_width=0, marker_opacity=0.8)
+    hist_gdf_fig.update_layout(mapbox_style="dark", mapbox_accesstoken=MAPBOX_ACCESS_TOKEN)
+    hist_gdf_fig.update_layout(margin={"r":0,"t":50,"l":0,"b":0}, 
+                    paper_bgcolor='rgba(0,0,0,0)', 
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    font_color='#FFFFFF')
+
+
+    # %% [markdown]
     # ## Dash app Logics Code
 
     # %%
@@ -428,6 +464,7 @@ def init_dashboard(server):
             right_container
         ], style={'width': '100%', 'margin-bottom': '10px'}),
         dcc.Graph(id='tweet-sentiment-overtime', figure=lin_fig, style={'background-color':'#282828'}),
+        dcc.Graph(id='hist-tweet-choropleth-mapbox', figure=hist_gdf_fig, style={'background-color':'#282828','padding': '10px'})
     ])
 
     @app.callback(
@@ -483,6 +520,7 @@ def init_dashboard(server):
                         font_color='#FFFFFF')
         return container, fig
         # return fig
+        
     return app.server
 
         

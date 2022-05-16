@@ -1,16 +1,4 @@
 ---
-# - name: Common
-#   hosts: swarm_managers[0]
-#   roles:
-#     - common
-
-# - name: Install Docker
-#   hosts: swarm_managers[0]
-#   roles:
-#     - docker-install
-
-# The first two tasks is to install dependencies on the testing VM only. (skipping Instance-[1-3])
-
 - name: Initialize Docker Swarm cluster
   hosts: swarm_managers[0]
   roles:
@@ -20,10 +8,20 @@
   gather_facts: yes
   hosts: swarm_managers[1:9999]
   roles:
-    - add_managers
+    - add-managers
 
 - name: Add workers to cluster
   gather_facts: yes
   hosts: swarm_workers
   roles:
-    - add_workers
+    - add-workers
+
+- name: Deploy configuration files
+  hosts: nodes
+  roles:
+    - copy-configuration
+
+- name: Deploy service stack
+  hosts: swarm_managers[0]
+  roles:
+    - stack-deploy
