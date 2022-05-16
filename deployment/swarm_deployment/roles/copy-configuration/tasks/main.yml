@@ -1,0 +1,9 @@
+---
+- name: Copy configuration files to remote
+  become: yes
+  copy:
+    src: "{{playbook_dir}}/roles/copy-configuration/files/{{item}}"
+    dest: "/etc"
+    mode: 0774
+  with_items:
+      ['nginx.conf']

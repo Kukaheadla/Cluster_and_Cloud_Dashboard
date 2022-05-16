@@ -1,0 +1,25 @@
+---
+- name: Install jsondiff package (required by docker_stack module)
+  pip:
+    name: jsondiff
+
+- name: Install pyyaml package (required by docker_stack module)
+  pip:
+    name: pyyaml
+
+- name: Copy docker compose file to remote
+  become: yes
+  copy:
+    src: "{{playbook_dir}}/roles/stack-deploy/files/{{item}}"
+    dest: "/etc"
+    mode: 0774
+  with_items:
+      ['docker-compose.yml']
+
+- name: Deploy stack from the compose file
+  become: yes
+  docker_stack:
+    state: present
+    name: comp90024
+    compose:
+      - "/etc/docker-compose.yml"
