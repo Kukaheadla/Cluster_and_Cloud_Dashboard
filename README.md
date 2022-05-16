@@ -31,7 +31,7 @@ python main.py --help
 
 ## Frontend Web Application
 
-*web_application/* contains frontend web app and server
+*web_application/* contains frontend web app and server. [Dashboard.py](https://github.com/DavidL124/Cluster_and_Cloud_Assign2/blob/main/web_application/services/web/flask/dashboard.py) contains the main code for rendering the Dashboard.
 
 - view on: [Click Here](http://45.113.234.122/dashapp/) or go to `http://45.113.234.122/dashapp/`
 
